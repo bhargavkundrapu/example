@@ -213,6 +213,33 @@ function NativeLessonVideoPlayer({
   );
 }
 
+function ComingSoonVideoPlaceholder({ lessonTitle }) {
+  return (
+    <div className="relative bg-black overflow-hidden shadow-xl rounded-b-lg">
+      <div className="aspect-video bg-gradient-to-br from-slate-900 via-slate-950 to-black relative md:max-h-[450px]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.18),transparent_42%)]" />
+        <div className="absolute inset-0 flex items-center justify-center p-6">
+          <div className="text-center max-w-xl">
+            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
+              <FiPlay className="w-8 h-8 text-white/90" />
+            </div>
+            <p className="text-white text-xl md:text-2xl font-bold tracking-tight">Coming Soon</p>
+            <p className="mt-2 text-slate-300 text-sm md:text-base">
+              Video lesson for <span className="font-semibold text-white">{lessonTitle || "this topic"}</span> is being uploaded.
+            </p>
+            <p className="mt-1 text-slate-400 text-xs md:text-sm">
+              Continue with prompts, notes, and practice sections below meanwhile.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="px-4 py-3 bg-gradient-to-b from-slate-900/98 to-slate-950 border-t border-white/10">
+        <p className="text-center text-xs text-slate-300">Video section layout reserved for this lesson</p>
+      </div>
+    </div>
+  );
+}
+
 function isAbortError(err) {
   if (!err) return false;
   if (err?.name === "AbortError") return true;
@@ -952,6 +979,31 @@ export default function StudentLesson() {
 
   const lessonPath = getStudentLessonPathForRoute(courseSlug, moduleSlug, lessonSlug, { pathname: location.pathname });
   const lessonDisplayTitle = lesson?.title || lesson?.name || lessonSlug;
+  const isVibeCodingCourse = courseType === "vibe-coding";
+  const slugNorm = String(moduleSlug || "").toLowerCase().replace(/_/g, "-").trim();
+  const titleNorm = String(moduleTitle || "").toLowerCase().replace(/_/g, "-").trim();
+  const firstModuleSlugNorm = String(allModules?.[0]?.slug || "")
+    .toLowerCase()
+    .replace(/_/g, "-")
+    .trim();
+  const firstModuleId = allModules?.[0]?.id != null ? String(allModules[0].id) : null;
+  const currentModuleId = currentModule?.id != null ? String(currentModule.id) : null;
+  const isVibeCodingBasicsModule =
+    isVibeCodingCourse &&
+    (
+      slugNorm === "vibe-coding-basics" ||
+      titleNorm.includes("vibe-coding-basics") ||
+      titleNorm.includes("vibe coding basics") ||
+      (firstModuleSlugNorm && slugNorm === firstModuleSlugNorm) ||
+      (firstModuleId && currentModuleId && firstModuleId === currentModuleId)
+    );
+  const hasLessonVideo =
+    !!alternateNativeVideos ||
+    !!(lesson.video_provider === "cloudflare_stream" && lesson.video_id) ||
+    !!(lesson.video_provider === "youtube" && lesson.video_id) ||
+    !!(lesson.video_provider === "vimeo" && lesson.video_id) ||
+    !!lesson.video_url ||
+    !!(lesson.video_id && String(lesson.video_id).startsWith("http"));
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-slate-100">
@@ -1194,14 +1246,8 @@ export default function StudentLesson() {
               </div>
             )}
 
-            {/* Video Player Section - only show if video exists */}
-            {lesson &&
-            (alternateNativeVideos ||
-              (lesson.video_provider === "cloudflare_stream" && lesson.video_id) ||
-              (lesson.video_provider === "youtube" && lesson.video_id) ||
-              (lesson.video_provider === "vimeo" && lesson.video_id) ||
-              lesson.video_url ||
-              (lesson.video_id && String(lesson.video_id).startsWith("http"))) ? (
+            {/* Video Player Section: always show for Vibe Coding (with Coming Soon fallback); other courses show only when video exists */}
+            {lesson && !isVibeCodingBasicsModule && (hasLessonVideo || isVibeCodingCourse) ? (
               <div className="px-4 md:px-8 pb-4 md:pb-8">
                 <div className="max-w-3xl mx-auto">
                 {alternateNativeVideos && activeAlternateVideoSrc ? (
@@ -1340,6 +1386,8 @@ export default function StudentLesson() {
                     setCaptionsEnabled={setCaptionsEnabled}
                     setVideoReady={setVideoReady}
                   />
+                ) : isVibeCodingCourse ? (
+                  <ComingSoonVideoPlaceholder lessonTitle={lesson?.title || "this lesson"} />
                 ) : null}
                 </div>
               </div>

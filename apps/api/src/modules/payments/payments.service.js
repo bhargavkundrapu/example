@@ -10,7 +10,7 @@ const paymentInvoiceEmail = require("./paymentInvoice.email.service");
 const approvalsRepo = require("../approvals/approvals.repo");
 const approvalsService = require("../approvals/approvals.service");
 const { findRoleIdForTenant, upsertMembership } = require("../users/users.repo");
-const { query } = require("../../db/query");
+const { query, withTransaction } = require("../../db/query");
 const CreateOrderSchema = z.object({
   item_type: z.enum(["course", "pack"]),
   item_id: z.string().uuid(),
@@ -32,20 +32,43 @@ function getRazorpayInstance() {
 }
 
 function verifyRazorpaySignature(orderId, paymentId, signature) {
+  if (!orderId || !paymentId || !signature || !env.RAZORPAY_KEY_SECRET) return false;
   const body = `${orderId}|${paymentId}`;
   const expected = crypto.createHmac("sha256", env.RAZORPAY_KEY_SECRET).update(body).digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(signature, "utf8"), Buffer.from(expected, "utf8"));
+  const sigBuf = Buffer.from(String(signature), "utf8");
+  const expBuf = Buffer.from(expected, "utf8");
+  if (sigBuf.length !== expBuf.length) return false;
+  return crypto.timingSafeEqual(sigBuf, expBuf);
 }
 
 function verifyWebhookSignature(body, signature) {
-  if (!env.RAZORPAY_WEBHOOK_SECRET) return false;
+  if (!env.RAZORPAY_WEBHOOK_SECRET || !signature || !body) return false;
   const expected = crypto.createHmac("sha256", env.RAZORPAY_WEBHOOK_SECRET).update(body).digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(signature, "utf8"), Buffer.from(expected, "utf8"));
+  const sigBuf = Buffer.from(String(signature), "utf8");
+  const expBuf = Buffer.from(expected, "utf8");
+  if (sigBuf.length !== expBuf.length) return false;
+  return crypto.timingSafeEqual(sigBuf, expBuf);
 }
 
 function normalizeSlug(slug) {
   if (!slug) return "";
   return String(slug).toLowerCase().replace(/_/g, "-").trim();
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Read-after-write / replica lag: client verify can arrive before ORDER row is visible. */
+async function findPaymentOrderByRazorpayIdWithRetry(razorpayOrderId, { maxAttempts = 10, baseDelayMs = 45 } = {}) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const order = await paymentsRepo.findByRazorpayOrderId(razorpayOrderId);
+    if (order) return order;
+    if (attempt < maxAttempts - 1) {
+      await delay(Math.round(baseDelayMs * 1.4 ** attempt));
+    }
+  }
+  return null;
 }
 
 async function getPriceBreakdown({ tenant, item_type, item_id }) {
@@ -137,6 +160,103 @@ async function createOrder({ tenant, body }) {
   };
 }
 
+async function findUserByEmail(email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  if (!normalizedEmail) return null;
+  const { rows } = await query(`SELECT id FROM users WHERE LOWER(email) = $1 LIMIT 1`, [normalizedEmail]);
+  return rows[0] ?? null;
+}
+
+async function ensureExistingUserProvisioned({ order, userId }) {
+  await withTransaction(async (client) => {
+    await paymentsRepo.upsertUserFromPayment(
+      {
+        email: order.customer_email,
+        fullName: order.customer_name,
+        phone: order.customer_phone,
+        college: order.customer_college,
+      },
+      client
+    );
+    const roleId = await findRoleIdForTenant({ tenantId: order.tenant_id, roleName: "Student" }, client);
+    if (roleId) {
+      await upsertMembership({ tenantId: order.tenant_id, userId, roleId }, client);
+    }
+    await paymentsRepo.ensureEnrollment(
+      {
+        userId,
+        tenantId: order.tenant_id,
+        itemType: order.item_type,
+        itemId: order.item_id,
+      },
+      client
+    );
+  });
+}
+
+async function reconcilePaidOrderProvision({
+  order,
+  razorpayOrderId,
+  razorpayPaymentId = null,
+  rawPayload = null,
+}) {
+  // Ensure payment row exists (idempotent); use lookup when ON CONFLICT returned no row.
+  if (razorpayPaymentId) {
+    let paymentRow = await paymentsRepo.createPaymentRecord({
+      paymentOrderId: order.id,
+      razorpayPaymentId,
+      status: "captured",
+      rawPayload,
+    });
+    if (!paymentRow) {
+      paymentRow = await paymentsRepo.findPaymentByRazorpayId(razorpayPaymentId);
+    }
+    if (paymentRow && !paymentRow.invoice_email_sent_at) {
+      void paymentInvoiceEmail.sendPurchaseInvoiceSafe({
+        order,
+        payment: paymentRow,
+        razorpayPaymentId,
+      });
+    }
+  }
+
+  const existingUser = await findUserByEmail(order.customer_email);
+  const baseUrl = (order.redirect_origin || env.PUBLIC_WEB_URL).replace(/\/$/, "");
+
+  if (existingUser?.id) {
+    await ensureExistingUserProvisioned({ order, userId: existingUser.id });
+    console.log(`[Payment] Existing user ${existingUser.id} enrolled in ${order.item_type} ${order.item_id}`);
+    return { unlocked: true, redirect: `${baseUrl}/lms/student/courses` };
+  }
+
+  const approval = await approvalsRepo.createApproval({
+    tenantId: order.tenant_id,
+    paymentOrderId: order.id,
+    itemType: order.item_type,
+    itemId: order.item_id,
+    customerName: order.customer_name,
+    customerEmail: order.customer_email,
+    customerPhone: order.customer_phone,
+    customerCollege: order.customer_college,
+    razorpayOrderId: razorpayOrderId || order.razorpay_order_id,
+    razorpayPaymentId: razorpayPaymentId || null,
+  });
+
+  if (approval?.status === "approved") {
+    return { unlocked: true, redirect: `${baseUrl}/lms/student/courses` };
+  }
+
+  const autoApproved = await tryAutoApprove(approval.id, order.customer_email);
+  if (autoApproved) {
+    return { unlocked: true, redirect: `${baseUrl}/lms/student/courses` };
+  }
+
+  return {
+    redirect: `${baseUrl}/account-pending?email=${encodeURIComponent(order.customer_email)}`,
+    approvalId: approval.id,
+  };
+}
+
 async function handleCallback({ razorpay_payment_id, razorpay_order_id, razorpay_signature }) {
   if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
     console.error("[Payment] handleCallback missing params", { razorpay_payment_id: !!razorpay_payment_id, razorpay_order_id: !!razorpay_order_id, razorpay_signature: !!razorpay_signature });
@@ -148,9 +268,9 @@ async function handleCallback({ razorpay_payment_id, razorpay_order_id, razorpay
     throw new HttpError(400, "Invalid payment signature");
   }
 
-  const order = await paymentsRepo.findByRazorpayOrderId(razorpay_order_id);
+  const order = await findPaymentOrderByRazorpayIdWithRetry(razorpay_order_id);
   if (!order) {
-    console.error("[Payment] Order not found for razorpay_order_id:", razorpay_order_id);
+    console.error("[Payment] Order not found after retries for razorpay_order_id:", razorpay_order_id);
     throw new HttpError(404, "Order not found");
   }
 
@@ -158,85 +278,18 @@ async function handleCallback({ razorpay_payment_id, razorpay_order_id, razorpay
     throw new HttpError(400, "Order is not in a valid state for confirmation");
   }
 
-  // Mark as paid if not already (idempotent)
+  // Mark as paid if created (idempotent)
   if (order.status === "created") {
     await paymentsRepo.markOrderPaid(order.id);
   }
 
-  // Create payment record (idempotent - ON CONFLICT DO NOTHING)
-  const paymentRow = await paymentsRepo.createPaymentRecord({
-    paymentOrderId: order.id,
-    razorpayPaymentId: razorpay_payment_id,
-    status: "captured",
-    rawPayload: null,
-  });
-  if (paymentRow) {
-    void paymentInvoiceEmail.sendPurchaseInvoiceSafe({
-      order,
-      payment: paymentRow,
-      razorpayPaymentId: razorpay_payment_id,
-    });
-  }
-
-  const normalizedEmail = String(order.customer_email || "").trim().toLowerCase();
-  let existingUser = null;
-  if (normalizedEmail) {
-    // Look up by email only (include inactive): link purchase to existing account and reactivate if needed
-    const { rows } = await query(
-      `SELECT id FROM users WHERE LOWER(email) = $1 LIMIT 1`,
-      [normalizedEmail]
-    );
-    existingUser = rows[0] ?? null;
-  }
-
-  const baseUrl = (order.redirect_origin || env.PUBLIC_WEB_URL).replace(/\/$/, "");
-
-  if (existingUser) {
-    // Existing account (active or inactive): update profile, ensure Student role, enroll in course/pack (idempotent)
-    await paymentsRepo.upsertUserFromPayment({
-      email: order.customer_email,
-      fullName: order.customer_name,
-      phone: order.customer_phone,
-      college: order.customer_college,
-    });
-    const roleId = await findRoleIdForTenant({ tenantId: order.tenant_id, roleName: "Student" });
-    if (roleId) {
-      await upsertMembership({ tenantId: order.tenant_id, userId: existingUser.id, roleId });
-    }
-    await paymentsRepo.ensureEnrollment({
-      userId: existingUser.id,
-      tenantId: order.tenant_id,
-      itemType: order.item_type,
-      itemId: order.item_id,
-    });
-    console.log(`[Payment] Existing user ${existingUser.id} enrolled in ${order.item_type} ${order.item_id}`);
-    return { unlocked: true, redirect: `${baseUrl}/lms/student/courses` };
-  }
-
-  // New user: create approval then auto-approve immediately
-  const approval = await approvalsRepo.createApproval({
-    tenantId: order.tenant_id,
-    paymentOrderId: order.id,
-    itemType: order.item_type,
-    itemId: order.item_id,
-    customerName: order.customer_name,
-    customerEmail: order.customer_email,
-    customerPhone: order.customer_phone,
-    customerCollege: order.customer_college,
+  // Always reconcile provisioning, even if order was already paid before this callback.
+  return reconcilePaidOrderProvision({
+    order,
     razorpayOrderId: razorpay_order_id,
     razorpayPaymentId: razorpay_payment_id,
+    rawPayload: null,
   });
-  console.log(`[Payment] Approval created: ${approval.id} for ${order.customer_email}`);
-
-  const autoApproved = await tryAutoApprove(approval.id, order.customer_email);
-  if (autoApproved) {
-    return { unlocked: true, redirect: `${baseUrl}/lms/student/courses` };
-  }
-
-  return {
-    redirect: `${baseUrl}/account-pending?email=${encodeURIComponent(order.customer_email)}`,
-    approvalId: approval.id,
-  };
 }
 
 async function handleWebhook({ rawBody, signature }) {
@@ -254,38 +307,20 @@ async function handleWebhook({ rawBody, signature }) {
     const paymentId = paymentEntity?.id;
     if (!orderId) return;
 
-    const order = await paymentsRepo.findByRazorpayOrderId(orderId);
-    if (!order || order.status === "paid") return;
+    const order = await findPaymentOrderByRazorpayIdWithRetry(orderId, { maxAttempts: 6, baseDelayMs: 40 });
+    if (!order) return;
 
-    const updated = await paymentsRepo.markOrderPaid(order.id);
-    if (updated && paymentId) {
-      const paymentRow = await paymentsRepo.createPaymentRecord({
-        paymentOrderId: order.id,
-        razorpayPaymentId: paymentId,
-        status: "captured",
-        rawPayload: payload,
-      });
-      if (paymentRow) {
-        void paymentInvoiceEmail.sendPurchaseInvoiceSafe({
-          order,
-          payment: paymentRow,
-          razorpayPaymentId: paymentId,
-        });
-      }
-      const approval = await approvalsRepo.createApproval({
-        tenantId: order.tenant_id,
-        paymentOrderId: order.id,
-        itemType: order.item_type,
-        itemId: order.item_id,
-        customerName: order.customer_name,
-        customerEmail: order.customer_email,
-        customerPhone: order.customer_phone,
-        customerCollege: order.customer_college,
-        razorpayOrderId: orderId,
-        razorpayPaymentId: paymentId,
-      });
-      await tryAutoApprove(approval.id, order.customer_email);
+    // Even if already paid, continue reconciliation to self-heal missed approvals/enrollments.
+    if (order.status === "created") {
+      await paymentsRepo.markOrderPaid(order.id);
     }
+
+    await reconcilePaidOrderProvision({
+      order,
+      razorpayOrderId: orderId,
+      razorpayPaymentId: paymentId || null,
+      rawPayload: payload,
+    });
   }
 }
 
@@ -295,6 +330,10 @@ async function tryAutoApprove(approvalId, email) {
     console.log(`[AutoApproval] Approved ${approvalId} (${email})`);
     return true;
   } catch (err) {
+    const msg = String(err?.message || "");
+    if (msg.includes("Approval is already approved") || /\balready\s+approved\b/i.test(msg)) {
+      return true;
+    }
     console.error(`[AutoApproval] Failed for ${approvalId} (${email}):`, err.message);
     return false;
   }
@@ -309,6 +348,7 @@ const AUTO_APPROVE_INTERVAL_MS = (() => {
   return Number.isFinite(v) && v > 0 ? v : 300_000;
 })();
 const MAX_AUTO_APPROVE_BATCH = 5;
+const MAX_RECONCILE_BATCH = 5;
 let pollerRunning = false;
 
 async function pollPendingApprovals() {
@@ -323,6 +363,45 @@ async function pollPendingApprovals() {
         if (approved >= MAX_AUTO_APPROVE_BATCH) break;
         await tryAutoApprove(approval.id, approval.customer_email);
         approved++;
+      }
+
+      // Self-heal paid orders that missed approval/enrollment due transient failures.
+      const { rows: paidToReconcile } = await query(
+        `SELECT po.*
+         FROM payment_orders po
+         LEFT JOIN approvals a
+           ON a.payment_order_id = po.id
+         LEFT JOIN users u
+           ON LOWER(u.email) = LOWER(po.customer_email)
+         LEFT JOIN enrollments e
+           ON e.user_id = u.id
+          AND e.tenant_id = po.tenant_id
+          AND e.item_type = po.item_type
+          AND e.item_id = po.item_id
+          AND e.active = true
+         WHERE po.tenant_id = $1
+           AND po.status = 'paid'
+           AND po.updated_at >= now() - INTERVAL '14 days'
+           AND (
+             a.id IS NULL
+             OR a.status = 'pending'
+             OR (u.id IS NOT NULL AND e.id IS NULL)
+           )
+         ORDER BY po.updated_at DESC
+         LIMIT $2`,
+        [tenant.id, MAX_RECONCILE_BATCH]
+      );
+      for (const order of paidToReconcile) {
+        try {
+          await reconcilePaidOrderProvision({
+            order,
+            razorpayOrderId: order.razorpay_order_id,
+            razorpayPaymentId: null,
+            rawPayload: null,
+          });
+        } catch (err) {
+          console.error("[AutoApproval] Reconcile paid order failed:", order.id, err?.message || err);
+        }
       }
     }
   } catch (err) {

@@ -30,6 +30,34 @@ const loadRazorpay = () => {
   });
 };
 
+/** Ultra-fast Razorpay success can hit verify before DB/order is readable (replica lag). Retry briefly. */
+const VERIFY_RETRY_DELAYS_MS = [0, 70, 140, 280, 520];
+
+async function verifyRazorpayComplete(payload) {
+  let lastErr;
+  for (let i = 0; i < VERIFY_RETRY_DELAYS_MS.length; i++) {
+    await new Promise((resolve) => setTimeout(resolve, VERIFY_RETRY_DELAYS_MS[i]));
+    try {
+      return await apiFetch("/api/v1/payments/razorpay/verify-complete", {
+        method: "POST",
+        body: payload,
+      });
+    } catch (e) {
+      lastErr = e;
+      const status = e?.status;
+      const msg = String(e?.message || "").toLowerCase();
+      const retryable =
+        status === 404 ||
+        status === 429 ||
+        status === 502 ||
+        status === 503 ||
+        (status === 0 && /cannot connect/i.test(msg));
+      if (!retryable || i === VERIFY_RETRY_DELAYS_MS.length - 1) throw e;
+    }
+  }
+  throw lastErr;
+}
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const COOLDOWN_SEC = 60;
 
@@ -521,13 +549,10 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
           setLoading(true);
           setError("");
           try {
-            const verifyRes = await apiFetch("/api/v1/payments/razorpay/verify-complete", {
-              method: "POST",
-              body: {
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-              },
+            const verifyRes = await verifyRazorpayComplete({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
             });
             const unlocked = verifyRes?.unlocked ?? verifyRes?.data?.unlocked;
             const apiRedirect = verifyRes?.redirect ?? verifyRes?.data?.redirect;

@@ -603,13 +603,14 @@ export default function AcademyPage() {
                       />
                     </div>
                   </div>
-                  <div className="min-w-0">
+                  
+                </div>
+                <div className="min-w-0">
                     <h4 className="text-sm sm:text-base font-semibold text-white mb-1">Recognised by MCA &amp; MSME</h4>
                     <p className="text-xs sm:text-sm text-white/60 leading-relaxed">
                       ExpoGraph is recognised by MCA (Corporate Affairs) and MSME (Micro, Small &amp; Medium Enterprises), Government of India-your certificates carry institutional trust.
                     </p>
                   </div>
-                </div>
               </div>
 
               <div className="flex-1 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 sm:p-6 flex items-start gap-4">

@@ -41,7 +41,7 @@ function errorHandler(err, req, res, next) {
       originalError: err.message,
       hint: "In the project root, run: npm run migrate (from apps/api) or node scripts/migrate.js from apps/api."
     };
-  } else if (err.message && (err.message.includes("is not defined") || (err.message.includes("relation") && err.message.includes("does not exist")))) {
+  } else if (err.message && err.message.includes("relation") && err.message.includes("does not exist")) {
     message = "Database schema may be outdated. Run: cd apps/api && npm run migrate";
     details = { originalError: err.message };
   } else if (err.code === "23505" || (err.message && err.message.includes("unique constraint"))) {
