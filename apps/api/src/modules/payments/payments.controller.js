@@ -70,8 +70,14 @@ const webhook = asyncHandler(async (req, res) => {
   const signature = req.headers["x-razorpay-signature"];
   const rawBody = req.rawBody || (req.body && Buffer.isBuffer(req.body) ? req.body.toString("utf8") : JSON.stringify(req.body || {}));
 
+  let eventName = "";
+  try {
+    eventName = JSON.parse(rawBody || "{}").event || "";
+  } catch (_) {
+    /* ignore */
+  }
   await paymentsService.handleWebhook({ rawBody, signature });
-  console.log(`[Payments] Webhook processed: ${req.body?.event}`);
+  console.log(`[Payments] Webhook OK ${eventName || "(parse skip)"}`);
   res.status(200).json({ ok: true });
 });
 

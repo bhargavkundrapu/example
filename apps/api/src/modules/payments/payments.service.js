@@ -70,6 +70,25 @@ async function findPaymentOrderByRazorpayIdWithRetry(razorpayOrderId, { maxAttem
   return null;
 }
 
+/**
+ * Webhooks sometimes include `order_*` but omit `pay_*`. Razorpay Orders API lists payments for the order.
+ */
+async function resolveCapturedPaymentIdForOrder(razorpayOrderId) {
+  if (!razorpayOrderId) return null;
+  try {
+    const rzp = getRazorpayInstance();
+    const resp = await rzp.orders.fetchPayments(razorpayOrderId);
+    const items = Array.isArray(resp?.items) ? resp.items : [];
+    const captured = items.filter((p) => p && p.status === "captured");
+    if (!captured.length) return null;
+    captured.sort((a, b) => Number(b?.created_at || 0) - Number(a?.created_at || 0));
+    return captured[0]?.id || null;
+  } catch (err) {
+    console.error("[Payment] fetchPayments fallback failed for", razorpayOrderId, err?.message || err);
+    return null;
+  }
+}
+
 async function getPriceBreakdown({ tenant, item_type, item_id }) {
   const tenantId = tenant.id;
   let baseAmount;
@@ -370,26 +389,54 @@ async function handleWebhook({ rawBody, signature }) {
   const event = payload.event;
 
   if (event === "order.paid" || event === "payment.captured") {
-    const orderEntity = payload.payload?.order?.entity;
-    const paymentEntity = payload.payload?.payment?.entity;
+    const orderEntity = payload.payload?.order?.entity ?? payload.payload?.order;
+    const paymentEntity = payload.payload?.payment?.entity ?? payload.payload?.payment;
     const orderId = orderEntity?.id || paymentEntity?.order_id;
-    const paymentId = paymentEntity?.id;
-    if (!orderId) return;
+    let paymentId = paymentEntity?.id ?? null;
+    if (!orderId) {
+      console.warn("[Payment] webhook: missing order id in payload", { event });
+      return;
+    }
 
-    const order = await findPaymentOrderByRazorpayIdWithRetry(orderId, { maxAttempts: 6, baseDelayMs: 40 });
-    if (!order) return;
+    if (!paymentId) {
+      paymentId = await resolveCapturedPaymentIdForOrder(orderId);
+      if (paymentId) {
+        console.log("[Payment] webhook: resolved pay_* via orders.fetchPayments", { event, orderId });
+      } else {
+        console.warn("[Payment] webhook: no pay_* yet; reconciling approval/enrollment only", { event, orderId });
+      }
+    }
+
+    const order = await findPaymentOrderByRazorpayIdWithRetry(orderId, { maxAttempts: 14, baseDelayMs: 45 });
+    if (!order) {
+      console.error("[Payment] webhook: local payment_order not found after retries", { event, orderId });
+      return;
+    }
 
     // Even if already paid, continue reconciliation to self-heal missed approvals/enrollments.
     if (order.status === "created") {
       await paymentsRepo.markOrderPaid(order.id);
     }
 
-    await reconcilePaidOrderProvision({
-      order,
-      razorpayOrderId: orderId,
-      razorpayPaymentId: paymentId || null,
-      rawPayload: payload,
-    });
+    let lastReconcileErr = null;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        await reconcilePaidOrderProvision({
+          order,
+          razorpayOrderId: orderId,
+          razorpayPaymentId: paymentId || null,
+          rawPayload: payload,
+        });
+        if (attempt > 0) console.log("[Payment] webhook reconcile ok after retry", { attempt, orderId });
+        lastReconcileErr = null;
+        break;
+      } catch (err) {
+        lastReconcileErr = err;
+        console.error(`[Payment] webhook reconcile attempt ${attempt + 1}/4:`, err?.message || err);
+        if (attempt < 3) await delay(150 * (attempt + 1));
+      }
+    }
+    if (lastReconcileErr) throw lastReconcileErr;
   }
 }
 
