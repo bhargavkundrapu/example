@@ -1,17 +1,14 @@
 import { useMemo, useState } from "react";
+import {
+  BRAND_LOGO_FULL_CLOUDINARY_FALLBACK,
+  BRAND_LOGO_FULL_PRIMARY,
+  BRAND_LOGO_ICON_CLOUDINARY_FALLBACK,
+  BRAND_LOGO_ICON_PRIMARY,
+} from "../../constants/brandAssets";
 
 const LOGO_SOURCES = {
-  full: [
-    "https://res.cloudinary.com/da2wrgabu/image/upload/v1777379728/1_ajimf0.png",
-    "/1.png",
-    "/2.png",
-  ],
-  icon: [
-    "https://res.cloudinary.com/da2wrgabu/image/upload/v1777379714/e_x_1_xoh57o.png",
-    "/e%5Ex.png",
-    "/2.png",
-    "/1.png",
-  ],
+  full: [BRAND_LOGO_FULL_PRIMARY, BRAND_LOGO_FULL_CLOUDINARY_FALLBACK],
+  icon: [BRAND_LOGO_ICON_PRIMARY, BRAND_LOGO_ICON_CLOUDINARY_FALLBACK],
 };
 
 export default function BrandLogo({
@@ -30,14 +27,17 @@ export default function BrandLogo({
     });
   };
 
+  const src = sources[sourceIndex];
+
   return (
     <img
-      src={sources[sourceIndex]}
+      src={src}
       alt={alt}
       className={className}
       onError={handleError}
       loading="eager"
       decoding="async"
+      referrerPolicy="no-referrer"
       {...props}
     />
   );

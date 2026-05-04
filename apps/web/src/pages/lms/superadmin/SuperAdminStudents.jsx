@@ -55,19 +55,29 @@ function buildEnrollmentStudentQuery(enrolledItem) {
   return qs;
 }
 
-/** Course/pack enrollment filter (server-backed list). Used on the list toolbar and in Advanced Filters. */
-function EnrollmentCoursePackSelect({ id, value, onChange, catalogOptions, selectClassName = "" }) {
+/** Course/pack enrollment filter (server-backed list). Used on the list toolbar, Advanced Filters, and Add Student. */
+function EnrollmentCoursePackSelect({
+  id,
+  value,
+  onChange,
+  catalogOptions,
+  selectClassName = "",
+  emptyLabel = "All courses and packs",
+  disabled = false,
+  ariaLabel,
+}) {
   return (
     <div className="relative">
       <FiLayers className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
       <select
         id={id}
-        aria-label="Filter students by course or pack"
+        aria-label={ariaLabel || "Filter students by course or pack"}
         value={value}
+        disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all appearance-none cursor-pointer ${selectClassName}`}
+        className={`w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all appearance-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${selectClassName}`}
       >
-        <option value="">All courses and packs</option>
+        <option value="">{emptyLabel}</option>
         <optgroup label="Courses (includes students on a pack that contains this course)">
           {[...(catalogOptions.courses || [])]
             .sort((a, b) => (a.title || "").localeCompare(b.title || ""))
@@ -121,7 +131,15 @@ export default function SuperAdminStudents() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [editForm, setEditForm] = useState({ fullName: "", email: "", phone: "" });
-  const [addForm, setAddForm] = useState({ fullName: "", email: "", phone: "", password: "", generatePassword: true });
+  const [addForm, setAddForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    college: "",
+    enrollmentItem: "",
+    password: "",
+    generatePassword: true,
+  });
   const [saving, setSaving] = useState(false);
   const [showCredentialsModal, setShowCredentialsModal] = useState(false);
   const [studentCredentials, setStudentCredentials] = useState(null);
@@ -444,33 +462,93 @@ export default function SuperAdminStudents() {
       return;
     }
 
+    const enrollment = (addForm.enrollmentItem || "").trim();
+    const useApprovalFlow = enrollment.startsWith("course:") || enrollment.startsWith("pack:");
+
+    if (useApprovalFlow) {
+      if (!addForm.phone?.trim()) {
+        alert("Phone is required when assigning a course or pack (used on the Approvals page).");
+        return;
+      }
+      const itemId = enrollment.startsWith("course:") ? enrollment.slice(7).trim() : enrollment.slice(5).trim();
+      if (!UUID_RE.test(itemId)) {
+        alert("Invalid course or pack selection.");
+        return;
+      }
+    } else if (!addForm.generatePassword && (!addForm.password || addForm.password.length < 8)) {
+      alert("Password must be at least 8 characters, or enable auto-generate.");
+      return;
+    }
+
     try {
       setSaving(true);
-      
-      // Generate password if auto-generate is enabled
-      const password = addForm.generatePassword ? generatePassword() : addForm.password;
-      
-      const res = await apiFetch("/api/v1/admin/students", {
-        method: "POST",
-        token,
-        body: {
-          ...addForm,
-          password: password || undefined, // Send password only if provided
-        },
-      });
 
-      if (res?.ok) {
-        // Show credentials modal
-        setStudentCredentials({
-          email: addForm.email,
-          password: password,
-          name: addForm.fullName,
-          isReset: false,
+      if (useApprovalFlow) {
+        const itemType = enrollment.startsWith("course:") ? "course" : "pack";
+        const itemId = enrollment.startsWith("course:") ? enrollment.slice(7).trim() : enrollment.slice(5).trim();
+
+        const res = await apiFetch("/api/v1/admin/approvals", {
+          method: "POST",
+          token,
+          body: {
+            fullName: addForm.fullName,
+            email: addForm.email,
+            phone: addForm.phone.trim(),
+            college: addForm.college?.trim() || undefined,
+            itemType,
+            itemId,
+          },
         });
-        setShowCredentialsModal(true);
-        
-        await reloadStudentsList();
-        setAddForm({ fullName: "", email: "", phone: "", password: "", generatePassword: true });
+
+        if (res?.ok) {
+          await reloadStudentsList();
+          setAddForm({
+            fullName: "",
+            email: "",
+            phone: "",
+            college: "",
+            enrollmentItem: "",
+            password: "",
+            generatePassword: true,
+          });
+          if (window.confirm("Request submitted for approval. The student account is created when you approve it on the Approvals page. Open Approvals now?")) {
+            navigate("/lms/superadmin/approvals");
+          }
+        }
+      } else {
+        const password = addForm.generatePassword ? generatePassword() : addForm.password;
+
+        const res = await apiFetch("/api/v1/admin/students", {
+          method: "POST",
+          token,
+          body: {
+            fullName: addForm.fullName,
+            email: addForm.email,
+            phone: addForm.phone || undefined,
+            password: password || undefined,
+          },
+        });
+
+        if (res?.ok) {
+          setStudentCredentials({
+            email: addForm.email,
+            password: password,
+            name: addForm.fullName,
+            isReset: false,
+          });
+          setShowCredentialsModal(true);
+
+          await reloadStudentsList();
+          setAddForm({
+            fullName: "",
+            email: "",
+            phone: "",
+            college: "",
+            enrollmentItem: "",
+            password: "",
+            generatePassword: true,
+          });
+        }
       }
     } catch (error) {
       alert(error?.message || "Failed to add student");
@@ -1138,6 +1216,19 @@ export default function SuperAdminStudents() {
 
   // Add Student View
   if (view === "add") {
+    const enrollmentRaw = (addForm.enrollmentItem || "").trim();
+    const approvalMode = enrollmentRaw.startsWith("course:") || enrollmentRaw.startsWith("pack:");
+    const enrollmentId =
+      enrollmentRaw.startsWith("course:") ? enrollmentRaw.slice(7).trim() : enrollmentRaw.startsWith("pack:") ? enrollmentRaw.slice(5).trim() : "";
+    const enrollmentValid = UUID_RE.test(enrollmentId);
+    const addDisabled =
+      saving ||
+      !addForm.email ||
+      !addForm.fullName ||
+      (approvalMode
+        ? !addForm.phone?.trim() || !enrollmentValid
+        : !addForm.generatePassword && (!addForm.password || addForm.password.length < 8));
+
     return (
       <>
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 p-4 sm:p-6 lg:p-8">
@@ -1151,6 +1242,16 @@ export default function SuperAdminStudents() {
               >
                 <FiX className="w-6 h-6 text-slate-600" />
               </button>
+            </div>
+
+            <div className="mb-6 p-4 rounded-lg border border-amber-200 bg-amber-50/90 text-sm text-amber-950">
+              <p className="font-medium text-amber-900 mb-1">Course or pack</p>
+              <p className="text-amber-900/90 leading-relaxed">
+                Choose a course or pack to send this signup to <strong>Payment Approvals</strong> (pending). The student
+                account and LMS access are created when you approve the row—same flow as after a paid checkout.
+                Leave the selector empty to create an account immediately with a password (no catalog access until you
+                enroll them elsewhere).
+              </p>
             </div>
 
             <div className="space-y-6">
@@ -1187,68 +1288,107 @@ export default function SuperAdminStudents() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">Phone Number</label>
+                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                  Phone Number
+                  {approvalMode ? <span className="text-red-500"> *</span> : null}
+                </label>
                 <div className="relative">
                   <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <input
                     type="tel"
                     value={addForm.phone}
                     onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })}
-                    placeholder="Enter phone number"
+                    placeholder={approvalMode ? "Required for approvals" : "Enter phone number"}
                     className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-semibold text-slate-900">
-                    Password
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={addForm.generatePassword}
-                      onChange={(e) => setAddForm({ ...addForm, generatePassword: e.target.checked, password: "" })}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-slate-600">Auto-generate secure password</span>
-                  </label>
+                <label className="block text-sm font-semibold text-slate-900 mb-2">College (optional)</label>
+                <div className="relative">
+                  <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={addForm.college}
+                    onChange={(e) => setAddForm({ ...addForm, college: e.target.value })}
+                    placeholder="Institution name"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                  />
                 </div>
-                {!addForm.generatePassword ? (
-                  <div className="relative">
-                    <FiKey className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                    <input
-                      type="password"
-                      value={addForm.password}
-                      onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
-                      placeholder="Enter custom password (min 8 characters)"
-                      minLength={8}
-                      className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                    />
-                  </div>
-                ) : (
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                    <p className="text-sm text-blue-700 flex items-center gap-2">
-                      <FiLock className="w-4 h-4" />
-                      A secure password will be automatically generated
-                    </p>
-                  </div>
-                )}
               </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-2">Course or pack</label>
+                <EnrollmentCoursePackSelect
+                  id="add-student-enrollment"
+                  value={addForm.enrollmentItem}
+                  onChange={(v) => setAddForm({ ...addForm, enrollmentItem: v })}
+                  catalogOptions={catalogOptions}
+                  emptyLabel={catalogHydrated ? "None — create account only (no approval queue)" : "Loading catalog…"}
+                  disabled={!catalogHydrated}
+                  ariaLabel="Course or pack for student access"
+                  selectClassName="bg-slate-50 py-3 text-base"
+                />
+              </div>
+
+              {!approvalMode ? (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-semibold text-slate-900">
+                      Password
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={addForm.generatePassword}
+                        onChange={(e) => setAddForm({ ...addForm, generatePassword: e.target.checked, password: "" })}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-slate-600">Auto-generate secure password</span>
+                    </label>
+                  </div>
+                  {!addForm.generatePassword ? (
+                    <div className="relative">
+                      <FiKey className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <input
+                        type="password"
+                        value={addForm.password}
+                        onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                        placeholder="Enter custom password (min 8 characters)"
+                        minLength={8}
+                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                      />
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                      <p className="text-sm text-blue-700 flex items-center gap-2">
+                        <FiLock className="w-4 h-4" />
+                        A secure password will be automatically generated
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="p-3 rounded-md border border-slate-200 bg-slate-50 text-sm text-slate-600">
+                  <FiAlertCircle className="inline w-4 h-4 mr-1.5 text-amber-600 align-text-bottom" />
+                  No password is set yet. After you approve this request, the student can use{" "}
+                  <strong>Forgot password</strong> on the login page (or reset from student details).
+                </div>
+              )}
 
               <div className="flex items-center gap-4 pt-4">
                 <button
                   onClick={handleAddStudent}
-                  disabled={saving || !addForm.email || !addForm.fullName}
+                  disabled={addDisabled}
                   className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-md shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {saving ? (
-                    <ButtonLoading text="Adding..." size="sm" />
+                    <ButtonLoading text={approvalMode ? "Submitting…" : "Adding…"} size="sm" />
                   ) : (
                     <>
                       <FiSave className="w-5 h-5" />
-                      Add Student
+                      {approvalMode ? "Submit for approval" : "Add Student"}
                     </>
                   )}
                 </button>

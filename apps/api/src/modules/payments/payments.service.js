@@ -6,7 +6,6 @@ const { HttpError } = require("../../utils/httpError");
 const { z } = require("zod");
 const paymentsRepo = require("./payments.repo");
 const { platformFeePaiseForItemType } = require("./payments.pricing");
-const paymentInvoiceEmail = require("./paymentInvoice.email.service");
 const approvalsRepo = require("../approvals/approvals.repo");
 const approvalsService = require("../approvals/approvals.service");
 const { findRoleIdForTenant, upsertMembership } = require("../users/users.repo");
@@ -194,13 +193,90 @@ async function ensureExistingUserProvisioned({ order, userId }) {
   });
 }
 
+/**
+ * Paid orders where provisioning never completed: no approval row, stale pending approval, or enrolled user missing access.
+ * Use for one-off repairs (poller only touches recent batches).
+ */
+async function reconcilePaidOrdersMissingProvision(opts = {}) {
+  const sinceDaysRaw = opts.sinceDays;
+  const sinceDays = Number.isFinite(Number(sinceDaysRaw))
+    ? Math.min(3650, Math.max(1, Number(sinceDaysRaw)))
+    : 730;
+  const batchSizeRaw = opts.batchSize;
+  const batchSize = Number.isFinite(Number(batchSizeRaw)) ? Math.min(500, Math.max(1, Number(batchSizeRaw))) : 200;
+  const dryRun = Boolean(opts.dryRun);
+  const tenantId = opts.tenantId && String(opts.tenantId).trim() ? opts.tenantId.trim() : null;
+
+  let processed = 0;
+  let failed = 0;
+  const errors = [];
+  /** Keyset pagination so a row that keeps failing does not spin forever in one run. */
+  let lastId = "00000000-0000-0000-0000-000000000000";
+
+  for (;;) {
+    const { rows } = await query(
+      `SELECT po.*
+       FROM payment_orders po
+       LEFT JOIN approvals a
+         ON a.payment_order_id = po.id
+       LEFT JOIN users u
+         ON LOWER(u.email) = LOWER(po.customer_email)
+       LEFT JOIN enrollments e
+         ON e.user_id = u.id
+        AND e.tenant_id = po.tenant_id
+        AND e.item_type = po.item_type
+        AND e.item_id = po.item_id
+        AND e.active = true
+       WHERE po.status = 'paid'
+         AND po.updated_at >= now() - ($1::int * INTERVAL '1 day')
+         AND ($2::uuid IS NULL OR po.tenant_id = $2)
+         AND po.id > $3::uuid
+         AND (
+           (u.id IS NOT NULL AND e.id IS NULL)
+           OR (u.id IS NULL AND (a.id IS NULL OR a.status = 'pending'))
+         )
+       ORDER BY po.id ASC
+       LIMIT $4`,
+      [sinceDays, tenantId, lastId, batchSize]
+    );
+
+    if (!rows.length) break;
+
+    for (const order of rows) {
+      if (dryRun) {
+        processed++;
+        continue;
+      }
+      try {
+        await reconcilePaidOrderProvision({
+          order,
+          razorpayOrderId: order.razorpay_order_id,
+          razorpayPaymentId: null,
+          rawPayload: null,
+        });
+        processed++;
+      } catch (err) {
+        failed++;
+        const msg = err?.message || String(err);
+        errors.push({ orderId: order.id, email: order.customer_email, message: msg });
+        console.error(`[PaidOrderRepair] order ${order.id} (${order.customer_email}):`, msg);
+      }
+    }
+
+    lastId = rows[rows.length - 1].id;
+    if (rows.length < batchSize) break;
+  }
+
+  return { processed, failed, errors, dryRun, sinceDays, batchSize, tenantId };
+}
+
 async function reconcilePaidOrderProvision({
   order,
   razorpayOrderId,
   razorpayPaymentId = null,
   rawPayload = null,
 }) {
-  // Ensure payment row exists (idempotent); use lookup when ON CONFLICT returned no row.
+  // Persist payment row (idempotent). Customer payment receipt email comes from Razorpay only.
   if (razorpayPaymentId) {
     let paymentRow = await paymentsRepo.createPaymentRecord({
       paymentOrderId: order.id,
@@ -210,13 +286,6 @@ async function reconcilePaidOrderProvision({
     });
     if (!paymentRow) {
       paymentRow = await paymentsRepo.findPaymentByRazorpayId(razorpayPaymentId);
-    }
-    if (paymentRow && !paymentRow.invoice_email_sent_at) {
-      void paymentInvoiceEmail.sendPurchaseInvoiceSafe({
-        order,
-        payment: paymentRow,
-        razorpayPaymentId,
-      });
     }
   }
 
@@ -383,9 +452,8 @@ async function pollPendingApprovals() {
            AND po.status = 'paid'
            AND po.updated_at >= now() - INTERVAL '14 days'
            AND (
-             a.id IS NULL
-             OR a.status = 'pending'
-             OR (u.id IS NOT NULL AND e.id IS NULL)
+             (u.id IS NOT NULL AND e.id IS NULL)
+             OR (u.id IS NULL AND (a.id IS NULL OR a.status = 'pending'))
            )
          ORDER BY po.updated_at DESC
          LIMIT $2`,
@@ -432,6 +500,7 @@ module.exports = {
   handleWebhook,
   verifyRazorpaySignature,
   verifyWebhookSignature,
+  reconcilePaidOrdersMissingProvision,
   startAutoApprovalPoller,
   stopAutoApprovalPoller,
 };

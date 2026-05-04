@@ -8,6 +8,7 @@ const router = express.Router();
 router.use(requireAuth, requireRole(["SuperAdmin"]));
 
 router.get("/", controller.list);
+router.post("/", controller.createManual);
 router.post("/:id/approve", controller.approve);
 router.post("/:id/reject", controller.reject);
 

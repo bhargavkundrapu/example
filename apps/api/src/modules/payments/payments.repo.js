@@ -99,18 +99,6 @@ async function findPaymentByRazorpayId(razorpayPaymentId) {
   return rows[0] ?? null;
 }
 
-async function markPaymentInvoiceSent(paymentId) {
-  await query(
-    `UPDATE payments SET invoice_email_sent_at = now(), invoice_email_error = NULL WHERE id = $1`,
-    [paymentId]
-  );
-}
-
-async function markPaymentInvoiceError(paymentId, message) {
-  const safe = String(message || "unknown").slice(0, 2000);
-  await query(`UPDATE payments SET invoice_email_error = $2 WHERE id = $1`, [paymentId, safe]);
-}
-
 async function upsertUserFromPayment({ email, fullName, phone, college }, client) {
   const db = client || { query: (...args) => query(...args) };
   const inTransaction = !!client;
@@ -218,8 +206,6 @@ module.exports = {
   markOrderPaid,
   createPaymentRecord,
   findPaymentByRazorpayId,
-  markPaymentInvoiceSent,
-  markPaymentInvoiceError,
   upsertUserFromPayment,
   ensureEnrollment,
 };

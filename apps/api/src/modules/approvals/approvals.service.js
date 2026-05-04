@@ -1,9 +1,47 @@
 // apps/api/src/modules/approvals/approvals.service.js
 const { HttpError } = require("../../utils/httpError");
-const { withTransaction } = require("../../db/query");
+const { withTransaction, query } = require("../../db/query");
 const approvalsRepo = require("./approvals.repo");
 const paymentsRepo = require("../payments/payments.repo");
 const { findRoleIdForTenant, upsertMembership } = require("../users/users.repo");
+
+async function findCatalogItemInTenant({ tenantId, itemType, itemId }) {
+  if (itemType === "course") {
+    const { rows } = await query(
+      `SELECT id FROM courses WHERE tenant_id = $1 AND id = $2::uuid LIMIT 1`,
+      [tenantId, itemId]
+    );
+    return rows[0] ?? null;
+  }
+  const { rows } = await query(
+    `SELECT id FROM course_packs WHERE tenant_id = $1 AND id = $2::uuid LIMIT 1`,
+    [tenantId, itemId]
+  );
+  return rows[0] ?? null;
+}
+
+/**
+ * SuperAdmin: queue student access like paid checkout — pending row until approved on Approvals.
+ * No user account is created until approve (same as payment-driven approvals).
+ */
+async function createManualApproval({ tenantId, fullName, email, phone, college, itemType, itemId }) {
+  const exists = await findCatalogItemInTenant({ tenantId, itemType, itemId });
+  if (!exists) throw new HttpError(400, "Course or pack not found for this tenant");
+
+  const approval = await approvalsRepo.createApproval({
+    tenantId,
+    paymentOrderId: null,
+    itemType,
+    itemId,
+    customerName: String(fullName || "").trim(),
+    customerEmail: String(email || "").trim().toLowerCase(),
+    customerPhone: String(phone || "").trim(),
+    customerCollege: college != null && String(college).trim() ? String(college).trim() : null,
+    razorpayOrderId: null,
+    razorpayPaymentId: null,
+  });
+  return approval;
+}
 
 async function listApprovals({ tenantId, status }) {
   if (status) {
@@ -93,4 +131,5 @@ module.exports = {
   listApprovals,
   approveById,
   rejectById,
+  createManualApproval,
 };
