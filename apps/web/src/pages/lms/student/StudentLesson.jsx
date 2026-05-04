@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { getStudentLessonPath, getStudentCourseBasePath } from "../../../utils/studentCoursePaths";
+import { getStudentLessonPath, getStudentLessonPathForRoute, getStudentCourseBasePath } from "../../../utils/studentCoursePaths";
 import { recoverStudentLessonRoute } from "../../../utils/recoverStudentLessonRoute";
 import { useAuth } from "../../../app/providers/AuthProvider";
 import { useTheme } from "../../../app/providers/ThemeProvider";
@@ -47,6 +47,7 @@ import { useGamification } from "../../../app/providers/GamificationProvider";
 import { ConfettiBurst, XPFloat, LessonCompleteMessage } from "../../../Components/student/gamification/Confetti";
 import { BookmarkButton, LessonNotes } from "../../../Components/student/gamification/NotesBookmark";
 import LessonFeedbackCard from "../../../Components/student/LessonFeedbackCard";
+import LessonSlidesReader from "../../../Components/student/LessonSlidesReader";
 import ShareProgressModal from "../../../Components/student/gamification/ShareProgressModal";
 import KeyboardShortcutsModal from "../../../Components/student/KeyboardShortcutsModal";
 import { useKeyboardShortcuts } from "../../../hooks/useKeyboardShortcuts";
@@ -444,8 +445,11 @@ export default function StudentLesson() {
     const fromApi = String(course.slug).toLowerCase().replace(/_/g, "-");
     const fromRoute = String(courseSlug).toLowerCase().replace(/_/g, "-");
     if (fromApi === fromRoute) return;
-    navigate(getStudentLessonPath(course.slug, moduleSlug, lessonSlug), { replace: true });
-  }, [course?.slug, courseSlug, moduleSlug, lessonSlug, navigate]);
+    navigate(
+      getStudentLessonPathForRoute(course.slug, moduleSlug, lessonSlug, { pathname: location.pathname }),
+      { replace: true }
+    );
+  }, [course?.slug, courseSlug, moduleSlug, lessonSlug, navigate, location.pathname]);
 
   const fetchLessonData = async (courseSlugParam, moduleSlugParam, lessonSlugParam, isContentUpdate = false, signal) => {
     try {
@@ -664,7 +668,10 @@ export default function StudentLesson() {
     if (!nextLesson || nextLesson.locked) return;
     isManualNavigationRef.current = true;
     const targetModuleSlug = nextLesson.moduleSlug;
-    navigate(getStudentLessonPath(courseSlug, targetModuleSlug, nextLesson.slug), { replace: true });
+    navigate(
+      getStudentLessonPathForRoute(courseSlug, targetModuleSlug, nextLesson.slug, { pathname: location.pathname }),
+      { replace: true }
+    );
     await fetchLessonData(courseSlug, targetModuleSlug, nextLesson.slug, true);
   };
 
@@ -764,19 +771,25 @@ export default function StudentLesson() {
     if (item.locked) return;
     setSearchModalOpen(false);
     isManualNavigationRef.current = true;
-    navigate(getStudentLessonPath(courseSlug, item.moduleSlug, item.slug), { replace: true });
+    navigate(
+      getStudentLessonPathForRoute(courseSlug, item.moduleSlug, item.slug, { pathname: location.pathname }),
+      { replace: true }
+    );
     fetchLessonData(courseSlug, item.moduleSlug, item.slug, true);
-  }, [courseSlug, navigate]);
+  }, [courseSlug, navigate, location.pathname]);
 
   const handleSearchModuleSelect = useCallback((mod) => {
     setSearchModalOpen(false);
     const firstLesson = allModules.find((m) => m.slug === mod.slug)?.lessons?.[0];
     if (firstLesson && !firstLesson.locked) {
       isManualNavigationRef.current = true;
-      navigate(getStudentLessonPath(courseSlug, mod.slug, firstLesson.slug), { replace: true });
+      navigate(
+        getStudentLessonPathForRoute(courseSlug, mod.slug, firstLesson.slug, { pathname: location.pathname }),
+        { replace: true }
+      );
       fetchLessonData(courseSlug, mod.slug, firstLesson.slug, true);
     }
-  }, [courseSlug, navigate, allModules]);
+  }, [courseSlug, navigate, allModules, location.pathname]);
 
   const courseType = useMemo(() => {
     const slug = (courseSlug || "").toLowerCase().replace(/_/g, "-");
@@ -806,7 +819,10 @@ export default function StudentLesson() {
     if (!prevLesson) return;
     isManualNavigationRef.current = true;
     const targetModuleSlug = prevLesson.moduleSlug;
-    navigate(getStudentLessonPath(courseSlug, targetModuleSlug, prevLesson.slug), { replace: true });
+    navigate(
+      getStudentLessonPathForRoute(courseSlug, targetModuleSlug, prevLesson.slug, { pathname: location.pathname }),
+      { replace: true }
+    );
     await fetchLessonData(courseSlug, targetModuleSlug, prevLesson.slug, true);
   };
 
@@ -934,7 +950,7 @@ export default function StudentLesson() {
     );
   }
 
-  const lessonPath = getStudentLessonPath(courseSlug, moduleSlug, lessonSlug);
+  const lessonPath = getStudentLessonPathForRoute(courseSlug, moduleSlug, lessonSlug, { pathname: location.pathname });
   const lessonDisplayTitle = lesson?.title || lesson?.name || lessonSlug;
 
   return (
@@ -1015,7 +1031,10 @@ export default function StudentLesson() {
                   if (full && !full.locked) {
                     isManualNavigationRef.current = true;
                     const targetModuleSlug = moduleSlugParam || full.moduleSlug;
-                    navigate(getStudentLessonPath(courseSlug, targetModuleSlug, full.slug), { replace: true });
+                    navigate(
+                      getStudentLessonPathForRoute(courseSlug, targetModuleSlug, full.slug, { pathname: location.pathname }),
+                      { replace: true }
+                    );
                     await fetchLessonData(courseSlug, targetModuleSlug, full.slug, true);
                   }
                 }}
@@ -1050,7 +1069,10 @@ export default function StudentLesson() {
                       if (full && !full.locked) {
                         isManualNavigationRef.current = true;
                         const targetModuleSlug = moduleSlugParam || full.moduleSlug;
-                        navigate(getStudentLessonPath(courseSlug, targetModuleSlug, full.slug), { replace: true });
+                        navigate(
+                          getStudentLessonPathForRoute(courseSlug, targetModuleSlug, full.slug, { pathname: location.pathname }),
+                          { replace: true }
+                        );
                         setSidebarVisible(false);
                         await fetchLessonData(courseSlug, targetModuleSlug, full.slug, true);
                       }
@@ -1147,6 +1169,13 @@ export default function StudentLesson() {
               }
               return null;
             })()}
+
+            {/* lesson_slides from API (markdown) — PE-style section chrome */}
+            {Array.isArray(lesson?.slides) && lesson.slides.length > 0 && (
+              <div className="px-4 md:px-8 pt-4 md:pt-6 pb-2">
+                <LessonSlidesReader slides={lesson.slides} />
+              </div>
+            )}
 
             {/* Goal Section - below navbar (regular lessons only) */}
             {lesson?.goal?.trim() && !(

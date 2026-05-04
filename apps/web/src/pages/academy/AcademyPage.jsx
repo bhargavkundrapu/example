@@ -297,21 +297,6 @@ export default function AcademyPage() {
                 <span className="text-white/50 text-[10px] sm:text-xs">• Courses from ₹99 | Packs from ₹199</span>
               </button>
             </div>
-            <div className="mt-4 flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 pointer-events-auto text-xs sm:text-sm">
-              <Link
-                to="/academy/college-overview"
-                className="text-white/70 hover:text-violet-300 underline-offset-4 hover:underline font-medium"
-              >
-                For colleges &amp; faculty · overview
-              </Link>
-              <a
-                href="/downloads/ExpoGraph-College-Overview.pdf"
-                download
-                className="text-cyan-400/90 hover:text-cyan-300 font-medium underline-offset-4 hover:underline"
-              >
-                Download college overview PDF
-              </a>
-            </div>
           </div>
         </div>
       </section>
@@ -826,42 +811,43 @@ export default function AcademyPage() {
         id="connect"
         className="connect-section-vibe py-16 sm:py-20 md:py-24 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24 academy-section-gpu heavy-section"
       >
-        <div className="max-w-3xl mx-auto text-center mb-10 sm:mb-12">
-          <p className="inline-block text-[11px] sm:text-xs font-medium tracking-[0.2em] uppercase text-emerald-400/90 mb-4 px-3 py-1 rounded-full border border-emerald-500/15 bg-emerald-500/5">
-            Stay Connected
-          </p>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight tracking-tight">
-            Join the{" "}
-            <span className="bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 text-transparent bg-clip-text">
-              vibe
-            </span>
-          </h2>
-          <p className="mt-4 sm:mt-5 text-sm sm:text-base md:text-lg text-white/55 max-w-xl mx-auto leading-relaxed">
-            You're part of a growing family of builders and creators. Follow for tips, wins and career growth-one tap to join.
-          </p>
-          {/* Lightweight stats strip-no heavy grid */}
-          <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-4 gap-y-2 text-sm text-white/40">
-            <span className="text-emerald-400/80 font-semibold">2K+ builders</span>
-            <span className="text-white/30">·</span>
-            <span>From ₹99 per course</span>
-            <span className="text-white/30">·</span>
-            <span>Real client projects</span>
-            <span className="text-white/30">·</span>
-            <span>24/7 community</span>
-            <span className="text-white/30">·</span>
-            <span>3 courses + pack</span>
-            <span className="text-white/30">·</span>
-            <span>MCA &amp; MSME certificates</span>
-            <span className="text-white/30">·</span>
-            <span>Resume builder</span>
+        <div className="max-w-5xl mx-auto">
+          <div className="max-w-3xl mx-auto text-center mb-10 sm:mb-12">
+            <p className="inline-block text-[11px] sm:text-xs font-medium tracking-[0.2em] uppercase text-emerald-400/90 mb-4 px-3 py-1 rounded-full border border-emerald-500/15 bg-emerald-500/5">
+              Stay Connected
+            </p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight tracking-tight">
+              Join the{" "}
+              <span className="bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 text-transparent bg-clip-text">
+                vibe
+              </span>
+            </h2>
+            <p className="mt-4 sm:mt-5 text-sm sm:text-base md:text-lg text-white/55 max-w-xl mx-auto leading-relaxed">
+              You're part of a growing family of builders and creators. Follow for tips, wins and career growth-one tap to join.
+            </p>
+            {/* Lightweight stats strip-no heavy grid */}
+            <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-4 gap-y-2 text-sm text-white/40">
+              <span className="text-emerald-400/80 font-semibold">2K+ builders</span>
+              <span className="text-white/30">·</span>
+              <span>From ₹99 per course</span>
+              <span className="text-white/30">·</span>
+              <span>Real client projects</span>
+              <span className="text-white/30">·</span>
+              <span>24/7 community</span>
+              <span className="text-white/30">·</span>
+              <span>3 courses + pack</span>
+              <span className="text-white/30">·</span>
+              <span>MCA &amp; MSME certificates</span>
+              <span className="text-white/30">·</span>
+              <span>Resume builder</span>
+            </div>
           </div>
-        </div>
 
-        <div className="max-w-4xl mx-auto">
-          <p className="text-center text-xs sm:text-sm text-white/40 mb-6 sm:mb-8">
-            Where builders connect
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="max-w-4xl mx-auto">
+            <p className="text-center text-xs sm:text-sm text-white/40 mb-6 sm:mb-8">
+              Where builders connect
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <a
               href="https://www.instagram.com/expograph_tech/"
               target="_blank"
@@ -923,6 +909,7 @@ export default function AcademyPage() {
                 </span>
               </div>
             </a>
+            </div>
           </div>
         </div>
       </section>

@@ -1,7 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { getStudentCourseLandingPath, getStudentLessonPath } from "../../../utils/studentCoursePaths";
+import {
+  getStudentCourseLandingPath,
+  getStudentLessonPath,
+  getStudentBonusCourseLandingPath,
+  getStudentBonusLessonPath,
+  isAiToolsMasteryStudentsSlug,
+  isAiAutomationsSlug,
+  isStudentBonusCatalogSlug,
+} from "../../../utils/studentCoursePaths";
 import { useAuth } from "../../../app/providers/AuthProvider";
 import { useTheme } from "../../../app/providers/ThemeProvider";
 import { useDashboardPrefs } from "../../../app/providers/DashboardPrefsProvider";
@@ -40,6 +48,7 @@ function getCourseDurationHours(course) {
   if (slug.includes("prompt-engineering") || title.includes("prompt engineering")) return 30;
   if (slug.includes("prompt-to-profit") || title.includes("prompt to profit")) return 30;
   if (slug.includes("ai-automation") || title.includes("ai automation")) return 30;
+  if (isAiToolsMasteryStudentsSlug(slug) || title.includes("ai tools mastery")) return 15;
   return null;
 }
 
@@ -143,7 +152,7 @@ export default function StudentCourses() {
     }, 250);
 
     return () => window.clearTimeout(timer);
-  }, [courses, token]);
+  }, [courses, token, location.pathname]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -211,25 +220,44 @@ export default function StudentCourses() {
     e.stopPropagation();
     if (!course?.slug) return;
     try {
-      const cached = continueTargetsRef.current[course.slug];
-      if (cached?.moduleSlug && cached?.lessonSlug) {
-        navigate(getStudentLessonPath(course.slug, cached.moduleSlug, cached.lessonSlug));
-        return;
-      }
+          const cached = continueTargetsRef.current[course.slug];
+          if (cached?.moduleSlug && cached?.lessonSlug) {
+            const onBonusTab = location.pathname.includes("bonus-courses");
+            const toBonusLesson = onBonusTab && !isAiAutomationsSlug(course.slug);
+            navigate(
+              toBonusLesson
+                ? getStudentBonusLessonPath(course.slug, cached.moduleSlug, cached.lessonSlug)
+                : getStudentLessonPath(course.slug, cached.moduleSlug, cached.lessonSlug)
+            );
+            return;
+          }
 
       // Redirect directly to the first incomplete lesson for this course.
       // This avoids the extra `/courses/:slug?continue=1` roundtrip.
       const res = await apiFetch(`/api/v1/student/courses/${course.slug}/continue-target`, { token }).catch(() => null);
       const target = res?.data ?? null;
 
+      const onBonusTab = location.pathname.includes("bonus-courses");
+      const landingBase = onBonusTab && !isAiAutomationsSlug(course.slug)
+        ? getStudentBonusCourseLandingPath(course.slug)
+        : getStudentCourseLandingPath(course.slug);
+
       if (!target?.moduleSlug || !target?.lessonSlug) {
-        navigate(`${getStudentCourseLandingPath(course.slug)}?continue=1`);
+        navigate(`${landingBase}?continue=1`);
         return;
       }
 
-      navigate(getStudentLessonPath(course.slug, target.moduleSlug, target.lessonSlug));
+      const lessonUrl =
+        onBonusTab && !isAiAutomationsSlug(course.slug)
+          ? getStudentBonusLessonPath(course.slug, target.moduleSlug, target.lessonSlug)
+          : getStudentLessonPath(course.slug, target.moduleSlug, target.lessonSlug);
+      navigate(lessonUrl);
     } catch {
-      navigate(`${getStudentCourseLandingPath(course.slug)}?continue=1`);
+      const onBonusTab = location.pathname.includes("bonus-courses");
+      const landingBase = onBonusTab && !isAiAutomationsSlug(course.slug)
+        ? getStudentBonusCourseLandingPath(course.slug)
+        : getStudentCourseLandingPath(course.slug);
+      navigate(`${landingBase}?continue=1`);
     }
   };
 
@@ -280,10 +308,38 @@ export default function StudentCourses() {
     setExpandedTopics(newExpanded);
   };
 
-  const isBonusCourse = (course) => {
-    const slug = (course.slug || "").toLowerCase().replace(/_/g, "-");
-    const title = (course.title || "").toLowerCase();
-    return slug.includes("ai-automations") || slug.includes("ai-automation") || slug.includes("ai-automat") || title.includes("ai automation");
+  const isBonusCourse = (course) =>
+    isAiAutomationsSlug(course?.slug) ||
+    isAiToolsMasteryStudentsSlug(course?.slug) ||
+    (course?.title || "").toLowerCase().includes("ai automation");
+
+  /** Extra mini progress ring — shared by main grid and Bonus Courses tab */
+  const CircularProgressMini = ({ percentage, size = 40 }) => {
+    const radius = (size - 8) / 2;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (percentage / 100) * circumference;
+    return (
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg className="transform -rotate-90" width={size} height={size}>
+          <circle cx={size / 2} cy={size / 2} r={radius} stroke="#e2e8f0" strokeWidth="4" fill="none" />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="#06b6d4"
+            strokeWidth="4"
+            fill="none"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            className="transition-all duration-500"
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{percentage}%</span>
+        </div>
+      </div>
+    );
   };
 
   /** Vibe Coding, Prompt Engineering, Prompt to Profit - not bonus / not other courses */
@@ -310,6 +366,7 @@ export default function StudentCourses() {
 
   const filteredCourses = courses
     .filter((course) => {
+      if (!isBonusCoursesPage && isAiToolsMasteryStudentsSlug(course.slug)) return false;
       const matchesSearch =
         course.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         course.description?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -365,37 +422,172 @@ export default function StudentCourses() {
     );
   }
 
-  // Bonus courses page-Coming Soon (AI Automations lives in main Courses only)
+  // Bonus Courses tab — catalog cards (premium layout; mirrors My Courses styling)
   if (isBonusCoursesPage) {
+    const bonusCatalogSortKey = (c) => {
+      if (isAiToolsMasteryStudentsSlug(c.slug)) return 0;
+      if (isAiAutomationsSlug(c.slug)) return 1;
+      return 99;
+    };
+    const bonusCatalogCourses = courses
+      .filter((c) => isStudentBonusCatalogSlug(c.slug))
+      .sort((a, b) => bonusCatalogSortKey(a) - bonusCatalogSortKey(b));
+
+    const landingForBonusCard = (c) =>
+      isAiAutomationsSlug(c.slug) ? getStudentCourseLandingPath(c.slug) : getStudentBonusCourseLandingPath(c.slug);
+
+    const cardSubline = (c) =>
+      isAiToolsMasteryStudentsSlug(c.slug)
+        ? "10 modules • 60 lessons • study-ready workflows — same polish as core paths."
+        : "Automation workflows bundled free with your ExpoGraph journey — dive in anytime.";
+
     return (
       <PageTransition>
-        <div className={`min-h-screen rounded-t-3xl overflow-hidden md:rounded-none p-4 md:p-8 transition-colors duration-200 ${isDark ? "bg-slate-900" : "bg-slate-50"}`}>
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-8">
-              <p className={`text-xs uppercase tracking-wider mb-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>BONUS CONTENT</p>
-              <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>
-                Bonus Courses
-              </h1>
-              <p className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                Free extra courses-coming soon.
-              </p>
-            </div>
-            <div className={`rounded-xl border p-12 text-center ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
-              <div className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 ${isDark ? "bg-amber-500/10 text-amber-400" : "bg-amber-100 text-amber-600"}`}>
-                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+        <div className={`min-h-screen rounded-t-3xl overflow-hidden md:rounded-none transition-colors duration-200 ${isDark ? "bg-slate-950" : "bg-slate-50"}`}>
+          <div className="relative pb-24">
+            <div className={`absolute inset-x-0 top-0 h-72 ${isDark ? "bg-gradient-to-b from-indigo-950/70 via-purple-950/40 to-transparent" : "bg-gradient-to-b from-indigo-50 via-purple-50/70 to-transparent"}`} />
+
+            <div className={`relative px-4 md:px-8 pt-10 md:pt-14 pb-6 max-w-7xl mx-auto`}>
+              <div className="flex flex-wrap items-start justify-between gap-4 mb-10">
+                <div>
+                  <p className={`text-[11px] uppercase tracking-[0.2em] font-bold mb-2 ${isDark ? "text-amber-300/95" : "text-amber-700"}`}>
+                    Bonus catalogue
+                  </p>
+                  <h1 className={`text-3xl md:text-5xl font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                    Bonus courses
+                  </h1>
+                  <p className={`mt-2 max-w-2xl text-sm md:text-base leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                    Premium pathways included at no extra cost — structured like Vibe Coding and Prompt Engineering, tuned for mastery and portfolios.
+                  </p>
+                </div>
+                <Link
+                  to="/lms/student/courses"
+                  className={`shrink-0 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border transition ${
+                    isDark
+                      ? "border-white/15 text-white hover:bg-white/5"
+                      : "border-slate-200 bg-white text-slate-800 hover:border-indigo-200 hover:shadow-sm"
+                  }`}
+                >
+                  My courses <FiChevronRight className="w-4 h-4 opacity-70" aria-hidden />
+                </Link>
               </div>
-              <h3 className={`text-2xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Coming Soon</h3>
-              <p className={`text-sm max-w-md mx-auto ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                We're preparing bonus courses for you. In the meantime, explore your main courses.
-              </p>
-              <button
-                onClick={() => navigate("/lms/student/courses")}
-                className="mt-8 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl"
-              >
-                Go to My Courses
-              </button>
+
+              {bonusCatalogCourses.length === 0 ? (
+                <div className={`rounded-2xl border p-10 md:p-14 text-center max-w-xl mx-auto ${isDark ? "bg-slate-900/70 border-white/10" : "bg-white border-slate-200 shadow-md"}`}>
+                  <FiZap className={`mx-auto w-14 h-14 mb-6 ${isDark ? "text-amber-400" : "text-amber-500"}`} />
+                  <h2 className={`text-xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Publishing bonus catalog</h2>
+                  <p className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                    Once AI Tools Mastery and AI Automations are published for your tenant, they appear here automatically.                     Administrators can publish the Markdown bundle by running{" "}
+                    <span className="font-mono text-xs align-middle whitespace-nowrap">npm run seed:bonus-ai-tools-mastery</span>
+                    {" "}inside <span className="font-mono text-xs">apps/api</span> (requires{" "}
+                    <span className="font-mono text-xs">DATABASE_URL</span> in <span className="font-mono text-xs">.env</span>).
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                  {bonusCatalogCourses.map((course, index) => {
+                    const progress = course.progress || 0;
+                    const isCompleted = progress === 100;
+                    const topicsCount = course.modules_count || course.topics_count || course.lessons_count || 0;
+                    const locked = !course.enrolled && !isBonusCourse(course);
+                    const durationHours = getCourseDurationHours(course);
+                    const coverSrc = getCourseCardCover(course.slug, course.title);
+                    return (
+                      <motion.div
+                        key={course.id || course.slug || index}
+                        initial={{ opacity: 0, y: 26 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.45, delay: index * 0.06 }}
+                        className={`rounded-2xl overflow-hidden border shadow-xl hover-lift bg-gradient-to-br ${
+                          isDark
+                            ? "from-slate-900 via-slate-900 to-indigo-950/40 border-white/10"
+                            : "from-white via-white to-indigo-50/80 border-indigo-100/80"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => navigate(landingForBonusCard(course))}
+                          className="w-full text-left"
+                        >
+                          <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+                            <img src={coverSrc} alt="" className="w-full h-full object-cover opacity-95" loading="lazy" />
+                            <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? "from-black/85 via-transparent" : "from-slate-900/65 via-transparent"}`} />
+                            <span className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-black/55 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white ring-1 ring-white/20">
+                              <FiZap className="w-3 h-3 text-amber-300" /> Free forever
+                            </span>
+                          </div>
+                          <div className="px-6 py-6 md:px-7 md:py-8">
+                            <div className="flex items-start gap-5">
+                              <div className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center ${isDark ? "bg-indigo-500/15 text-indigo-300" : "bg-indigo-100 text-indigo-700"}`}>
+                                {isCompleted ? <FiCheck className="w-6 h-6" /> : locked ? <FiLock className="w-6 h-6" /> : <CircularProgressMini percentage={progress} />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-3 flex-wrap mb-2">
+                                  <h3 className={`text-xl md:text-2xl font-black leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                                    {course.title || course.slug || "Untitled"}
+                                  </h3>
+                                  {isAiToolsMasteryStudentsSlug(course.slug) && (
+                                    <span className={`text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-full tracking-wide ${isDark ? "bg-amber-500/15 text-amber-300" : "bg-amber-50 text-amber-800 ring-1 ring-amber-200/70"}`}>
+                                      New flagship
+                                    </span>
+                                  )}
+                                </div>
+                                <p className={`text-sm leading-relaxed line-clamp-3 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                                  {course.description || cardSubline(course)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="mt-5 flex flex-wrap gap-3 text-[13px]">
+                              {!locked && topicsCount ? (
+                                <span className={`inline-flex items-center gap-2 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                                  <FiBookOpen className="w-4 h-4" /> {topicsCount} topic{topicsCount === 1 ? "" : "s"}
+                                </span>
+                              ) : null}
+                              {durationHours != null ? (
+                                <span className={`inline-flex items-center gap-2 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                                  <FiClock className="w-4 h-4" /> ~{durationHours} hrs
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                        </button>
+                        {!locked ? (
+                          <div className={`flex flex-wrap gap-3 px-6 md:px-7 pb-6 md:pb-8 ${isDark ? "" : "border-t border-slate-100/90"}`}>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleContinueLearning(course, e);
+                              }}
+                              className="flex-1 min-w-[160px] py-3 px-6 rounded-xl text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:brightness-105 shadow-lg shadow-purple-950/35"
+                            >
+                              {progress ? "Continue learning" : "Open course"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(landingForBonusCard(course));
+                              }}
+                              className={`py-3 px-6 rounded-xl text-sm font-bold border transition ${
+                                isDark
+                                  ? "border-white/20 text-white hover:bg-white/10"
+                                  : "border-slate-200 text-slate-800 hover:bg-slate-50"
+                              }`}
+                            >
+                              Overview
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="px-6 md:px-7 pb-6 md:pb-8">
+                            <p className="text-sm text-red-600 dark:text-red-400">This course isn&apos;t available for your tenant yet.</p>
+                          </div>
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -404,41 +596,7 @@ export default function StudentCourses() {
   }
 
   // Circular Progress Component
-  const CircularProgress = ({ percentage, size = 40 }) => {
-    const radius = (size - 8) / 2;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (percentage / 100) * circumference;
-
-    return (
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg className="transform -rotate-90" width={size} height={size}>
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="#e2e8f0"
-            strokeWidth="4"
-            fill="none"
-          />
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="#06b6d4"
-            strokeWidth="4"
-            fill="none"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            className="transition-all duration-500"
-          />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xs font-semibold text-slate-700">{percentage}%</span>
-        </div>
-      </div>
-    );
-  };
+  const CircularProgress = CircularProgressMini;
 
   // Get course icon based on course data
   const getCourseIcon = (course, index) => {

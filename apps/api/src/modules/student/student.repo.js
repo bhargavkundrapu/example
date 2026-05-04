@@ -11,16 +11,24 @@ const MAIN_COURSE_SLUG_OPTIONS = [
 
 const BONUS_COURSE_SLUG_VARIANTS = ["ai-automations", "ai_automations", "ai-automation", "ai_automation"];
 
+/** Bonus courses seeded / resolved by slug (always free once published). Keep in sync with web `studentCoursePaths`. */
+const EXTRA_ALWAYS_FREE_BONUS_SLUG_VARIANTS = ["ai-tools-mastery-students", "ai_tools_mastery_students"];
+
+async function resolvePublishedCourseIdBySlug({ tenantId, slug }) {
+  if (!slug) return null;
+  const { rows } = await query(
+    `SELECT id FROM courses WHERE tenant_id = $1 AND status = 'published'
+     AND (slug = $2 OR REPLACE(slug, '_', '-') = $2 OR LOWER(REPLACE(slug, '_', '-')) = LOWER($2)) LIMIT 1`,
+    [tenantId, slug]
+  ).catch(() => ({ rows: [] }));
+  return rows[0]?.id || null;
+}
+
 /** Resolve AI Automations (bonus) course id. Bonus course is free for everyone - no lock/unlock. */
 async function getBonusCourseId({ tenantId }) {
   for (const slug of BONUS_COURSE_SLUG_VARIANTS) {
-    if (!slug) continue;
-    const { rows } = await query(
-      `SELECT id FROM courses WHERE tenant_id = $1 AND status = 'published'
-       AND (slug = $2 OR REPLACE(slug, '_', '-') = $2 OR LOWER(REPLACE(slug, '_', '-')) = LOWER($2)) LIMIT 1`,
-      [tenantId, slug]
-    ).catch(() => ({ rows: [] }));
-    if (rows[0]?.id) return rows[0].id;
+    const id = await resolvePublishedCourseIdBySlug({ tenantId, slug });
+    if (id) return id;
   }
   const { rows: fallback } = await query(
     `SELECT id FROM courses WHERE tenant_id = $1 AND status = 'published'
@@ -31,10 +39,35 @@ async function getBonusCourseId({ tenantId }) {
   return null;
 }
 
+/** All always-free bonus course ids for this tenant (AI Automations + extra catalog bonuses). */
+async function getBonusCourseIds({ tenantId }) {
+  const ids = [];
+  const seen = new Set();
+  const primary = await getBonusCourseId({ tenantId });
+  if (primary) {
+    const k = normId(primary);
+    seen.add(k);
+    ids.push(primary);
+  }
+  for (const slug of EXTRA_ALWAYS_FREE_BONUS_SLUG_VARIANTS) {
+    const id = await resolvePublishedCourseIdBySlug({ tenantId, slug });
+    if (id && !seen.has(normId(id))) {
+      seen.add(normId(id));
+      ids.push(id);
+    }
+  }
+  return ids;
+}
+
+async function getBonusCourseIdSet({ tenantId }) {
+  const list = await getBonusCourseIds({ tenantId });
+  return new Set(list.map((id) => normId(id)));
+}
+
 // Dashboard & Home - Returns lessons and practice tasks from ENROLLED courses only
 async function getSchedule({ tenantId, userId }) {
   try {
-    const bonusCourseId = await getBonusCourseId({ tenantId });
+    const bonusIdSet = await getBonusCourseIdSet({ tenantId });
 
     const enrollResult = await query(
       `SELECT item_type, item_id FROM enrollments
@@ -45,7 +78,7 @@ async function getSchedule({ tenantId, userId }) {
     const enrolledCourseIds = new Set();
     const enrolledPackIds = new Set();
     enrollResult.rows.forEach((r) => {
-      if (r.item_type === "course" && r.item_id !== bonusCourseId) enrolledCourseIds.add(r.item_id);
+      if (r.item_type === "course" && !bonusIdSet.has(normId(r.item_id))) enrolledCourseIds.add(r.item_id);
       if (r.item_type === "pack") enrolledPackIds.add(r.item_id);
     });
 
@@ -55,12 +88,13 @@ async function getSchedule({ tenantId, userId }) {
         [Array.from(enrolledPackIds)]
       ).catch(() => ({ rows: [] }));
       packRes.rows.forEach((r) => {
-        if (r.course_id !== bonusCourseId) enrolledCourseIds.add(r.course_id);
+        if (!bonusIdSet.has(normId(r.course_id))) enrolledCourseIds.add(r.course_id);
       });
     }
 
-    // Bonus course: free for everyone
-    if (bonusCourseId) enrolledCourseIds.add(bonusCourseId);
+    // Bonus courses: free for everyone
+    const bonusCourseIds = await getBonusCourseIds({ tenantId });
+    bonusCourseIds.forEach((id) => enrolledCourseIds.add(id));
 
     if (enrolledCourseIds.size === 0) return [];
 
@@ -185,7 +219,7 @@ async function getSchedule({ tenantId, userId }) {
 
 async function getCurrentCourse({ tenantId, userId }) {
   try {
-    const bonusCourseId = await getBonusCourseId({ tenantId });
+    const bonusIdSet = await getBonusCourseIdSet({ tenantId });
 
     const enrollResult = await query(
       `SELECT item_type, item_id FROM enrollments
@@ -196,7 +230,7 @@ async function getCurrentCourse({ tenantId, userId }) {
     const enrolledCourseIds = new Set();
     const enrolledPackIds = new Set();
     enrollResult.rows.forEach((r) => {
-      if (r.item_type === "course" && r.item_id !== bonusCourseId) enrolledCourseIds.add(r.item_id);
+      if (r.item_type === "course" && !bonusIdSet.has(normId(r.item_id))) enrolledCourseIds.add(r.item_id);
       if (r.item_type === "pack") enrolledPackIds.add(r.item_id);
     });
 
@@ -206,12 +240,13 @@ async function getCurrentCourse({ tenantId, userId }) {
         [Array.from(enrolledPackIds)]
       ).catch(() => ({ rows: [] }));
       packRes.rows.forEach((r) => {
-        if (r.course_id !== bonusCourseId) enrolledCourseIds.add(r.course_id);
+        if (!bonusIdSet.has(normId(r.course_id))) enrolledCourseIds.add(r.course_id);
       });
     }
 
-    // Bonus course: free for everyone
-    if (bonusCourseId) enrolledCourseIds.add(bonusCourseId);
+    // Bonus courses: free for everyone
+    const bonusCourseIds = await getBonusCourseIds({ tenantId });
+    bonusCourseIds.forEach((id) => enrolledCourseIds.add(id));
 
     if (enrolledCourseIds.size === 0) return null;
 
@@ -466,7 +501,8 @@ function normId(id) {
 }
 
 async function getEnrolledCourseIds({ tenantId, userId }) {
-  const bonusCourseId = await getBonusCourseId({ tenantId });
+  const bonusCourseIds = await getBonusCourseIds({ tenantId });
+  const bonusIdSet = new Set(bonusCourseIds.map((id) => normId(id)));
 
   const enrollResult = await query(
     `SELECT item_type, item_id FROM enrollments
@@ -490,7 +526,7 @@ async function getEnrolledCourseIds({ tenantId, userId }) {
     packRes.rows.forEach((r) => enrolledCourseIds.add(normId(r.course_id)));
   }
 
-  if (bonusCourseId) enrolledCourseIds.add(normId(bonusCourseId));
+  bonusCourseIds.forEach((id) => enrolledCourseIds.add(normId(id)));
 
   return enrolledCourseIds;
 }
@@ -637,7 +673,7 @@ async function getCourseIdsBySlugs({ tenantId, slugs }) {
 
 /** Resolve the 3 main course id GROUPS (vibe, prompt-eng, prompt-profit). Each group is an array of course ids matching that slug set. */
 async function getMainCourseIdGroups({ tenantId }) {
-  const bonusCourseId = await getBonusCourseId({ tenantId });
+  const bonusIdSet = await getBonusCourseIdSet({ tenantId });
 
   const allSlugs = MAIN_COURSE_SLUG_OPTIONS.flat().filter(Boolean);
   const normSlugs = allSlugs.length > 0 ? allSlugs.map((s) => (s || "").toLowerCase().replace(/_/g, "-")) : [];
@@ -688,7 +724,7 @@ async function getMainCourseIdGroups({ tenantId }) {
       [tenantId]
     ).catch(() => ({ rows: [] }));
     const alreadyInGroups = new Set(groups.flat().map((id) => normId(id)));
-    const remaining = allRows.filter((r) => !sameId(r.id, bonusCourseId) && !alreadyInGroups.has(normId(r.id)));
+    const remaining = allRows.filter((r) => !bonusIdSet.has(normId(r.id)) && !alreadyInGroups.has(normId(r.id)));
     if (remaining.length >= 3) {
       return remaining.slice(0, 3).map((r) => [r.id]);
     }
@@ -712,14 +748,19 @@ async function getMainCourseIds({ tenantId }) {
   return groups.map((g) => g[0]).filter(Boolean);
 }
 
+function slugLooksAlwaysFreeBonus(slug) {
+  if (!slug) return false;
+  const s = String(slug).toLowerCase().replace(/_/g, "-");
+  if (s.includes("ai-automation")) return true;
+  if (EXTRA_ALWAYS_FREE_BONUS_SLUG_VARIANTS.some((v) => s === String(v).toLowerCase().replace(/_/g, "-"))) return true;
+  return false;
+}
+
 async function hasCourseAccess({ tenantId, userId, courseId }) {
-  const bonusCourseId = await getBonusCourseId({ tenantId });
-  if (bonusCourseId && sameId(courseId, bonusCourseId)) return true;
+  const bonusCourseIds = await getBonusCourseIds({ tenantId });
+  if (bonusCourseIds.some((id) => sameId(courseId, id))) return true;
   const slug = await getCourseSlugById({ tenantId, courseId });
-  if (slug && bonusCourseId) {
-    const s = (slug || "").toLowerCase().replace(/_/g, "-");
-    if (s.includes("ai-automation")) return true;
-  }
+  if (slug && slugLooksAlwaysFreeBonus(slug)) return true;
   return hasEnrollmentForCourse({ tenantId, userId, courseId });
 }
 

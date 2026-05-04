@@ -1,0 +1,1502 @@
+[
+  {
+    "id": "WF-001",
+    "category": "Coding",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "Speed-run \"group sync\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: group sync. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-002",
+    "category": "Slides",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Stabilise \"internship outreach\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: internship outreach. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-003",
+    "category": "Revision",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "De-risk \"image prompt cleanup\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: image prompt cleanup. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-004",
+    "category": "Collaboration",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Package \"keyword search plan\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: keyword search plan. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-005",
+    "category": "Study",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "Rehearse \"last-day calm plan\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: last-day calm plan. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-006",
+    "category": "Research",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Map \"refactor rationale\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: refactor rationale. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-007",
+    "category": "Writing",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "Speed-run \"REST error mapping\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: REST error mapping. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-008",
+    "category": "Projects",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Stabilise \"chart truth labels\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: chart truth labels. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-009",
+    "category": "Coding",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "De-risk \"email subject lines\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: email subject lines. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-010",
+    "category": "Slides",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Package \"stipend tax question route\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: stipend tax question route. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-011",
+    "category": "Revision",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "Rehearse \"open data finding\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: open data finding. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-012",
+    "category": "Collaboration",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Map \"formula cheat one-pager\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: formula cheat one-pager. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-013",
+    "category": "Study",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "Speed-run \"exam instruction decode\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: exam instruction decode. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-014",
+    "category": "Research",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Stabilise \"async standup notes\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: async standup notes. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-015",
+    "category": "Writing",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "De-risk \"system design vending\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: system design vending. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-016",
+    "category": "Projects",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Package \"regex explain\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: regex explain. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-017",
+    "category": "Coding",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "Rehearse \"pagination testing\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: pagination testing. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-018",
+    "category": "Slides",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Map \"LICENSE pick student\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: LICENSE pick student. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-019",
+    "category": "Revision",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "Speed-run \"sequence diagram lite\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: sequence diagram lite. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-020",
+    "category": "Collaboration",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Stabilise \"observability terms\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: observability terms. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-021",
+    "category": "Study",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "De-risk \"fixture hygiene\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: fixture hygiene. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-022",
+    "category": "Research",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Package \"a11y alt text drill\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: a11y alt text drill. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-023",
+    "category": "Writing",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "Rehearse \"empty state UX\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: empty state UX. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-024",
+    "category": "Projects",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Map \"cache bust student\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: cache bust student. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-025",
+    "category": "Coding",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "Speed-run \"SBOM practical ignore depth\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: SBOM practical ignore depth. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-026",
+    "category": "Slides",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Stabilise \"spaced backlog review\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: spaced backlog review. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-027",
+    "category": "Revision",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "De-risk \"notification zero hour\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: notification zero hour. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-028",
+    "category": "Collaboration",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Package \"sleep debt honesty\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: sleep debt honesty. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-029",
+    "category": "Study",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "Rehearse \"focus playlist bias\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: focus playlist bias. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-030",
+    "category": "Research",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Map \"grade grubbing avoid\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: grade grubbing avoid. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-031",
+    "category": "Writing",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "Speed-run \"financial aid wording careful\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: financial aid wording careful. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-032",
+    "category": "Projects",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Stabilise \"issue hunt good-first\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: issue hunt good-first. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-033",
+    "category": "Coding",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "De-risk \"git hygiene\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: git hygiene. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-034",
+    "category": "Slides",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Package \"thesis-ish intro\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: thesis-ish intro. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-035",
+    "category": "Revision",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "Rehearse \"equation intuition\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: equation intuition. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-036",
+    "category": "Collaboration",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Map \"meeting recap\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: meeting recap. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-037",
+    "category": "Study",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "Speed-run \"risk register tiny\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: risk register tiny. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-038",
+    "category": "Research",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Stabilise \"figure caption assist\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: figure caption assist. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-039",
+    "category": "Writing",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "De-risk \"incident postmortem lite\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: incident postmortem lite. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-040",
+    "category": "Projects",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Package \"accessibility quick pass\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: accessibility quick pass. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-041",
+    "category": "Coding",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "Rehearse \"speaker notes tighten\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: speaker notes tighten. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-042",
+    "category": "Slides",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Map \"resume bullet metrics\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: resume bullet metrics. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-043",
+    "category": "Revision",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "Speed-run \"preprint vs journal\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: preprint vs journal. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-044",
+    "category": "Collaboration",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Stabilise \"block quote formatting\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: block quote formatting. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-045",
+    "category": "Study",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "De-risk \"complexity guess check\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: complexity guess check. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-046",
+    "category": "Research",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Package \"grade appeal draft polite\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: grade appeal draft polite. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-047",
+    "category": "Writing",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "Rehearse \"binary search debug story\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: binary search debug story. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-048",
+    "category": "Projects",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Map \"container vs VM student\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: container vs VM student. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-049",
+    "category": "Coding",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "Speed-run \"code review etiquette\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: code review etiquette. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-050",
+    "category": "Slides",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Stabilise \"XSS skim student\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: XSS skim student. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-051",
+    "category": "Revision",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "De-risk \"PR description crisp\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: PR description crisp. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-052",
+    "category": "Collaboration",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Package \"event-driven sketch\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: event-driven sketch. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-053",
+    "category": "Study",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "Rehearse \"postmortem blameless tone\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: postmortem blameless tone. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-054",
+    "category": "Research",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Map \"browser compat note\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: browser compat note. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-055",
+    "category": "Writing",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "Speed-run \"font licensing verify\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: font licensing verify. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-056",
+    "category": "Projects",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Stabilise \"API error UX copy\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: API error UX copy. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-057",
+    "category": "Coding",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "De-risk \"dependency upgrade fear\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: dependency upgrade fear. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-058",
+    "category": "Slides",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Package \"whiteboard practise\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: whiteboard practise. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-059",
+    "category": "Revision",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "Rehearse \"monthly retrospective tiny\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: monthly retrospective tiny. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-060",
+    "category": "Collaboration",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Map \"deep work pact\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: deep work pact. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-061",
+    "category": "Study",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "Speed-run \"eye strain 20-20-20\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: eye strain 20-20-20. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-062",
+    "category": "Research",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Stabilise \"mentor ping template\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: mentor ping template. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-063",
+    "category": "Writing",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "De-risk \"celebrate micro wins\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: celebrate micro wins. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-064",
+    "category": "Projects",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Package \"NDA vague alert\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: NDA vague alert. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-065",
+    "category": "Coding",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "Rehearse \"elevator pitch 20s\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: elevator pitch 20s. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-066",
+    "category": "Slides",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Map \"API error decoding\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: API error decoding. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-067",
+    "category": "Revision",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "Speed-run \"email to professor\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: email to professor. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-068",
+    "category": "Collaboration",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Stabilise \"diagram labels\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: diagram labels. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-069",
+    "category": "Study",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "De-risk \"flashcard tagging\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: flashcard tagging. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-070",
+    "category": "Research",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Package \"question bank hygiene\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: question bank hygiene. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-071",
+    "category": "Writing",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "Rehearse \"lint fix triage\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: lint fix triage. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-072",
+    "category": "Projects",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Map \"SQL explain plan read\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: SQL explain plan read. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-073",
+    "category": "Coding",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "Speed-run \"dataset license read\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: dataset license read. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-074",
+    "category": "Slides",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Stabilise \"pomodoro batching\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: pomodoro batching. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-075",
+    "category": "Revision",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "De-risk \"offer comparison matrix\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: offer comparison matrix. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-076",
+    "category": "Collaboration",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Package \"ethics board basics\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: ethics board basics. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-077",
+    "category": "Study",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "Rehearse \"notation sheet\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: notation sheet. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-078",
+    "category": "Research",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Map \"wrong-answer tagging\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: wrong-answer tagging. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-079",
+    "category": "Writing",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "Speed-run \"conflict escalate doc\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: conflict escalate doc. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-080",
+    "category": "Projects",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Stabilise \"DP state practice\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: DP state practice. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-081",
+    "category": "Coding",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "De-risk \"log reading skill\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: log reading skill. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-082",
+    "category": "Slides",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Package \"seed data realism\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: seed data realism. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-083",
+    "category": "Revision",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "Rehearse \"README badges honest\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: README badges honest. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-084",
+    "category": "Collaboration",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Map \"architecture diagram MVP\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: architecture diagram MVP. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-085",
+    "category": "Study",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "Speed-run \"load test toy plan\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: load test toy plan. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-086",
+    "category": "Research",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Stabilise \"mocking pitfalls\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: mocking pitfalls. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-087",
+    "category": "Writing",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "De-risk \"i18n string respect\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: i18n string respect. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-088",
+    "category": "Projects",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Package \"microcopy tone shift\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: microcopy tone shift. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-089",
+    "category": "Coding",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "Rehearse \"offline mode fairy tale\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: offline mode fairy tale. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-090",
+    "category": "Slides",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Map \"supply chain folklore\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: supply chain folklore. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-091",
+    "category": "Revision",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "Speed-run \"confidence rating grid\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: confidence rating grid. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-092",
+    "category": "Collaboration",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Stabilise \"distraction blocker ethics\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: distraction blocker ethics. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-093",
+    "category": "Study",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "De-risk \"evening decompress\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: evening decompress. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-094",
+    "category": "Research",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Package \"noise cancelling courtesy\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: noise cancelling courtesy. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-095",
+    "category": "Writing",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "Rehearse \"rec letter ask polite\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: rec letter ask polite. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-096",
+    "category": "Projects",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Map \"counselling stigma break\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: counselling stigma break. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-097",
+    "category": "Coding",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "Speed-run \"open source etiquette\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: open source etiquette. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-098",
+    "category": "Slides",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Stabilise \"lab report outline\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: lab report outline. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-099",
+    "category": "Revision",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "De-risk \"portfolio README\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: portfolio README. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-100",
+    "category": "Collaboration",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Package \"mind-map from PDF\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: mind-map from PDF. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-101",
+    "category": "Study",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "Rehearse \"citation sanity\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: citation sanity. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-102",
+    "category": "Research",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Map \"documentation TOC\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: documentation TOC. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-103",
+    "category": "Writing",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "Speed-run \"rubric alignment\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: rubric alignment. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-104",
+    "category": "Projects",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Stabilise \"release notes draft\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: release notes draft. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-105",
+    "category": "Coding",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "De-risk \"mobile UI copy trim\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: mobile UI copy trim. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-106",
+    "category": "Slides",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Package \"thumbnail A/B text\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: thumbnail A/B text. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-107",
+    "category": "Revision",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "Rehearse \"LinkedIn about draft\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: LinkedIn about draft. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-108",
+    "category": "Collaboration",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Map \"DOI hunt\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: DOI hunt. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-109",
+    "category": "Study",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "Speed-run \"quote vs paraphrase\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: quote vs paraphrase. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-110",
+    "category": "Research",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Stabilise \"algorithm walkthrough\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: algorithm walkthrough. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-111",
+    "category": "Writing",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "De-risk \"post-exam recap\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: post-exam recap. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-112",
+    "category": "Projects",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Package \"version naming\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: version naming. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-113",
+    "category": "Coding",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "Rehearse \"NoSQL vs SQL pick\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: NoSQL vs SQL pick. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-114",
+    "category": "Slides",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Map \"git conflict story\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: git conflict story. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-115",
+    "category": "Revision",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "Speed-run \"cookie vs token student\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: cookie vs token student. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-116",
+    "category": "Collaboration",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Stabilise \"issue template tidy\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: issue template tidy. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-117",
+    "category": "Study",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "De-risk \"state machine story\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: state machine story. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-118",
+    "category": "Research",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Package \"on-call panic reduce\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: on-call panic reduce. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-119",
+    "category": "Writing",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "Rehearse \"e2e flake triage\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: e2e flake triage. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-120",
+    "category": "Projects",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Map \"image compression story\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: image compression story. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-121",
+    "category": "Coding",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "Speed-run \"form validation UX\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: form validation UX. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-122",
+    "category": "Slides",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Stabilise \"secret rotation story\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: secret rotation story. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-123",
+    "category": "Revision",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "De-risk \"rubber duck formalised\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: rubber duck formalised. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-124",
+    "category": "Collaboration",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Package \"Friday ship note\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: Friday ship note. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-125",
+    "category": "Study",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "Rehearse \"calendar colour peace\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: calendar colour peace. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-126",
+    "category": "Research",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Map \"movement break cue\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: movement break cue. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-127",
+    "category": "Writing",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "Speed-run \"study buddy boundaries\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: study buddy boundaries. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-128",
+    "category": "Projects",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Stabilise \"impostor rename practical\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: impostor rename practical. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-129",
+    "category": "Coding",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "De-risk \"intern contract skim\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: intern contract skim. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-130",
+    "category": "Slides",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Package \"demo day rehearsal\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: demo day rehearsal. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-131",
+    "category": "Revision",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "Rehearse \"mock viva answers\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: mock viva answers. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-132",
+    "category": "Collaboration",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Map \"poster layout\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: poster layout. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-133",
+    "category": "Study",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "Speed-run \"test case brainstorming\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: test case brainstorming. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-134",
+    "category": "Research",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Stabilise \"focus blocks\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: focus blocks. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-135",
+    "category": "Writing",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "De-risk \"demo rehearsal\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: demo rehearsal. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-136",
+    "category": "Projects",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Package \"env setup doc\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: env setup doc. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-137",
+    "category": "Coding",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "Rehearse \"acceptance criteria\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: acceptance criteria. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-138",
+    "category": "Slides",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Map \"security checklist student\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: security checklist student. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-139",
+    "category": "Revision",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "Speed-run \"sleep-friendly schedule\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: sleep-friendly schedule. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-140",
+    "category": "Collaboration",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Stabilise \"cold DM kindness\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: cold DM kindness. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-141",
+    "category": "Study",
+    "tool_stack": "Claude/Gemini-type assistant + handwritten notes photo (if allowed)",
+    "workflow_title": "De-risk \"meta-analysis caution\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: meta-analysis caution. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-142",
+    "category": "Research",
+    "tool_stack": "NotebookLM-type grounded notebook + syllabus",
+    "workflow_title": "Package \"appendix planning\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: appendix planning. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-143",
+    "category": "Writing",
+    "tool_stack": "Notion-type workspace + calendar reminders",
+    "workflow_title": "Rehearse \"spaced repetition plan\" (Writing)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: spaced repetition plan. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-144",
+    "category": "Projects",
+    "tool_stack": "Grammarly-type writing assistant",
+    "workflow_title": "Map \"group charter\" (Projects)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: group charter. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-145",
+    "category": "Coding",
+    "tool_stack": "Zotero-type citation manager + library database",
+    "workflow_title": "Speed-run \"graph traversal trace\" (Coding)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: graph traversal trace. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-146",
+    "category": "Slides",
+    "tool_stack": "Anki-type spaced repetition decks",
+    "workflow_title": "Stabilise \"feature flag caution\" (Slides)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: feature flag caution. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-147",
+    "category": "Revision",
+    "tool_stack": "Cursor/Copilot-type coding assistant + official docs tab",
+    "workflow_title": "De-risk \"API mock plan\" (Revision)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: API mock plan. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-148",
+    "category": "Collaboration",
+    "tool_stack": "Canva-type slides + exported PNG charts you label",
+    "workflow_title": "Package \"SQLi awareness\" (Collaboration)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: SQLi awareness. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-149",
+    "category": "Study",
+    "tool_stack": "Workspace board + messaging app for group sync",
+    "workflow_title": "Rehearse \"GIF demo restraint\" (Study)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: GIF demo restraint. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  },
+  {
+    "id": "WF-150",
+    "category": "Research",
+    "tool_stack": "ChatGPT-type assistant + textbook PDF",
+    "workflow_title": "Map \"monolith pragmatic\" (Research)",
+    "workflow_steps": "1) Define allowed inputs. 2) Outline only. 3) Rewrite yourself. 4) Verify facts externally. 5) Log disclosure note if syllabus requires.",
+    "prompts": "Teacher prompt: Outline + gaps only for: monolith pragmatic. Student prompt: Find 5 self-quiz qs from my pasted notes — no answers.",
+    "output_format": "Bullets + timestamps + citations list (manual)",
+    "safety_note": "No cheating: do not request full graded solutions without permission; verify facts; follow college AI policy; cite sources you control."
+  }
+]

@@ -17,6 +17,8 @@ export const COURSE_CARD_COVER = {
     "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1600&q=80&auto=format&fit=crop",
   "ai-automations":
     "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&q=80&auto=format&fit=crop",
+  "ai-tools-mastery-students":
+    "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1600&q=80&auto=format&fit=crop",
 };
 
 const FEATURE_CARD_COVER = {
@@ -65,6 +67,9 @@ export function getCourseCardCover(slug, title) {
   }
   if (s.includes("ai-automation") || tit.includes("ai automation")) {
     return COURSE_CARD_COVER["ai-automations"];
+  }
+  if (s.includes("ai-tools-mastery") || tit.includes("ai tools mastery")) {
+    return COURSE_CARD_COVER["ai-tools-mastery-students"];
   }
 
   return COURSE_CARD_FALLBACK;

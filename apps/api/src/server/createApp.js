@@ -250,6 +250,7 @@ app.get("/api/v1/me", requireAuth, async (req, res, next) => {
   try {
     const userId = req.auth?.userId;
     const tenantId = req.tenant?.id ?? req.auth?.tenantId;
+    const allowTestCourseComplete = allowStudentTestCourseComplete();
 
     let overallProgressPercent = 0;
     let eligibleClientLab = false;

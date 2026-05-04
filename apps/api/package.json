@@ -9,6 +9,8 @@
     "dev": "nodemon",
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js",
+    "restore:prompt-to-profit": "node scripts/restore-prompt-to-profit-course.js",
+    "seed:bonus-ai-tools-mastery": "node scripts/seed-ai-tools-mastery-course.js",
     "type-check": "tsc --noEmit",
     "type-check:watch": "tsc --noEmit --watch",
     "build:ts": "tsc",

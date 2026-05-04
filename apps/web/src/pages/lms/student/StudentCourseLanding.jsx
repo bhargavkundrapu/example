@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
-import { isAiAutomationsSlug, getStudentCourseBasePath, getStudentLessonPath } from "../../../utils/studentCoursePaths";
+import {
+  isAiAutomationsSlug,
+  isAiToolsMasteryStudentsSlug,
+  getStudentCourseBasePath,
+  getStudentLessonPathForRoute,
+} from "../../../utils/studentCoursePaths";
 import { recoverStudentCourseRoute } from "../../../utils/recoverStudentCourseRoute";
 import { useAuth } from "../../../app/providers/AuthProvider";
 import { useTheme } from "../../../app/providers/ThemeProvider";
@@ -220,9 +225,12 @@ export default function StudentCourseLanding() {
     if (mod?.slug) {
       setSearchParams({}, { replace: true });
       const slugForPath = course?.slug || courseSlug;
-      navigate(getStudentLessonPath(slugForPath, mod.slug, continueLesson.slug), { replace: true });
+      navigate(
+        getStudentLessonPathForRoute(slugForPath, mod.slug, continueLesson.slug, { pathname: location.pathname }),
+        { replace: true }
+      );
     }
-  }, [loading, isEnrolled, course, modules, courseSlug, course?.slug, searchParams, setSearchParams, navigate]);
+  }, [loading, isEnrolled, course, modules, courseSlug, course?.slug, searchParams, setSearchParams, navigate, location.pathname]);
 
   const fetchCourseData = async () => {
     try {
@@ -239,7 +247,10 @@ export default function StudentCourseLanding() {
       const courseFromList = coursesList.find(
         (c) => normSlug(c.slug) === courseSlugNorm || c.slug === courseSlug || normSlug(c.slug).startsWith(courseSlugNorm) || courseSlugNorm.startsWith(normSlug(c.slug))
       );
-      const enrolled = courseFromList?.enrolled === true || isAiAutomationsSlug(courseSlug);
+      const enrolled =
+        courseFromList?.enrolled === true ||
+        isAiAutomationsSlug(courseSlug) ||
+        isAiToolsMasteryStudentsSlug(courseSlug);
       setIsEnrolled(enrolled);
 
       let cData = null;
@@ -337,7 +348,7 @@ export default function StudentCourseLanding() {
       return;
     }
     if (mod?.slug && lesson?.slug) {
-      navigate(getStudentLessonPath(pathSlug, mod.slug, lesson.slug));
+      navigate(getStudentLessonPathForRoute(pathSlug, mod.slug, lesson.slug, { pathname: location.pathname }));
     }
   };
 
@@ -631,7 +642,9 @@ export default function StudentCourseLanding() {
                 <LearningPath
                   modules={modules}
                   courseSlug={pathSlug}
-                  onNavigate={(cs, ms, ls) => navigate(getStudentLessonPath(cs, ms, ls))}
+                  onNavigate={(cs, ms, ls) =>
+                    navigate(getStudentLessonPathForRoute(cs, ms, ls, { pathname: location.pathname }))
+                  }
                 />
               </div>
 

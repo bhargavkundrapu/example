@@ -39,13 +39,7 @@ export default function SolutionsHeroSection() {
               >
                 See all services
               </a>
-              <a
-                href="/downloads/ExpoGraph-College-Overview.pdf"
-                download
-                className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-slate-300/80 bg-slate-900 px-8 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                Download college overview PDF
-              </a>
+              
             </div>
           </motion.div>
 

@@ -10,6 +10,7 @@ export const COURSE_DURATION_HOURS = {
   "prompt-engineering": 30,
   "prompt-to-profit": 30,
   "ai-automations": 30,
+  "ai-tools-mastery-students": 15,
 };
 const TOTAL_PACK_HOURS = 12 + 30 + 30 + 30; // 102
 

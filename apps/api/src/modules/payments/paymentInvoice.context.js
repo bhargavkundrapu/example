@@ -16,9 +16,20 @@ function stableInvoiceNo(order) {
   return short ? `EG-${short}` : `EG-${Date.now()}`;
 }
 
+/**
+ * Format rupees for receipt email + PDF. Avoid `style: "currency"` / Unicode ₹ (U+20B9):
+ * PDFKit's standard Helvetica cannot encode ₹ and may substitute a wrong glyph (often
+ * digit "1"), so amounts look like "199" instead of ninety-nine rupees.
+ */
 function formatInrFromPaise(paise) {
   const n = Number(paise) / 100;
-  return n.toLocaleString("en-IN", { style: "currency", currency: "INR", minimumFractionDigits: n % 1 === 0 ? 0 : 2 });
+  if (!Number.isFinite(n)) return "Rs. 0";
+  const frac = n % 1 === 0 ? 0 : 2;
+  const num = n.toLocaleString("en-IN", {
+    minimumFractionDigits: frac,
+    maximumFractionDigits: frac,
+  });
+  return `Rs. ${num}`;
 }
 
 /**
