@@ -294,8 +294,7 @@ export default function StudentLesson() {
   const [captionsEnabled, setCaptionsEnabled] = useState(true);
   /** en | te - only used when alternate native URLs exist for a lesson (e.g. Vibe Coding setup fullstack). */
   const [lessonAlternateVideoLang, setLessonAlternateVideoLang] = useState(() => {
-    if (typeof window === "undefined") return "en";
-    return window.localStorage.getItem(VIBE_SETUP_FULLSTACK_VIDEO_LANG_KEY) === "te" ? "te" : "en";
+    return "te";
   });
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
@@ -790,8 +789,7 @@ export default function StudentLesson() {
 
   useEffect(() => {
     if (!alternateNativeVideos) return;
-    const saved = window.localStorage.getItem(VIBE_SETUP_FULLSTACK_VIDEO_LANG_KEY);
-    if (saved === "te" || saved === "en") setLessonAlternateVideoLang(saved);
+    setLessonAlternateVideoLang("te");
   }, [alternateNativeVideos, lesson?.id]);
 
   const handleSearchLessonSelect = useCallback((item) => {
@@ -1263,11 +1261,6 @@ export default function StudentLesson() {
                           type="button"
                           onClick={() => {
                             setLessonAlternateVideoLang("en");
-                            try {
-                              window.localStorage.setItem(VIBE_SETUP_FULLSTACK_VIDEO_LANG_KEY, "en");
-                            } catch {
-                              /* ignore */
-                            }
                           }}
                           className={`px-3 py-1.5 text-xs font-semibold rounded transition-colors ${
                             lessonAlternateVideoLang === "en"
@@ -1281,11 +1274,6 @@ export default function StudentLesson() {
                           type="button"
                           onClick={() => {
                             setLessonAlternateVideoLang("te");
-                            try {
-                              window.localStorage.setItem(VIBE_SETUP_FULLSTACK_VIDEO_LANG_KEY, "te");
-                            } catch {
-                              /* ignore */
-                            }
                           }}
                           className={`px-3 py-1.5 text-xs font-semibold rounded transition-colors ${
                             lessonAlternateVideoLang === "te"

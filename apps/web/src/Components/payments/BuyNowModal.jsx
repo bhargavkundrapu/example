@@ -8,6 +8,7 @@ function formatRupees(paise) {
 }
 
 const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
+const MOBILE_UA_RE = /Android|iPhone|iPad|iPod/i;
 
 const loadRazorpay = () => {
   return new Promise((resolve, reject) => {
@@ -528,11 +529,14 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
       if (!data?.razorpay_order_id || !data?.key_id) {
         throw new Error("Invalid response from server");
       }
+      const isMobileBrowser =
+        typeof navigator !== "undefined" && MOBILE_UA_RE.test(String(navigator.userAgent || ""));
       const rzp = new Razorpay({
         key: data.key_id,
         amount: data.amount,
         currency: data.currency || "INR",
         order_id: data.razorpay_order_id,
+        callback_url: data.callback_url,
         name: "ExpoGraph",
         description: item.title,
         prefill: {
@@ -589,7 +593,8 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
             submittingRef.current = false;
           },
         },
-        redirect: false,
+        // Keep existing desktop modal flow. On mobile, allow redirect/callback flow for reliable UPI app handoff.
+        redirect: isMobileBrowser,
       });
 
       rzp.on("payment.failed", () => {
