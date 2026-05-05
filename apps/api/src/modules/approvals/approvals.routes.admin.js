@@ -9,6 +9,7 @@ router.use(requireAuth, requireRole(["SuperAdmin"]));
 
 router.get("/", controller.list);
 router.post("/", controller.createManual);
+router.post("/provision-from-razorpay", controller.provisionFromRazorpay);
 router.post("/:id/approve", controller.approve);
 router.post("/:id/reject", controller.reject);
 

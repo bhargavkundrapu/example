@@ -294,6 +294,7 @@ async function reconcilePaidOrderProvision({
   razorpayOrderId,
   razorpayPaymentId = null,
   rawPayload = null,
+  skipAutoApprove = false,
 }) {
   // Persist payment row (idempotent). Customer payment receipt email comes from Razorpay only.
   if (razorpayPaymentId) {
@@ -313,6 +314,12 @@ async function reconcilePaidOrderProvision({
 
   if (existingUser?.id) {
     await ensureExistingUserProvisioned({ order, userId: existingUser.id });
+    await approvalsRepo.finalizePaidCheckoutApprovalForUser({
+      order,
+      userId: existingUser.id,
+      razorpayOrderId,
+      razorpayPaymentId,
+    });
     console.log(`[Payment] Existing user ${existingUser.id} enrolled in ${order.item_type} ${order.item_id}`);
     return { unlocked: true, redirect: `${baseUrl}/lms/student/courses` };
   }
@@ -334,14 +341,119 @@ async function reconcilePaidOrderProvision({
     return { unlocked: true, redirect: `${baseUrl}/lms/student/courses` };
   }
 
-  const autoApproved = await tryAutoApprove(approval.id, order.customer_email);
-  if (autoApproved) {
-    return { unlocked: true, redirect: `${baseUrl}/lms/student/courses` };
+  if (!skipAutoApprove) {
+    const autoApproved = await tryAutoApproveWithRetries(approval.id, order.customer_email);
+    if (autoApproved) {
+      return { unlocked: true, redirect: `${baseUrl}/lms/student/courses` };
+    }
+
+    // User row may appear after retries (signup race, webhook ordering, or retries exhausted while user was created elsewhere).
+    const lateUser = await findUserByEmail(order.customer_email);
+    if (lateUser?.id) {
+      await ensureExistingUserProvisioned({ order, userId: lateUser.id });
+      await approvalsRepo.finalizePaidCheckoutApprovalForUser({
+        order,
+        userId: lateUser.id,
+        razorpayOrderId,
+        razorpayPaymentId,
+      });
+      console.log(`[Payment] finalizePaidCheckout after auto-approve miss for approval ${approval.id} (${order.customer_email})`);
+      return { unlocked: true, redirect: `${baseUrl}/lms/student/courses` };
+    }
+
+    console.warn(
+      `[AutoApproval] Capture reconciled but approve retries exhausted for approval ${approval.id} (${order.customer_email})`
+    );
   }
 
   return {
     redirect: `${baseUrl}/account-pending?email=${encodeURIComponent(order.customer_email)}`,
     approvalId: approval.id,
+  };
+}
+
+/**
+ * SuperAdmin: from Razorpay Payments screen — ensure local paid order + pending approval, then approve once (creates user).
+ */
+async function adminManualApproveFromRazorpayOrder({ razorpayOrderId, razorpayPaymentId, approvedByUserId }) {
+  if (!approvedByUserId) throw new HttpError(401, "Unauthorized");
+  if (!razorpayOrderId || typeof razorpayOrderId !== "string") {
+    throw new HttpError(400, "razorpay_order_id is required");
+  }
+
+  let order = await paymentsRepo.findByRazorpayOrderId(razorpayOrderId.trim());
+  if (!order) {
+    throw new HttpError(
+      404,
+      "No ExpoGraph checkout row for this Razorpay order. Only purchases created through your checkout can be approved here."
+    );
+  }
+
+  let paymentId = razorpayPaymentId && String(razorpayPaymentId).trim() ? String(razorpayPaymentId).trim() : null;
+  if (!paymentId) {
+    paymentId = await resolveCapturedPaymentIdForOrder(razorpayOrderId.trim());
+  }
+
+  if (order.status === "created") {
+    if (!paymentId) {
+      throw new HttpError(
+        400,
+        "Cannot mark order paid: provide razorpay_payment_id from this row, or wait until Razorpay links a captured payment."
+      );
+    }
+    let payEntity = null;
+    try {
+      const rzp = getRazorpayInstance();
+      payEntity = await rzp.payments.fetch(paymentId);
+    } catch (err) {
+      const msg = err?.error?.description || err?.message || String(err);
+      throw new HttpError(502, `Could not verify payment with Razorpay: ${msg}`);
+    }
+    if (payEntity.status !== "captured" && payEntity.captured !== true) {
+      throw new HttpError(400, `Razorpay payment is not captured (status: ${payEntity.status}).`);
+    }
+    await paymentsRepo.markOrderPaid(order.id);
+    order = { ...order, status: "paid" };
+  }
+
+  if (order.status !== "paid") {
+    throw new HttpError(400, "Local payment order is not paid.");
+  }
+
+  await reconcilePaidOrderProvision({
+    order,
+    razorpayOrderId: razorpayOrderId.trim(),
+    razorpayPaymentId: paymentId,
+    rawPayload: null,
+    skipAutoApprove: true,
+  });
+
+  const approval = await approvalsRepo.findByPaymentOrderId(order.id);
+
+  if (!approval) {
+    return {
+      outcome: "existing_user",
+      message: "Account already existed — access was ensured (no approval row).",
+    };
+  }
+
+  if (approval.status === "approved") {
+    return {
+      outcome: "already_approved",
+      approvalId: approval.id,
+      message: "Already approved.",
+    };
+  }
+
+  if (approval.status === "rejected") {
+    throw new HttpError(400, "This purchase approval was rejected; cannot approve from Razorpay tab.");
+  }
+
+  await approvalsService.approveById({ approvalId: approval.id, approvedByUserId });
+  return {
+    outcome: "approved",
+    approvalId: approval.id,
+    message: "Approved — student account created and enrolled.",
   };
 }
 
@@ -455,6 +567,79 @@ async function tryAutoApprove(approvalId, email) {
   }
 }
 
+/** Fast retries after Razorpay capture — smooths transient DB / Neon wake latency so approval lands in under ~1s. */
+async function tryAutoApproveWithRetries(approvalId, email) {
+  const parsedAttempts = parseInt(process.env.AUTO_APPROVE_CAPTURE_ATTEMPTS ?? "", 10);
+  const attempts = Number.isFinite(parsedAttempts) ? Math.min(15, Math.max(3, parsedAttempts)) : 8;
+  const parsedBase = parseInt(process.env.AUTO_APPROVE_CAPTURE_BASE_MS ?? "", 10);
+  const baseMs = Number.isFinite(parsedBase) ? Math.min(500, Math.max(20, parsedBase)) : 55;
+
+  for (let i = 0; i < attempts; i++) {
+    if (i > 0) await delay(Math.round(Math.min(750, baseMs * 1.65 ** (i - 1))));
+    const ok = await tryAutoApprove(approvalId, email);
+    if (ok) return true;
+  }
+  return false;
+}
+
+/**
+ * Idempotent: mark local order paid if needed, reconcile (webhook-equivalent), then ensure approval is approved.
+ * Used when Super Admin loads Razorpay payments so "captured but not approved" rows self-heal without clicking.
+ */
+async function ensureCapturedRazorpayCheckoutApproved({ razorpayOrderId, razorpayPaymentId }) {
+  try {
+    const rzOrder = typeof razorpayOrderId === "string" ? razorpayOrderId.trim() : "";
+    if (!rzOrder) return { ok: false, reason: "missing_order_id" };
+
+    let payId =
+      razorpayPaymentId && String(razorpayPaymentId).trim() ? String(razorpayPaymentId).trim() : null;
+    let order = await paymentsRepo.findByRazorpayOrderId(rzOrder);
+    if (!order) return { ok: false, reason: "no_local_order" };
+
+    if (!payId) payId = await resolveCapturedPaymentIdForOrder(rzOrder);
+
+    if (order.status === "created") {
+      if (!payId) return { ok: false, reason: "no_payment_id" };
+      const rzp = getRazorpayInstance();
+      const payEntity = await rzp.payments.fetch(payId);
+      if (payEntity.status !== "captured" && payEntity.captured !== true) {
+        return { ok: false, reason: "not_captured_in_razorpay" };
+      }
+      await paymentsRepo.markOrderPaid(order.id);
+      order = await paymentsRepo.findByRazorpayOrderId(rzOrder);
+      if (!order) return { ok: false, reason: "order_missing_after_pay" };
+    }
+
+    if (order.status !== "paid") return { ok: false, reason: "order_not_paid" };
+
+    await reconcilePaidOrderProvision({
+      order,
+      razorpayOrderId: rzOrder,
+      razorpayPaymentId: payId,
+      rawPayload: null,
+      skipAutoApprove: false,
+    });
+
+    order = await paymentsRepo.findByRazorpayOrderId(rzOrder);
+    if (!order) return { ok: false, reason: "order_missing_final" };
+
+    let approval = await approvalsRepo.findByPaymentOrderId(order.id);
+    if (!approval) return { ok: true, outcome: "no_approval_row" };
+    if (approval.status === "approved") return { ok: true, outcome: "approved" };
+    if (approval.status === "rejected") return { ok: false, reason: "approval_rejected" };
+
+    const retried = await tryAutoApproveWithRetries(approval.id, order.customer_email);
+    approval = await approvalsRepo.findByPaymentOrderId(order.id);
+    if (approval?.status === "approved" || retried) return { ok: true, outcome: "approved_after_retry" };
+
+    await approvalsService.approveById({ approvalId: approval.id, approvedByUserId: null });
+    return { ok: true, outcome: "approved_forced" };
+  } catch (err) {
+    console.error("[Payment] ensureCapturedRazorpayCheckoutApproved:", err?.message || err);
+    return { ok: false, reason: err?.message || String(err) };
+  }
+}
+
 // WARNING (Neon scale-to-zero):
 // This background poller queries Postgres on a fixed interval even when no users are active.
 // Only enable it in production if absolutely needed, otherwise it will prevent Neon from scaling to zero.
@@ -473,12 +658,15 @@ async function pollPendingApprovals() {
   try {
     const { rows: tenants } = await query(`SELECT id FROM tenants LIMIT 10`);
     for (const tenant of tenants) {
-      const pending = await approvalsRepo.listByStatus({ tenantId: tenant.id, status: "pending" });
-      let approved = 0;
-      for (const approval of pending) {
-        if (approved >= MAX_AUTO_APPROVE_BATCH) break;
-        await tryAutoApprove(approval.id, approval.customer_email);
-        approved++;
+      const pendingPaid = await approvalsRepo.listPendingLinkedToPaidOrders({
+        tenantId: tenant.id,
+        limit: MAX_AUTO_APPROVE_BATCH * 10,
+      });
+      let processed = 0;
+      for (const approval of pendingPaid) {
+        if (processed >= MAX_AUTO_APPROVE_BATCH) break;
+        await tryAutoApproveWithRetries(approval.id, approval.customer_email);
+        processed++;
       }
 
       // Self-heal paid orders that missed approval/enrollment due transient failures.
@@ -548,6 +736,8 @@ module.exports = {
   verifyRazorpaySignature,
   verifyWebhookSignature,
   reconcilePaidOrdersMissingProvision,
+  adminManualApproveFromRazorpayOrder,
+  ensureCapturedRazorpayCheckoutApproved,
   startAutoApprovalPoller,
   stopAutoApprovalPoller,
 };

@@ -34,6 +34,7 @@ const { router: mentorClientLabRouter } = require("../modules/clientLab/clientLa
 
 const { router: usersAdminRouter } = require("../modules/users/users.routes.admin");
 const { router: approvalsAdminRouter } = require("../modules/approvals/approvals.routes.admin");
+const { router: razorpayAdminRouter } = require("../modules/payments/razorpayAdmin.routes");
 const { router: feedbackAdminRouter } = require("../modules/feedback/feedback.routes.admin");
 const { router: dashboardRouter } = require("../modules/dashboard/dashboard.routes");
 const { router: collegesPublicRouter } = require("../modules/colleges/colleges.routes.public");
@@ -225,6 +226,7 @@ app.use(
   app.use("/api/v1/admin/certifications", certificationsAdminRouter);
   app.use("/api/v1/admin", featureFlagsAdmin);
   app.use("/api/v1/admin/approvals", approvalsAdminRouter);
+  app.use("/api/v1/admin/razorpay", razorpayAdminRouter);
   app.use("/api/v1/admin/feedback", feedbackAdminRouter);
   app.use("/api/v1/admin/dashboard", dashboardRouter);
 
