@@ -36,6 +36,13 @@ export default function SuperAdminCourses() {
   const [module, setModule] = useState(null);
   const [saving, setSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [courseDeleteModal, setCourseDeleteModal] = useState({
+    open: false,
+    loading: false,
+    deleting: false,
+    impact: null,
+    typedValue: "",
+  });
   const [filterLevel, setFilterLevel] = useState("all");
   const [openStatusDropdown, setOpenStatusDropdown] = useState(null); // Track which status dropdown is open
   
@@ -309,6 +316,9 @@ export default function SuperAdminCourses() {
       await apiFetch(endpoint, { method: "DELETE", token });
       setShowDeleteConfirm(null);
       if (type === "course") {
+        setCourseDeleteModal({ open: false, loading: false, deleting: false, impact: null, typedValue: "" });
+      }
+      if (type === "course") {
         navigate("/lms/superadmin/courses");
         await fetchCourses();
       } else if (type === "module") {
@@ -321,6 +331,52 @@ export default function SuperAdminCourses() {
       alert(error?.message || error?.payload?.error || "Failed to delete");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const openCourseDeleteConfirm = async (courseId) => {
+    try {
+      setCourseDeleteModal({
+        open: true,
+        loading: true,
+        deleting: false,
+        impact: null,
+        typedValue: "",
+      });
+      const res = await apiFetch(`/api/v1/admin/courses/${courseId}/delete-impact`, { token });
+      setCourseDeleteModal((prev) => ({
+        ...prev,
+        loading: false,
+        impact: res?.data || null,
+      }));
+    } catch (error) {
+      console.error("Failed to load delete impact:", error);
+      alert(error?.message || error?.payload?.error || "Failed to load course delete impact");
+      setCourseDeleteModal({ open: false, loading: false, deleting: false, impact: null, typedValue: "" });
+    }
+  };
+
+  const closeCourseDeleteModal = () => {
+    if (courseDeleteModal.deleting) return;
+    setCourseDeleteModal({ open: false, loading: false, deleting: false, impact: null, typedValue: "" });
+  };
+
+  const isCourseDeleteTypedMatch = (() => {
+    const expectedSlug = String(courseDeleteModal.impact?.slug || "").trim();
+    const expectedTitle = String(courseDeleteModal.impact?.title || "").trim().toLowerCase();
+    const typed = String(courseDeleteModal.typedValue || "").trim();
+    if (!typed) return false;
+    return typed === expectedSlug || typed.toLowerCase() === expectedTitle;
+  })();
+
+  const handleConfirmCourseDelete = async () => {
+    const courseIdToDelete = courseDeleteModal.impact?.course_id;
+    if (!courseIdToDelete || !isCourseDeleteTypedMatch) return;
+    try {
+      setCourseDeleteModal((prev) => ({ ...prev, deleting: true }));
+      await handleDelete("course", courseIdToDelete);
+    } finally {
+      setCourseDeleteModal((prev) => ({ ...prev, deleting: false }));
     }
   };
 
@@ -427,6 +483,68 @@ export default function SuperAdminCourses() {
     }
     return <FiBook className="w-6 h-6 text-blue-500" />;
   };
+
+  const courseDeleteModalUI = courseDeleteModal.open ? (
+    <div className="fixed inset-0 bg-black/60 z-[120] flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg w-full max-w-xl border border-slate-200 shadow-2xl">
+        <div className="p-6 border-b border-slate-200">
+          <h3 className="text-xl font-bold text-slate-900">Delete Course - Confirmation</h3>
+          <p className="mt-1 text-sm text-slate-600">
+            This action permanently deletes the course and related content.
+          </p>
+        </div>
+        <div className="p-6 space-y-4">
+          {courseDeleteModal.loading ? (
+            <p className="text-sm text-slate-600">Loading impact summary...</p>
+          ) : (
+            <>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                <p className="font-semibold">Please review the impact before deleting:</p>
+                <ul className="mt-2 space-y-1">
+                  <li>Course: <span className="font-semibold">{courseDeleteModal.impact?.title || "-"}</span></li>
+                  <li>Slug: <span className="font-mono">{courseDeleteModal.impact?.slug || "-"}</span></li>
+                  <li>Modules: <span className="font-semibold">{courseDeleteModal.impact?.modules_count ?? 0}</span></li>
+                  <li>Lessons: <span className="font-semibold">{courseDeleteModal.impact?.lessons_count ?? 0}</span></li>
+                  <li>Active enrollments affected: <span className="font-semibold">{courseDeleteModal.impact?.total_active_enrollments ?? 0}</span></li>
+                </ul>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-900 mb-2">
+                  Type exact slug <span className="font-mono bg-slate-100 px-1 rounded">{courseDeleteModal.impact?.slug || "-"}</span>
+                  {" "}or exact course title to enable final delete.
+                </p>
+                <input
+                  type="text"
+                  value={courseDeleteModal.typedValue}
+                  onChange={(e) => setCourseDeleteModal((prev) => ({ ...prev, typedValue: e.target.value }))}
+                  placeholder="Type slug or title exactly"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:border-red-500"
+                />
+              </div>
+            </>
+          )}
+        </div>
+        <div className="p-6 border-t border-slate-200 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={closeCourseDeleteModal}
+            disabled={courseDeleteModal.deleting}
+            className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-md disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleConfirmCourseDelete}
+            disabled={courseDeleteModal.loading || courseDeleteModal.deleting || !isCourseDeleteTypedMatch}
+            className="px-5 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {courseDeleteModal.deleting ? "Deleting..." : "Delete Course Permanently"}
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null;
 
   // Main View - All Courses Card + Create Course Card
   if (view === "main") {
@@ -692,9 +810,7 @@ export default function SuperAdminCourses() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (confirm("Are you sure you want to delete this course? This will remove all modules and lessons.")) {
-                              handleDelete("course", course.id);
-                            }
+                            openCourseDeleteConfirm(course.id);
                           }}
                           className="p-2 hover:bg-red-50 rounded-lg transition-colors text-slate-500 hover:text-red-600"
                           title="Delete course"
@@ -777,9 +893,7 @@ export default function SuperAdminCourses() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (confirm("Are you sure you want to delete this course?")) {
-                                  handleDelete("course", course.id);
-                                }
+                                openCourseDeleteConfirm(course.id);
                                 setShowDeleteConfirm(null);
                               }}
                               className="w-full px-4 py-2 text-left hover:bg-red-50 flex items-center gap-2 text-red-600"
@@ -932,6 +1046,7 @@ export default function SuperAdminCourses() {
             </div>
           </div>
         )}
+        {courseDeleteModalUI}
       </div>
     );
   }
@@ -966,8 +1081,8 @@ export default function SuperAdminCourses() {
                 </button>
                 <button
                   onClick={() => {
-                    if (course?.id && confirm("Are you sure you want to delete this course? This will remove all modules and lessons.")) {
-                      handleDelete("course", course.id);
+                    if (course?.id) {
+                      openCourseDeleteConfirm(course.id);
                     }
                   }}
                   className="px-4 py-2 bg-red-50 text-red-600 font-semibold rounded-md hover:bg-red-100 flex items-center gap-2"
@@ -1305,6 +1420,7 @@ export default function SuperAdminCourses() {
             </div>
           </div>
         )}
+        {courseDeleteModalUI}
       </div>
     );
   }

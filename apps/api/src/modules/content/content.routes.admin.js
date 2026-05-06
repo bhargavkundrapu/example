@@ -12,6 +12,7 @@ router.use(requireAuth, requirePermission("content:write"));
 router.post("/courses", ctrl.createCourse);
 router.get("/courses", ctrl.listCoursesAdmin);
 router.patch("/courses/:courseId", ctrl.updateCourse);
+router.get("/courses/:courseId/delete-impact", ctrl.getCourseDeleteImpact);
 router.delete("/courses/:courseId", ctrl.deleteCourse);
 router.patch("/courses/:courseId/status", ctrl.setCourseStatus);
 

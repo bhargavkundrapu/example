@@ -597,6 +597,15 @@ const deleteCourse = asyncHandler(async (req, res) => {
   res.json({ ok: true, data: deleted });
 });
 
+const getCourseDeleteImpact = asyncHandler(async (req, res) => {
+  const impact = await svc.getCourseDeleteImpact({
+    tenantId: req.tenant.id,
+    courseId: req.params.courseId,
+  });
+  if (!impact) throw new HttpError(404, "Course not found");
+  res.json({ ok: true, data: impact });
+});
+
 const deleteModule = asyncHandler(async (req, res) => {
   const deleted = await svc.deleteModule({
     tenantId: req.tenant.id,
@@ -765,6 +774,7 @@ module.exports = {
   deleteSlide,
   deleteResource,
   deletePractice,
+  getCourseDeleteImpact,
   deleteCourse,
   deleteModule,
   deleteLesson,

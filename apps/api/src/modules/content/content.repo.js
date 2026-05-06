@@ -947,6 +947,69 @@ async function deleteCourse({ tenantId, courseId }) {
   return rows[0] || null;
 }
 
+async function getCourseDeleteImpact({ tenantId, courseId }) {
+  const { rows: courseRows } = await query(
+    `SELECT id, title, slug
+     FROM courses
+     WHERE tenant_id = $1 AND id = $2
+     LIMIT 1`,
+    [tenantId, courseId]
+  );
+  const course = courseRows[0] || null;
+  if (!course) return null;
+
+  const { rows: moduleRows } = await query(
+    `SELECT COUNT(*)::int AS count
+     FROM course_modules
+     WHERE tenant_id = $1 AND course_id = $2`,
+    [tenantId, courseId]
+  );
+
+  const { rows: lessonRows } = await query(
+    `SELECT COUNT(*)::int AS count
+     FROM lessons l
+     JOIN course_modules m ON m.id = l.module_id AND m.tenant_id = l.tenant_id
+     WHERE m.tenant_id = $1 AND m.course_id = $2`,
+    [tenantId, courseId]
+  );
+
+  const { rows: directEnrollRows } = await query(
+    `SELECT COUNT(*)::int AS count
+     FROM enrollments
+     WHERE tenant_id = $1
+       AND item_type = 'course'
+       AND item_id = $2
+       AND active = true`,
+    [tenantId, courseId]
+  );
+
+  const { rows: packEnrollRows } = await query(
+    `SELECT COUNT(*)::int AS count
+     FROM enrollments e
+     WHERE e.tenant_id = $1
+       AND e.item_type = 'pack'
+       AND e.active = true
+       AND EXISTS (
+         SELECT 1
+         FROM course_pack_courses cpc
+         WHERE cpc.pack_id = e.item_id
+           AND cpc.course_id = $2
+       )`,
+    [tenantId, courseId]
+  );
+
+  return {
+    course_id: course.id,
+    title: course.title,
+    slug: course.slug,
+    modules_count: moduleRows[0]?.count || 0,
+    lessons_count: lessonRows[0]?.count || 0,
+    direct_active_enrollments: directEnrollRows[0]?.count || 0,
+    pack_active_enrollments: packEnrollRows[0]?.count || 0,
+    total_active_enrollments: (directEnrollRows[0]?.count || 0) + (packEnrollRows[0]?.count || 0),
+  };
+}
+
 async function deleteModule({ tenantId, moduleId }) {
   const { rows } = await query(
     `DELETE FROM course_modules
@@ -1106,6 +1169,7 @@ module.exports = {
   deleteResource,
   deletePractice,
   deleteCourse,
+  getCourseDeleteImpact,
   deleteModule,
   deleteLesson,
   listCoursePacksPublic,
