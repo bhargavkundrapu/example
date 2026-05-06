@@ -18,8 +18,10 @@ router.patch("/users/:userId/status", ctrl.updateUserStatus);
 
 // SuperAdmin: Students management routes
 router.get("/students", ctrl.listStudents);
+router.get("/students/undo", ctrl.listStudentUndoLogs);
 router.get("/students/:userId", ctrl.getStudentWithStats);
 router.post("/students", ctrl.createStudent);
+router.post("/students/:userId/restore", ctrl.restoreStudent);
 router.patch("/students/:userId", ctrl.updateStudent);
 router.delete("/students/:userId", ctrl.deleteStudent);
 

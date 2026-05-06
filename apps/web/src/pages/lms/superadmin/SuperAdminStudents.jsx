@@ -115,6 +115,7 @@ export default function SuperAdminStudents() {
     if (path.includes("/edit")) return "edit";
     if (path.includes("/details") || (params.id && !path.includes("/edit") && !path.includes("/enrollments") && !path.includes("/progress"))) return "details";
     if (path.includes("/create") || path.includes("/add")) return "add";
+    if (path.includes("/undo")) return "undo";
     if (path.includes("/list")) return "list";
     if (path.includes("/cards")) return "cards";
     if (path.includes("/enrollments")) return "enrollments";
@@ -162,6 +163,8 @@ export default function SuperAdminStudents() {
   const [pageSize, setPageSize] = useState(10);
   const [detailRefreshBusy, setDetailRefreshBusy] = useState(false);
   const lastVisibilityRefetchAt = useRef(0);
+  const [deletedStudents, setDeletedStudents] = useState([]);
+  const [restoringStudentEmail, setRestoringStudentEmail] = useState(null);
 
   const activeFilterCount = useMemo(() => {
     const filterStrings = Object.values(filters).filter((v) => typeof v === "string" && v.trim());
@@ -183,6 +186,17 @@ export default function SuperAdminStudents() {
     setCurrentPage(1);
     setStudentsListError(null);
   };
+
+  const reloadUndoStudents = useCallback(async () => {
+    if (!token) return;
+    try {
+      const res = await apiFetch("/api/v1/admin/students/undo", { token });
+      setDeletedStudents(Array.isArray(res?.data) ? res.data : []);
+    } catch (error) {
+      console.error("Failed to load undo students:", error);
+      setDeletedStudents([]);
+    }
+  }, [token]);
 
   // Load courses & packs for enrollment filter dropdown (admin content API)
   useEffect(() => {
@@ -250,6 +264,11 @@ export default function SuperAdminStudents() {
   useEffect(() => {
     if (!token) setLoading(false);
   }, [token]);
+
+  useEffect(() => {
+    if (!token) return;
+    reloadUndoStudents();
+  }, [token, view, reloadUndoStudents]);
 
   // After catalog loads: drop bad enrollment filter values (invalid id, removed course/pack, or no catalog access)
   useEffect(() => {
@@ -616,12 +635,14 @@ export default function SuperAdminStudents() {
     if (!confirm("Are you sure you want to remove this student?")) return;
 
     try {
+      const deletedStudent = students.find((s) => String(s.id) === String(studentId)) || selectedStudent;
       const res = await apiFetch(`/api/v1/admin/students/${studentId}`, {
         method: "DELETE",
         token: token ?? localStorage.getItem("token"),
       });
 
       if (res?.ok) {
+        if (deletedStudent?.email) await reloadUndoStudents();
         const wasViewingDeleted = selectedStudent?.id === studentId;
         if (wasViewingDeleted) {
           setSelectedStudent(null);
@@ -633,6 +654,49 @@ export default function SuperAdminStudents() {
       }
     } catch (error) {
       alert(error?.message || "Failed to delete student. Ensure the API server is running.");
+    }
+  };
+
+  const handleRestoreDeletedStudent = async (student) => {
+    if (!student?.user_id || restoringStudentEmail) return;
+
+    const showStudentInListNow = async () => {
+      const json = await apiFetch("/api/v1/admin/students", { token });
+      const list = Array.isArray(json?.data) ? json.data : [];
+      setStudents(list);
+      setSearchQuery("");
+      setFilters({
+        name: "",
+        email: "",
+        phone: "",
+        college: "",
+        userId: "",
+        dateFrom: "",
+        dateTo: "",
+        enrolledItem: "",
+      });
+      setCurrentPage(1);
+      setShowFilters(false);
+      navigate("/lms/superadmin/students/list");
+      return list;
+    };
+
+    try {
+      setRestoringStudentEmail(student.email || student.user_id);
+      const res = await apiFetch(`/api/v1/admin/students/${student.user_id}/restore`, {
+        method: "POST",
+        token,
+      });
+      if (res?.ok) {
+        await showStudentInListNow();
+        await reloadUndoStudents();
+      } else {
+        alert(res?.error?.message || res?.error || res?.message || "Could not undo removal.");
+      }
+    } catch (error) {
+      alert(error?.message || "Could not undo removal.");
+    } finally {
+      setRestoringStudentEmail(null);
     }
   };
 
@@ -830,6 +894,22 @@ export default function SuperAdminStudents() {
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900">
                 All Students ({filteredStudents.length})
               </h1>
+              <div className="mt-3 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate("/lms/superadmin/students/list")}
+                  className="px-3 py-1.5 rounded-md bg-blue-600 text-white text-xs sm:text-sm font-medium"
+                >
+                  Students
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/lms/superadmin/students/undo")}
+                  className="px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 text-xs sm:text-sm font-medium hover:bg-slate-50"
+                >
+                  Undo Students ({deletedStudents.length})
+                </button>
+              </div>
             </div>
             <button
               onClick={() => {
@@ -1107,6 +1187,9 @@ export default function SuperAdminStudents() {
                       className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
                     >
                       <div className="flex items-center gap-4 flex-1 min-w-0">
+                        <div className="w-10 sm:w-12 text-xs sm:text-sm font-semibold text-slate-400 tabular-nums flex-shrink-0">
+                          {filteredStudents.length - ((safePage - 1) * pageSize + index)}.
+                        </div>
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
                           {student.full_name?.charAt(0)?.toUpperCase() || "S"}
                         </div>
@@ -1208,6 +1291,115 @@ export default function SuperAdminStudents() {
             );
           })()}
         </div>
+        </div>
+        <CredentialsModal />
+      </>
+    );
+  }
+
+  // Undo Students View
+  if (view === "undo") {
+    return (
+      <>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 p-4 sm:p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+              <div>
+                <button
+                  onClick={() => navigate("/lms/superadmin/students/list")}
+                  className="text-slate-600 hover:text-slate-900 mb-2 flex items-center gap-2"
+                >
+                  <FiX className="w-4 h-4 rotate-45" />
+                  <span>Back</span>
+                </button>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900">
+                  Undo Students ({deletedStudents.length})
+                </h1>
+                <div className="mt-3 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/lms/superadmin/students/list")}
+                    className="px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 text-xs sm:text-sm font-medium hover:bg-slate-50"
+                  >
+                    Students
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/lms/superadmin/students/undo")}
+                    className="px-3 py-1.5 rounded-md bg-blue-600 text-white text-xs sm:text-sm font-medium"
+                  >
+                    Undo Students ({deletedStudents.length})
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {deletedStudents.length === 0 ? (
+              <div className="bg-white rounded-xl p-12 border border-slate-200 text-center">
+                <FiUsers className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-slate-900 mb-2">No removed students yet</h3>
+                <p className="text-slate-600">When you remove students, they appear here for restore.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {deletedStudents.map((student, index) => (
+                  <motion.div
+                    key={`${student.email}-${index}`}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+                  >
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="text-slate-900 font-medium truncate">
+                          {student.full_name || "Unnamed Student"}
+                        </span>
+                        {student.status === "restored" ? (
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border bg-emerald-100 text-emerald-800 border-emerald-200">
+                            Restored
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border bg-amber-100 text-amber-800 border-amber-200">
+                            Removed
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-4 text-sm text-slate-500">
+                        <span className="flex items-center gap-1.5">
+                          <FiMail className="w-4 h-4 shrink-0" />
+                          <span className="truncate">{student.email}</span>
+                        </span>
+                        {student.phone && (
+                          <span className="flex items-center gap-1.5">
+                            <FiPhone className="w-4 h-4 shrink-0" />
+                            {student.phone}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-slate-400 text-xs">
+                        {student.status === "restored"
+                          ? `Restored ${student.restored_at ? new Date(student.restored_at).toLocaleString() : "just now"}`
+                          : `Removed ${student.deleted_at ? new Date(student.deleted_at).toLocaleString() : "just now"}`}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRestoreDeletedStudent(student)}
+                      disabled={restoringStudentEmail === student.email || student.status === "restored"}
+                      className="shrink-0 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-medium flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50 transition-all"
+                    >
+                      {student.status === "restored"
+                        ? "Restored"
+                        : restoringStudentEmail === student.email
+                          ? "Restoring..."
+                          : "Restore"}
+                    </button>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <CredentialsModal />
       </>

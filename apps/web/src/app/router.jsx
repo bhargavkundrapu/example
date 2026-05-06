@@ -369,6 +369,7 @@ export const router = createBrowserRouter([
           { path: "students", element: <L><SuperAdminStudents /></L> },
           { path: "students/cards", element: <L><SuperAdminStudents /></L> },
           { path: "students/list", element: <L><SuperAdminStudents /></L> },
+          { path: "students/undo", element: <L><SuperAdminStudents /></L> },
           { path: "students/create", element: <L><SuperAdminStudents /></L> },
           { path: "students/add", element: <L><SuperAdminStudents /></L> },
           { path: "students/:id", element: <L><SuperAdminStudents /></L> },

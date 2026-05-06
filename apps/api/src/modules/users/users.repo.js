@@ -535,6 +535,23 @@ async function createStudent({ tenantId, email, fullName, phone, passwordHash })
   return user;
 }
 
+// SuperAdmin: Reactivate a previously soft-deleted student
+async function reactivateStudent({ userId, fullName, phone, passwordHash }) {
+  const { rows } = await query(
+    `UPDATE users
+     SET
+       is_active = true,
+       full_name = COALESCE($2, full_name),
+       phone = COALESCE($3, phone),
+       password_hash = COALESCE($4, password_hash),
+       updated_at = now()
+     WHERE id = $1
+     RETURNING id, email, full_name, phone, is_active, created_at`,
+    [userId, fullName ?? null, phone ?? null, passwordHash ?? null]
+  );
+  return rows[0] || null;
+}
+
 // SuperAdmin: Delete student (soft delete by setting inactive)
 async function deleteStudent({ userId }) {
   const { rows } = await query(
@@ -545,6 +562,64 @@ async function deleteStudent({ userId }) {
     [userId]
   );
   return rows[0] || null;
+}
+
+async function upsertStudentUndoRemoved({ tenantId, userId, fullName, email, phone }) {
+  const { rows } = await query(
+    `INSERT INTO student_undo_logs
+       (tenant_id, user_id, full_name, email, phone, status, deleted_at, restored_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, 'removed', now(), NULL, now())
+     ON CONFLICT (tenant_id, user_id)
+     DO UPDATE SET
+       full_name = EXCLUDED.full_name,
+       email = EXCLUDED.email,
+       phone = EXCLUDED.phone,
+       status = 'removed',
+       deleted_at = now(),
+       restored_at = NULL,
+       updated_at = now()
+     RETURNING tenant_id, user_id, full_name, email, phone, status, deleted_at, restored_at, updated_at`,
+    [tenantId, userId, fullName ?? null, email ?? null, phone ?? null]
+  );
+  return rows[0] || null;
+}
+
+async function markStudentUndoRestored({ tenantId, userId, fullName, email, phone }) {
+  const { rows } = await query(
+    `INSERT INTO student_undo_logs
+       (tenant_id, user_id, full_name, email, phone, status, deleted_at, restored_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, 'restored', NULL, now(), now())
+     ON CONFLICT (tenant_id, user_id)
+     DO UPDATE SET
+       full_name = COALESCE(EXCLUDED.full_name, student_undo_logs.full_name),
+       email = COALESCE(EXCLUDED.email, student_undo_logs.email),
+       phone = COALESCE(EXCLUDED.phone, student_undo_logs.phone),
+       status = 'restored',
+       restored_at = now(),
+       updated_at = now()
+     RETURNING tenant_id, user_id, full_name, email, phone, status, deleted_at, restored_at, updated_at`,
+    [tenantId, userId, fullName ?? null, email ?? null, phone ?? null]
+  );
+  return rows[0] || null;
+}
+
+async function listStudentUndoLogs({ tenantId }) {
+  const { rows } = await query(
+    `SELECT
+       l.user_id,
+       l.full_name,
+       l.email,
+       l.phone,
+       l.status,
+       l.deleted_at,
+       l.restored_at,
+       l.updated_at
+     FROM student_undo_logs l
+     WHERE l.tenant_id = $1
+     ORDER BY l.updated_at DESC`,
+    [tenantId]
+  );
+  return rows;
 }
 
 // SuperAdmin: List all mentors with filters
@@ -732,7 +807,11 @@ module.exports = {
   getStudentWithStats,
   updateStudentDetails,
   createStudent,
+  reactivateStudent,
   deleteStudent,
+  upsertStudentUndoRemoved,
+  markStudentUndoRestored,
+  listStudentUndoLogs,
   listMentors,
   getMentorWithStudents,
   updateMentorDetails,

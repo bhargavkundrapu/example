@@ -916,7 +916,11 @@ export default function SuperAdminApprovals() {
                   transition={{ delay: i * 0.03 }}
                   className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
                 >
-                  <div className="flex-1 min-w-0 space-y-2">
+                  <div className="flex items-start gap-4 flex-1 min-w-0">
+                    <div className="w-10 sm:w-12 text-xs sm:text-sm font-semibold text-slate-400 tabular-nums flex-shrink-0 pt-0.5">
+                      {filteredApprovals.length - ((safePage - 1) * pageSize + i)}.
+                    </div>
+                    <div className="flex-1 min-w-0 space-y-2">
                     <div className="flex items-center gap-3 flex-wrap">
                       <div className="flex items-center gap-2 text-slate-900 font-medium">
                         <FiUser className="w-4 h-4 text-slate-400 shrink-0" />
@@ -943,6 +947,7 @@ export default function SuperAdminApprovals() {
                       {a.user_id && <span className="font-mono text-slate-500">User ID: {String(a.user_id).slice(0, 8)}…</span>}
                       {new Date(a.created_at).toLocaleString()}
                     </p>
+                    </div>
                   </div>
                   {a.status === "pending" && (
                     <button

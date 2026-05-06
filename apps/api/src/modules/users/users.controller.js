@@ -56,6 +56,10 @@ const UpdateMentorSchema = z.object({
   phone: z.string().optional(),
 });
 
+const RestoreStudentParamsSchema = z.object({
+  userId: z.string().uuid(),
+});
+
 // Tenant Admin: List all users in tenant
 const listTenantUsers = asyncHandler(async (req, res) => {
   const rows = await repo.listTenantUsers({ tenantId: req.tenant.id });
@@ -173,19 +177,54 @@ const createStudent = asyncHandler(async (req, res) => {
   const tenantId = req.tenant.id;
   const parsed = CreateStudentSchema.safeParse(req.body);
   if (!parsed.success) throw new HttpError(400, "Invalid input", parsed.error.flatten());
-  
-  // Check if email exists
-  const existing = await repo.findUserByEmail(parsed.data.email);
-  if (existing) throw new HttpError(409, "Email already registered");
-  
+
+  // Check if email exists. If it belongs to an inactive student in this tenant, reactivate instead.
+  const normalizedEmail = parsed.data.email.trim().toLowerCase();
+  const existing = await repo.findUserByEmail(normalizedEmail);
+
   // Hash password (default password if not provided)
   const bcrypt = require("bcrypt");
   const password = parsed.data.password || "Student@123"; // Default password
   const passwordHash = await bcrypt.hash(password, 12);
+
+  if (existing) {
+    const membership = await repo.getMembershipWithRole({ tenantId, userId: existing.id });
+    const canReactivate =
+      membership &&
+      membership.role_name === "Student" &&
+      existing.is_active === false;
+
+    if (canReactivate) {
+      const restored = await repo.reactivateStudent({
+        userId: existing.id,
+        fullName: parsed.data.fullName,
+        phone: parsed.data.phone || null,
+        passwordHash,
+      });
+      await repo.markStudentUndoRestored({
+        tenantId,
+        userId: existing.id,
+        fullName: restored?.full_name || parsed.data.fullName,
+        email: restored?.email || normalizedEmail,
+        phone: restored?.phone || parsed.data.phone || null,
+      });
+
+      await audit(req, {
+        action: "student.restore",
+        entityType: "user",
+        entityId: existing.id,
+        payload: { email: normalizedEmail },
+      });
+
+      return res.status(200).json({ ok: true, data: restored, restored: true });
+    }
+
+    throw new HttpError(409, "Email already registered");
+  }
   
   const student = await repo.createStudent({
     tenantId,
-    email: parsed.data.email.trim().toLowerCase(),
+    email: normalizedEmail,
     fullName: parsed.data.fullName,
     phone: parsed.data.phone || null,
     passwordHash,
@@ -259,6 +298,13 @@ const deleteStudent = asyncHandler(async (req, res) => {
   }
   
   const deleted = await repo.deleteStudent({ userId });
+  await repo.upsertStudentUndoRemoved({
+    tenantId,
+    userId,
+    fullName: student.full_name,
+    email: student.email,
+    phone: student.phone || null,
+  });
   
   await audit(req, {
     action: "student.delete",
@@ -268,6 +314,54 @@ const deleteStudent = asyncHandler(async (req, res) => {
   });
   
   res.json({ ok: true, data: deleted });
+});
+
+// SuperAdmin: DB-backed undo list for students
+const listStudentUndoLogs = asyncHandler(async (req, res) => {
+  const tenantId = req.tenant.id;
+  const rows = await repo.listStudentUndoLogs({ tenantId });
+  res.json({ ok: true, data: rows });
+});
+
+// SuperAdmin: Restore a soft-deleted student by id
+const restoreStudent = asyncHandler(async (req, res) => {
+  const tenantId = req.tenant.id;
+  const parsed = RestoreStudentParamsSchema.safeParse(req.params);
+  if (!parsed.success) throw new HttpError(400, "Invalid input", parsed.error.flatten());
+  const userId = parsed.data.userId;
+
+  const student = await repo.getTenantUser({ tenantId, userId });
+  if (!student || student.role_name !== "Student") {
+    throw new HttpError(404, "Student not found");
+  }
+  if (student.is_active) {
+    const activeLog = await repo.markStudentUndoRestored({
+      tenantId,
+      userId,
+      fullName: student.full_name,
+      email: student.email,
+      phone: student.phone || null,
+    });
+    return res.json({ ok: true, data: { student, undo: activeLog, already_active: true } });
+  }
+
+  const restored = await repo.updateUserStatus({ userId, isActive: true });
+  const undoLog = await repo.markStudentUndoRestored({
+    tenantId,
+    userId,
+    fullName: restored?.full_name || student.full_name,
+    email: restored?.email || student.email,
+    phone: restored?.phone || student.phone || null,
+  });
+
+  await audit(req, {
+    action: "student.restore",
+    entityType: "user",
+    entityId: userId,
+    payload: { email: student.email, source: "undo_tab" },
+  });
+
+  res.json({ ok: true, data: { student: restored, undo: undoLog } });
 });
 
 // SuperAdmin: List all mentors
@@ -395,6 +489,8 @@ module.exports = {
   createStudent,
   updateStudent,
   deleteStudent,
+  listStudentUndoLogs,
+  restoreStudent,
   listMentors,
   getMentorWithStudents,
   createMentor,
