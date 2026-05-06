@@ -928,6 +928,34 @@ async function enhanceLessonWithData({ tenantId, userId, lesson, moduleLessons }
     };
   });
 
+  const normalizeLearnSetupSteps = (row) => {
+    let steps = row.learn_setup_steps;
+    if (typeof steps === "string") {
+      try {
+        steps = JSON.parse(steps);
+      } catch {
+        steps = null;
+      }
+    }
+
+    // Canonical shape: array of sections.
+    if (Array.isArray(steps) && steps.length > 0) return steps;
+
+    // Legacy/object shape support: { sections: [...] } / { steps: [...] } / single section object.
+    if (steps && typeof steps === "object") {
+      if (Array.isArray(steps.sections) && steps.sections.length > 0) return steps.sections;
+      if (Array.isArray(steps.steps) && steps.steps.length > 0) return steps.steps;
+      if (Array.isArray(steps.items) && steps.items.length > 0) return steps.items;
+      if (steps.type && typeof steps.type === "string") return [steps];
+    }
+
+    // Fallback to summary text when present.
+    const summary = String(row.summary || "").trim();
+    if (summary) return [summary];
+
+    return [];
+  };
+
   return {
     lesson: {
       id: lessonRow.lesson_id || lessonRow.id,
@@ -950,15 +978,7 @@ async function enhanceLessonWithData({ tenantId, userId, lesson, moduleLessons }
         const single = lessonRow.success_image_url;
         return single ? [single] : [];
       })(),
-      learn_setup_steps: (() => {
-        let steps = lessonRow.learn_setup_steps;
-        if (typeof steps === 'string') {
-          try { steps = JSON.parse(steps); } catch { steps = null; }
-        }
-        if (Array.isArray(steps)) return steps;
-        const single = lessonRow.summary;
-        return single ? [single] : [];
-      })(),
+      learn_setup_steps: normalizeLearnSetupSteps(lessonRow),
       pdf_url: lessonRow.pdf_url,
       duration_seconds: lessonRow.duration_seconds,
       completed,

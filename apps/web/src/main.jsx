@@ -13,11 +13,19 @@ function escapeRegExp(input) {
 
 // Initialize Sentry only in production. Local dev should stay quiet even if a DSN is present.
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
+const SENTRY_ENABLED = import.meta.env.VITE_SENTRY_ENABLE === "true";
 const isLocalHost =
   typeof window !== "undefined" &&
   ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+const looksLikeSentryDsn =
+  typeof SENTRY_DSN === "string" &&
+  /^https:\/\/.+@o\d+\.ingest\.[a-z0-9.-]+\.sentry\.io\/\d+$/i.test(SENTRY_DSN);
 const SENTRY_DISABLED =
-  import.meta.env.VITE_SENTRY_DISABLE === "true" || !import.meta.env.PROD || isLocalHost;
+  import.meta.env.VITE_SENTRY_DISABLE === "true" ||
+  !SENTRY_ENABLED ||
+  !looksLikeSentryDsn ||
+  !import.meta.env.PROD ||
+  isLocalHost;
 const API_URL = import.meta.env.VITE_API_URL;
 const apiOrigin = API_URL?.replace(/\/+$/, "");
 const tracePropagationTargets = [
@@ -34,6 +42,7 @@ const enableReplay = !!import.meta.env.PROD;
 if (SENTRY_DSN && !SENTRY_DISABLED) {
   Sentry.init({
     dsn: SENTRY_DSN,
+    autoSessionTracking: enableTracing,
     sendDefaultPii: true,
     environment: import.meta.env.MODE || (import.meta.env.PROD ? "production" : "development"),
     release: "expograph-web",

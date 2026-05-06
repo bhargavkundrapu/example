@@ -18,21 +18,63 @@ export const testimonials = [
 /**
  * Shared shell for /login and /adminlogin-same visual layout as the public login experience.
  */
-export default function AuthLoginLayout({ cardTitle = "Welcome Back", cardSubtitle = "Prompt Smart. Vibe Code. Grow Your Career.", children }) {
+export default function AuthLoginLayout({
+  cardTitle = "Welcome Back",
+  cardSubtitle = "Prompt Smart. Vibe Code. Grow Your Career.",
+  children,
+  theme = "dark",
+  onToggleTheme,
+}) {
+  const isLight = theme === "light";
   return (
     <div
       className="min-h-screen relative w-full"
-      style={{ fontFamily: "var(--font-dm)", backgroundColor: "#000000", color: "var(--text-secondary)" }}
+      style={{
+        fontFamily: "var(--font-dm)",
+        backgroundColor: isLight ? "#f8fafc" : "#000000",
+        color: "var(--text-secondary)",
+      }}
     >
       <Header />
       <div className="overflow-x-hidden">
         <div className="fixed inset-0 -z-10">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(124,58,237,0.18),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_80%_80%,rgba(168,85,247,0.1),transparent_60%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_40%_at_10%_60%,rgba(88,28,135,0.12),transparent_50%)]" />
+          <div
+            className={`absolute inset-0 ${
+              isLight
+                ? "bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(124,58,237,0.10),transparent_50%)]"
+                : "bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(124,58,237,0.18),transparent_50%)]"
+            }`}
+          />
+          <div
+            className={`absolute inset-0 ${
+              isLight
+                ? "bg-[radial-gradient(ellipse_60%_50%_at_80%_80%,rgba(168,85,247,0.08),transparent_60%)]"
+                : "bg-[radial-gradient(ellipse_60%_50%_at_80%_80%,rgba(168,85,247,0.1),transparent_60%)]"
+            }`}
+          />
+          <div
+            className={`absolute inset-0 ${
+              isLight
+                ? "bg-[radial-gradient(ellipse_40%_40%_at_10%_60%,rgba(88,28,135,0.08),transparent_50%)]"
+                : "bg-[radial-gradient(ellipse_40%_40%_at_10%_60%,rgba(88,28,135,0.12),transparent_50%)]"
+            }`}
+          />
         </div>
 
         <div className="min-h-screen flex flex-col lg:flex-row pt-20 md:pt-24">
+          <div className="absolute top-24 right-4 sm:right-6 z-20">
+            <button
+              type="button"
+              onClick={onToggleTheme}
+              className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs sm:text-sm font-medium transition-colors ${
+                isLight
+                  ? "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                  : "border-white/15 bg-white/[0.06] text-white/80 hover:bg-white/[0.10]"
+              }`}
+            >
+              {isLight ? "Switch to Dark" : "Switch to Light"}
+            </button>
+          </div>
           <div className="hidden lg:flex lg:w-[45%] xl:w-[50%] flex-col justify-center px-10 xl:px-16 py-12">
             <motion.div
               initial={{ opacity: 0, x: -40 }}
@@ -43,13 +85,13 @@ export default function AuthLoginLayout({ cardTitle = "Welcome Back", cardSubtit
                 <img src={LOGO_URL} alt="ExpoGraph" className="h-16 w-auto" />
               </Link>
 
-              <h2 className="text-3xl xl:text-4xl font-bold text-white leading-tight mb-3">
+              <h2 className={`text-3xl xl:text-4xl font-bold leading-tight mb-3 ${isLight ? "text-slate-900" : "text-white"}`}>
                 Where users become{" "}
                 <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-fuchsia-400 text-transparent bg-clip-text">
                   builders
                 </span>
               </h2>
-              <p className="text-base text-white/50 leading-relaxed mb-8 max-w-md">
+              <p className={`text-base leading-relaxed mb-8 max-w-md ${isLight ? "text-slate-600" : "text-white/50"}`}>
                 Join 2,000+ users mastering Vibe Coding, Prompt Engineering & AI Automations-with smart prompts and real-world projects, all starting at just ₹99.
               </p>
 
@@ -60,15 +102,15 @@ export default function AuthLoginLayout({ cardTitle = "Welcome Back", cardSubtit
                   { value: "100%", label: "Real Projects" },
                 ].map((s) => (
                   <div key={s.label}>
-                    <div className="text-2xl font-bold text-white">{s.value}</div>
-                    <div className="text-xs text-white/40 mt-0.5">{s.label}</div>
+                    <div className={`text-2xl font-bold ${isLight ? "text-slate-900" : "text-white"}`}>{s.value}</div>
+                    <div className={`text-xs mt-0.5 ${isLight ? "text-slate-500" : "text-white/40"}`}>{s.label}</div>
                   </div>
                 ))}
               </div>
 
               <div className="space-y-3 overflow-hidden max-h-[320px] relative">
-                <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black to-transparent z-10 pointer-events-none" />
-                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black to-transparent z-10 pointer-events-none" />
+                <div className={`absolute top-0 left-0 right-0 h-8 z-10 pointer-events-none ${isLight ? "bg-gradient-to-b from-slate-50 to-transparent" : "bg-gradient-to-b from-black to-transparent"}`} />
+                <div className={`absolute bottom-0 left-0 right-0 h-8 z-10 pointer-events-none ${isLight ? "bg-gradient-to-t from-slate-50 to-transparent" : "bg-gradient-to-t from-black to-transparent"}`} />
                 <motion.div
                   animate={{ y: [0, -(testimonials.length * 100)] }}
                   transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
@@ -77,7 +119,7 @@ export default function AuthLoginLayout({ cardTitle = "Welcome Back", cardSubtit
                   {[...testimonials, ...testimonials].map((t, i) => (
                     <div
                       key={`${t.name}-${i}`}
-                      className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4"
+                      className={`rounded-xl p-4 ${isLight ? "border border-slate-200 bg-white" : "border border-white/[0.06] bg-white/[0.02]"}`}
                     >
                       <div className="flex items-center gap-1 mb-2">
                         {[...Array(5)].map((_, s) => (
@@ -86,14 +128,14 @@ export default function AuthLoginLayout({ cardTitle = "Welcome Back", cardSubtit
                           </svg>
                         ))}
                       </div>
-                      <p className="text-sm text-white/60 leading-relaxed mb-2">"{t.text}"</p>
+                      <p className={`text-sm leading-relaxed mb-2 ${isLight ? "text-slate-600" : "text-white/60"}`}>"{t.text}"</p>
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-[10px] font-bold text-white">
                           {t.name[0]}
                         </div>
                         <div>
-                          <span className="text-xs font-medium text-white/80">{t.name}</span>
-                          <span className="text-xs text-white/30 ml-1.5">{t.role}</span>
+                          <span className={`text-xs font-medium ${isLight ? "text-slate-800" : "text-white/80"}`}>{t.name}</span>
+                          <span className={`text-xs ml-1.5 ${isLight ? "text-slate-500" : "text-white/30"}`}>{t.role}</span>
                         </div>
                       </div>
                     </div>
@@ -129,7 +171,7 @@ export default function AuthLoginLayout({ cardTitle = "Welcome Back", cardSubtit
                     <path d="M12 2L6 6v3c0 5.25 2.55 10.15 6 12 3.45-1.85 6-6.75 6-12V6l-6-4z" />
                     <path d="M9 12l2 2 4-4" />
                   </svg>
-                  <span className="text-xs text-white/35 text-center lg:text-left leading-snug">
+                  <span className={`text-xs text-center lg:text-left leading-snug ${isLight ? "text-slate-500" : "text-white/35"}`}>
                     Recognised by MCA &amp; MSME, Government of India
                   </span>
                 </div>
@@ -155,12 +197,12 @@ export default function AuthLoginLayout({ cardTitle = "Welcome Back", cardSubtit
                     { value: "4.9★", label: "Rating" },
                   ].map((s) => (
                     <div key={s.label} className="text-center">
-                      <div className="text-lg font-bold text-white">{s.value}</div>
-                      <div className="text-[10px] text-white/40">{s.label}</div>
+                      <div className={`text-lg font-bold ${isLight ? "text-slate-900" : "text-white"}`}>{s.value}</div>
+                      <div className={`text-[10px] ${isLight ? "text-slate-500" : "text-white/40"}`}>{s.label}</div>
                     </div>
                   ))}
                 </div>
-                <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 mx-auto max-w-xs mb-2">
+                <div className={`rounded-xl p-3 mx-auto max-w-xs mb-2 ${isLight ? "border border-slate-200 bg-white" : "border border-white/[0.06] bg-white/[0.02]"}`}>
                   <div className="flex items-center gap-1 mb-1.5 justify-center">
                     {[...Array(5)].map((_, s) => (
                       <svg key={s} className="w-2.5 h-2.5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
@@ -168,20 +210,20 @@ export default function AuthLoginLayout({ cardTitle = "Welcome Back", cardSubtit
                       </svg>
                     ))}
                   </div>
-                  <p className="text-xs text-white/50 leading-relaxed">"Vibe Coding taught me to build full apps with smart prompts. I shipped my first SaaS in 2 weeks flat."</p>
-                  <span className="text-[10px] text-white/30 mt-1 block">-Arjun S., Vibe Coding Student</span>
+                  <p className={`text-xs leading-relaxed ${isLight ? "text-slate-600" : "text-white/50"}`}>"Vibe Coding taught me to build full apps with smart prompts. I shipped my first SaaS in 2 weeks flat."</p>
+                  <span className={`text-[10px] mt-1 block ${isLight ? "text-slate-500" : "text-white/30"}`}>-Arjun S., Vibe Coding Student</span>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl p-7 sm:p-8 md:p-10 shadow-[0_0_60px_-12px_rgba(124,58,237,0.15)]">
+              <div className={`rounded-2xl backdrop-blur-xl p-7 sm:p-8 md:p-10 ${isLight ? "border border-slate-200 bg-white shadow-[0_0_40px_-16px_rgba(15,23,42,0.25)]" : "border border-white/[0.08] bg-white/[0.03] shadow-[0_0_60px_-12px_rgba(124,58,237,0.15)]"}`}>
                 <div className="text-center mb-6">
                   <div className="flex items-center justify-center mb-4">
                     <img src={ICON_URL} alt="ExpoGraph" className="h-16 w-16 rounded-2xl object-contain" />
                   </div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
+                  <h1 className={`text-2xl md:text-3xl font-bold mb-1 ${isLight ? "text-slate-900" : "text-white"}`}>
                     {cardTitle}
                   </h1>
-                  <p className="text-sm text-white/40">
+                  <p className={`text-sm ${isLight ? "text-slate-500" : "text-white/40"}`}>
                     {cardSubtitle}
                   </p>
                 </div>
@@ -191,7 +233,7 @@ export default function AuthLoginLayout({ cardTitle = "Welcome Back", cardSubtit
                 <div className="mt-8 text-center">
                   <Link
                     to="/academy"
-                    className="inline-flex items-center gap-2 text-sm text-white/30 hover:text-white/60 transition-colors"
+                    className={`inline-flex items-center gap-2 text-sm transition-colors ${isLight ? "text-slate-500 hover:text-slate-700" : "text-white/30 hover:text-white/60"}`}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -224,12 +266,12 @@ export default function AuthLoginLayout({ cardTitle = "Welcome Back", cardSubtit
                     />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/[0.06] bg-white/[0.02] max-w-sm">
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-full max-w-sm ${isLight ? "border border-slate-200 bg-white" : "border border-white/[0.06] bg-white/[0.02]"}`}>
                   <svg className="w-3.5 h-3.5 shrink-0 text-amber-400/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 2L6 6v3c0 5.25 2.55 10.15 6 12 3.45-1.85 6-6.75 6-12V6l-6-4z" />
                     <path d="M9 12l2 2 4-4" />
                   </svg>
-                  <span className="text-[11px] text-white/35 text-center leading-snug">
+                  <span className={`text-[11px] text-center leading-snug ${isLight ? "text-slate-500" : "text-white/35"}`}>
                     Recognised by MCA &amp; MSME, Government of India
                   </span>
                 </div>

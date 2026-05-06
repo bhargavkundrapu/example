@@ -24,10 +24,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [theme, setTheme] = useState("dark");
+  const isLight = theme === "light";
 
   useEffect(() => {
     if (emailParam) setEmail(emailParam);
   }, [emailParam]);
+
+  useEffect(() => {
+    setTheme("dark");
+  }, []);
 
   const startResendCooldown = () => {
     setResendSeconds(RESEND_COOLDOWN_SEC);
@@ -123,12 +129,15 @@ export default function LoginPage() {
   };
 
   return (
-    <AuthLoginLayout>
+    <AuthLoginLayout
+      theme={theme}
+      onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+    >
       {error && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm"
+          className={`mb-6 p-4 rounded-xl text-sm ${isLight ? "bg-red-50 border border-red-200 text-red-700" : "bg-red-500/10 border border-red-500/20 text-red-400"}`}
         >
           {error}
         </motion.div>
@@ -138,7 +147,7 @@ export default function LoginPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-sm flex items-center gap-2"
+          className={`mb-6 p-4 rounded-xl text-sm flex items-center gap-2 ${isLight ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"}`}
         >
           <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -151,7 +160,7 @@ export default function LoginPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-sm flex items-center gap-2"
+          className={`mb-6 p-4 rounded-xl text-sm flex items-center gap-2 ${isLight ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"}`}
         >
           <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -163,15 +172,15 @@ export default function LoginPage() {
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6 rounded-xl border border-violet-400/25 bg-violet-500/[0.08] px-4 py-4"
+        className={`mb-6 rounded-xl px-4 py-4 ${isLight ? "border border-violet-200 bg-violet-50" : "border border-violet-400/25 bg-violet-500/[0.08]"}`}
       >
-        <p className="text-sm text-violet-100 leading-relaxed">
-          New here? Purchase any course (starting from <span className="font-semibold text-white">₹99</span>) to
+        <p className={`text-sm leading-relaxed ${isLight ? "text-violet-900" : "text-violet-100"}`}>
+          New here? Purchase any course (starting from <span className={`font-semibold ${isLight ? "text-violet-950" : "text-white"}`}>₹99</span>) to
           unlock student access, then log in with your registered email.
         </p>
         <Link
           to="/courses"
-          className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-violet-200 hover:text-white transition-colors underline underline-offset-4"
+          className={`mt-3 inline-flex items-center gap-2 text-sm font-semibold transition-colors underline underline-offset-4 ${isLight ? "text-violet-700 hover:text-violet-900" : "text-violet-200 hover:text-white"}`}
         >
           Explore courses
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,7 +200,7 @@ export default function LoginPage() {
             onSubmit={handleRequestOtp}
             className="space-y-6"
           >
-            <p className="text-white/40 text-sm text-center -mt-2 mb-2">
+            <p className={`text-sm text-center -mt-2 mb-2 ${isLight ? "text-slate-500" : "text-white/40"}`}>
               Sign in with a one-time code sent to your email
             </p>
 
@@ -201,13 +210,13 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white/60 mb-2">
+              <label className={`block text-sm font-medium mb-2 ${isLight ? "text-slate-600" : "text-white/60"}`}>
                 Email Address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <svg
-                    className={`w-5 h-5 transition-colors ${emailFocused ? "text-violet-400" : "text-white/25"}`}
+                    className={`w-5 h-5 transition-colors ${emailFocused ? "text-violet-400" : isLight ? "text-slate-400" : "text-white/25"}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -223,7 +232,11 @@ export default function LoginPage() {
                   onBlur={() => setEmailFocused(false)}
                   required
                   autoComplete="email"
-                  className="w-full pl-12 pr-4 py-3.5 bg-white/[0.04] border border-white/[0.08] rounded-xl focus:border-violet-500/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-violet-500/20 transition-all outline-none text-white placeholder-white/25"
+                  className={`w-full pl-12 pr-4 py-3.5 rounded-xl focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all outline-none ${
+                    isLight
+                      ? "bg-white border border-slate-200 focus:bg-white text-slate-900 placeholder-slate-400"
+                      : "bg-white/[0.04] border border-white/[0.08] focus:bg-white/[0.06] text-white placeholder-white/25"
+                  }`}
                   placeholder="you@example.com"
                 />
               </div>
@@ -259,8 +272,8 @@ export default function LoginPage() {
 
             <div className="flex items-center justify-center gap-2 pt-1">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/15">
-                <span className="text-emerald-400 text-xs font-semibold">Courses from ₹99</span>
-                <span className="text-white/30 text-[10px]">| Packs from ₹199</span>
+                    <span className="text-emerald-400 text-xs font-semibold">Courses from ₹99</span>
+                    <span className={`${isLight ? "text-slate-400" : "text-white/30"} text-[10px]`}>| Packs from ₹199</span>
               </span>
             </div>
           </motion.form>
@@ -282,9 +295,9 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <p className="text-sm text-white/50 mb-4">
+              <p className={`text-sm mb-4 ${isLight ? "text-slate-600" : "text-white/50"}`}>
                 Enter the 6-digit code sent to{" "}
-                <span className="font-semibold text-white/90">{email}</span>
+                <span className={`font-semibold ${isLight ? "text-slate-900" : "text-white/90"}`}>{email}</span>
               </p>
               <div className="flex justify-center gap-2 sm:gap-3">
                 {[0, 1, 2, 3, 4, 5].map((idx) => (
@@ -298,7 +311,11 @@ export default function LoginPage() {
                     onChange={(e) => handleOtpChange(idx, e.target.value)}
                     onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                     onPaste={handleOtpPaste}
-                    className="w-12 h-14 sm:w-14 sm:h-16 text-center text-xl font-bold border border-white/[0.08] rounded-xl focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 outline-none transition-all bg-white/[0.04] focus:bg-white/[0.06] text-white"
+                    className={`w-12 h-14 sm:w-14 sm:h-16 text-center text-xl font-bold rounded-xl focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 outline-none transition-all ${
+                      isLight
+                        ? "border border-slate-200 bg-white focus:bg-white text-slate-900"
+                        : "border border-white/[0.08] bg-white/[0.04] focus:bg-white/[0.06] text-white"
+                    }`}
                   />
                 ))}
               </div>
@@ -361,7 +378,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleRequestOtp}
                 disabled={resendSeconds > 0 || loading}
-                className="text-sm font-medium text-violet-400 hover:text-violet-300 disabled:text-white/20 disabled:cursor-not-allowed transition-colors"
+                className={`text-sm font-medium transition-colors disabled:cursor-not-allowed ${isLight ? "text-violet-600 hover:text-violet-700 disabled:text-slate-400" : "text-violet-400 hover:text-violet-300 disabled:text-white/20"}`}
               >
                 {resendSeconds > 0 ? `Resend code in ${resendSeconds}s` : "Resend code"}
               </button>
@@ -370,7 +387,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={handleBackToEmail}
-              className="w-full text-sm text-white/40 hover:text-white/70 transition-colors flex items-center justify-center gap-2"
+              className={`w-full text-sm transition-colors flex items-center justify-center gap-2 ${isLight ? "text-slate-500 hover:text-slate-700" : "text-white/40 hover:text-white/70"}`}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
