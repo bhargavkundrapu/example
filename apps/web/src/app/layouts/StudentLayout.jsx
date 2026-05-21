@@ -8,6 +8,7 @@ import KeyboardShortcutsModal from "../../Components/student/KeyboardShortcutsMo
 import BrandLogo from "../../Components/ui/BrandLogo";
 import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
 import IdleReengagement from "../../Components/student/gamification/IdleReengagement";
+import StudentOfflineBanner from "../../Components/student/StudentOfflineBanner";
 
 // Preload student route chunks so navigation feels instant
 const preloadProfile = () => import("../../pages/lms/student/StudentProfile");
@@ -159,7 +160,12 @@ export default function StudentLayout() {
   }, []);
 
   if (isLessonPage) {
-    return <Outlet />;
+    return (
+      <>
+        <StudentOfflineBanner />
+        <Outlet />
+      </>
+    );
   }
 
   const userName = user?.fullName || user?.full_name || user?.name || "Student";
@@ -170,6 +176,7 @@ export default function StudentLayout() {
 
   return (
       <div className={`min-h-screen transition-colors duration-200 ${isDark ? "bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950" : "bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900"}`}>
+        <StudentOfflineBanner />
         {/* ── Mobile Top Bar ── */}
       <header className="sticky top-0 z-50 md:hidden bg-slate-900/95 backdrop-blur-md">
         <div className="flex items-center gap-3 px-4 py-3">
