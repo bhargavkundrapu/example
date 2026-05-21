@@ -34,7 +34,12 @@ import {
   FiBook,
   FiAlertCircle,
   FiLayers,
+  FiDownload,
 } from "react-icons/fi";
+import {
+  buildStudentExportFilterSummary,
+  downloadStudentsCsv,
+} from "../../../utils/exportStudentsCsv";
 
 const PAGE_SIZES = [10, 25, 50, 100];
 
@@ -165,11 +170,31 @@ export default function SuperAdminStudents() {
   const lastVisibilityRefetchAt = useRef(0);
   const [deletedStudents, setDeletedStudents] = useState([]);
   const [restoringStudentEmail, setRestoringStudentEmail] = useState(null);
+  const [showExportModal, setShowExportModal] = useState(false);
+
+  const exportFilterSummary = useMemo(
+    () =>
+      buildStudentExportFilterSummary({
+        searchQuery,
+        filters,
+        catalogOptions,
+      }),
+    [searchQuery, filters, catalogOptions]
+  );
 
   const activeFilterCount = useMemo(() => {
     const filterStrings = Object.values(filters).filter((v) => typeof v === "string" && v.trim());
     return filterStrings.length + (searchQuery.trim() ? 1 : 0);
   }, [filters, searchQuery]);
+
+  const handleDownloadStudents = () => {
+    if (filteredStudents.length === 0) {
+      alert("No students match your current filters. Adjust filters or clear them, then try again.");
+      return;
+    }
+    downloadStudentsCsv(filteredStudents, { filterSummary: exportFilterSummary });
+    setShowExportModal(false);
+  };
 
   const clearFilters = () => {
     setFilters({
@@ -904,6 +929,16 @@ export default function SuperAdminStudents() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setShowExportModal(true)}
+                  disabled={loading}
+                  title="Download student details as CSV (uses current filters)"
+                  className="px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 text-xs sm:text-sm font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
+                >
+                  <FiDownload className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                  Download ({filteredStudents.length})
+                </button>
+                <button
+                  type="button"
                   onClick={() => navigate("/lms/superadmin/students/undo")}
                   className="px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 text-xs sm:text-sm font-medium hover:bg-slate-50"
                 >
@@ -1292,6 +1327,101 @@ export default function SuperAdminStudents() {
           })()}
         </div>
         </div>
+        <AnimatePresence>
+          {showExportModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
+              onClick={() => setShowExportModal(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96, y: 8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: 8 }}
+                transition={{ duration: 0.15 }}
+                role="dialog"
+                aria-labelledby="student-export-title"
+                className="w-full max-w-lg bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-slate-100">
+                  <div>
+                    <h2 id="student-export-title" className="text-lg font-semibold text-slate-900">
+                      Download student data
+                    </h2>
+                    <p className="text-sm text-slate-600 mt-1">
+                      Exports a structured CSV for students matching your current filters.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowExportModal(false)}
+                    className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                    aria-label="Close"
+                  >
+                    <FiX className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="px-5 py-4 space-y-4">
+                  <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
+                    <p className="text-sm text-slate-700">
+                      <strong>{filteredStudents.length}</strong> student
+                      {filteredStudents.length === 1 ? "" : "s"} will be included in this file.
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Use quick search, advanced filters, course/pack enrollment, and joined dates above the list to narrow the export.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">
+                      Active filters
+                    </h3>
+                    {exportFilterSummary.length === 0 ? (
+                      <p className="text-sm text-slate-600">No filters — all students currently loaded from the server.</p>
+                    ) : (
+                      <ul className="text-sm text-slate-700 space-y-1.5 max-h-40 overflow-y-auto">
+                        {exportFilterSummary.map((row) => (
+                          <li key={row.key} className="flex gap-2">
+                            <span className="font-medium text-slate-500 shrink-0">{row.key}:</span>
+                            <span className="min-w-0 break-words">{row.value}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div className="text-xs text-slate-500">
+                    Columns: name, email, phone, college, user ID, status, role, joined date — plus export metadata at the top of the file.
+                  </div>
+                </div>
+
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 px-5 py-4 border-t border-slate-100 bg-slate-50/80">
+                  <button
+                    type="button"
+                    onClick={() => setShowExportModal(false)}
+                    className="px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDownloadStudents}
+                    disabled={filteredStudents.length === 0 || loading}
+                    className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                  >
+                    <FiDownload className="w-4 h-4 shrink-0" aria-hidden />
+                    Download CSV
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <CredentialsModal />
       </>
     );

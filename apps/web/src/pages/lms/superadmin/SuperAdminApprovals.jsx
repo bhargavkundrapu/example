@@ -26,7 +26,14 @@ import {
   FiRefreshCw,
   FiArrowDown,
   FiArrowUp,
+  FiDownload,
 } from "react-icons/fi";
+import {
+  buildApprovalExportFilterSummary,
+  buildRazorpayExportFilterSummary,
+  downloadApprovalsCsv,
+  downloadRazorpayPaymentsCsv,
+} from "../../../utils/exportApprovalsCsv";
 
 const STATUS_BADGE = {
   pending: "bg-amber-100 text-amber-800 border-amber-200",
@@ -126,6 +133,45 @@ export default function SuperAdminApprovals() {
   const [rzSortDir, setRzSortDir] = useState("desc");
   const [rzJumpInput, setRzJumpInput] = useState("");
   const [approvingRzPayId, setApprovingRzPayId] = useState(null);
+  const [showExportModal, setShowExportModal] = useState(false);
+
+  const exportFilterSummary = useMemo(
+    () =>
+      buildApprovalExportFilterSummary({
+        searchQuery,
+        filters,
+        activeTab,
+      }),
+    [searchQuery, filters, activeTab]
+  );
+
+  const rzExportFilterSummary = useMemo(
+    () =>
+      buildRazorpayExportFilterSummary({
+        rzDateFrom,
+        rzDateTo,
+        rzPage,
+        rzPageSize,
+        rzSearch,
+        rzFilterStatus,
+        rzFilterMethod,
+        rzFilterLocalApproval,
+        rzSortField,
+        rzSortDir,
+      }),
+    [
+      rzDateFrom,
+      rzDateTo,
+      rzPage,
+      rzPageSize,
+      rzSearch,
+      rzFilterStatus,
+      rzFilterMethod,
+      rzFilterLocalApproval,
+      rzSortField,
+      rzSortDir,
+    ]
+  );
 
   const activeFilterCount =
     Object.values(filters).filter((v) => v.trim()).length + (searchQuery.trim() ? 1 : 0);
@@ -135,6 +181,26 @@ export default function SuperAdminApprovals() {
     (rzFilterMethod ? 1 : 0) +
     (rzFilterLocalApproval ? 1 : 0) +
     (rzSearch.trim() ? 1 : 0);
+
+  const handleDownloadExport = () => {
+    if (activeTab === "payments") {
+      if (sortedRzItems.length === 0) {
+        alert("No payments match your current filters on this page. Adjust filters or dates, then try again.");
+        return;
+      }
+      downloadRazorpayPaymentsCsv(sortedRzItems, { filterSummary: rzExportFilterSummary });
+    } else {
+      if (filteredApprovals.length === 0) {
+        alert("No approvals match your current filters. Adjust filters or clear them, then try again.");
+        return;
+      }
+      downloadApprovalsCsv(filteredApprovals, {
+        filterSummary: exportFilterSummary,
+        activeTab,
+      });
+    }
+    setShowExportModal(false);
+  };
 
   const clearFilters = () => {
     setFilters({ name: "", email: "", phone: "", college: "", userId: "", dateFrom: "", dateTo: "" });
@@ -309,6 +375,9 @@ export default function SuperAdminApprovals() {
     return arr;
   }, [filteredRzItems, rzSortField, rzSortDir]);
 
+  const exportRowCount =
+    activeTab === "payments" ? sortedRzItems.length : filteredApprovals.length;
+
   const totalPages = Math.max(1, Math.ceil(filteredApprovals.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
   const paginatedApprovals = filteredApprovals.slice((safePage - 1) * pageSize, safePage * pageSize);
@@ -397,7 +466,7 @@ export default function SuperAdminApprovals() {
         </div>
 
         {/* Tabs */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6 items-center">
           {VIEW_TABS.map((t) => (
             <button
               key={t.id}
@@ -413,6 +482,20 @@ export default function SuperAdminApprovals() {
               {t.label}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() => setShowExportModal(true)}
+            disabled={activeTab === "payments" ? rzLoading : loading}
+            title={
+              activeTab === "payments"
+                ? "Download Razorpay payments as CSV (current API page, filters, and sort)"
+                : "Download approval details as CSV (uses current tab and filters)"
+            }
+            className="px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+          >
+            <FiDownload className="w-4 h-4 shrink-0" aria-hidden />
+            Download ({exportRowCount})
+          </button>
         </div>
 
         {/* Razorpay explorer */}
@@ -1009,6 +1092,112 @@ export default function SuperAdminApprovals() {
             )}
           </>
         ) : null}
+
+        <AnimatePresence>
+          {showExportModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
+              onClick={() => setShowExportModal(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96, y: 8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: 8 }}
+                transition={{ duration: 0.15 }}
+                role="dialog"
+                aria-labelledby="approval-export-title"
+                className="w-full max-w-lg bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-slate-100">
+                  <div>
+                    <h2 id="approval-export-title" className="text-lg font-semibold text-slate-900">
+                      {activeTab === "payments" ? "Download Razorpay payments" : "Download approval data"}
+                    </h2>
+                    <p className="text-sm text-slate-600 mt-1">
+                      {activeTab === "payments"
+                        ? "Exports a structured CSV for payments on the current Razorpay API page after your filters and sort."
+                        : "Exports a structured CSV for approvals on the current tab matching your filters."}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowExportModal(false)}
+                    className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                    aria-label="Close"
+                  >
+                    <FiX className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="px-5 py-4 space-y-4">
+                  <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
+                    <p className="text-sm text-slate-700">
+                      <strong>{exportRowCount}</strong>{" "}
+                      {activeTab === "payments" ? "payment" : "approval"}
+                      {exportRowCount === 1 ? "" : "s"} will be included
+                      {activeTab !== "payments" && (
+                        <>
+                          {" "}
+                          (
+                          <strong>{VIEW_TABS.find((t) => t.id === activeTab)?.label || activeTab}</strong> tab)
+                        </>
+                      )}
+                      .
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {activeTab === "payments"
+                        ? "Use date range, page search, status/method filters, and sort on the Payments tab. Export reflects the current API page only."
+                        : "Use quick search, advanced filters, and created dates below the tabs to narrow the export."}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">
+                      Active filters
+                    </h3>
+                    <ul className="text-sm text-slate-700 space-y-1.5 max-h-40 overflow-y-auto">
+                      {(activeTab === "payments" ? rzExportFilterSummary : exportFilterSummary).map((row) => (
+                        <li key={row.key} className="flex gap-2">
+                          <span className="font-medium text-slate-500 shrink-0">{row.key}:</span>
+                          <span className="min-w-0 break-words">{row.value}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="text-xs text-slate-500">
+                    {activeTab === "payments"
+                      ? "Columns: payment/order IDs, status, amount, method, email, contact, ExpoGraph approval, errors, timestamps — plus export metadata at the top."
+                      : "Columns: customer details, course/pack, payment IDs, status, dates, notes — plus export metadata at the top of the file."}
+                  </div>
+                </div>
+
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 px-5 py-4 border-t border-slate-100 bg-slate-50/80">
+                  <button
+                    type="button"
+                    onClick={() => setShowExportModal(false)}
+                    className="px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDownloadExport}
+                    disabled={exportRowCount === 0 || (activeTab === "payments" ? rzLoading : loading)}
+                    className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                  >
+                    <FiDownload className="w-4 h-4 shrink-0" aria-hidden />
+                    Download CSV
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
