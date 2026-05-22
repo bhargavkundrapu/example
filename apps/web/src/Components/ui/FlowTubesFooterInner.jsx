@@ -34,7 +34,7 @@ export default function FlowTubesFooterInner({
         <div className="min-h-[100px] flex-1 sm:min-h-[140px]" aria-hidden />
       )}
 
-      <div className="flex flex-col items-center gap-3 border-t border-white/[0.06] pb-8 pt-6 sm:gap-4 sm:pb-10 sm:pt-8">
+      <div className="flex flex-col items-center gap-3  pb-8 pt-6 sm:gap-4 sm:pb-10 sm:pt-8">
         {showInteractionHint ? (
           <p className="pointer-events-none max-w-md px-3 text-center text-[10px] font-normal uppercase leading-snug tracking-widest text-white/50 sm:text-xs">
             {interactionHint}

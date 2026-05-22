@@ -20,7 +20,6 @@ type HeaderProps = {
 const ACADEMY_LINKS: NavLink[] = [
 	{ label: 'Home', href: '/academy' },
 	{ label: 'Courses', href: '/courses' },
-	{ label: 'Colleges', href: '/academy/college-overview' },
 	{ label: 'Features', href: '/academy#features' },
 	{ label: 'Contact', href: '/contact' },
 	{ label: 'Solutions', href: '/solutions' },
@@ -28,7 +27,6 @@ const ACADEMY_LINKS: NavLink[] = [
 
 const SOLUTIONS_LINKS: NavLink[] = [
 	{ label: 'Services', href: '/solutions#services' },
-	{ label: 'Colleges', href: '/academy/college-overview' },
 	{ label: 'Pricing', href: '/solutions/pricing' },
 	{ label: 'Process', href: '/solutions/process' },
 	{ label: 'Academy', href: '/academy' },

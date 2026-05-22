@@ -68,7 +68,6 @@ export default function SuperAdminLayout() {
     { path: "/lms/superadmin", label: "Home", icon: FiHome },
     { path: "/lms/superadmin/approvals", label: "Approvals", icon: FiCheckSquare },
     { path: "/lms/superadmin/feedback", label: "Feedback", icon: FiMessageSquare },
-    { path: "/lms/superadmin/colleges", label: "Colleges", icon: FiBook },
     { path: "/lms/superadmin/students", label: "Students", icon: FiUsers },
     { path: "/lms/superadmin/courses", label: "Courses", icon: FiBook },
     { path: "/lms/superadmin/course-packs", label: "Course Packs", icon: FiPackage },

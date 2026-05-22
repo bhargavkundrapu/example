@@ -188,7 +188,7 @@ function makePromptCard({ moduleTitle, lessonTitle }) {
     "Examples: Add one mini example with realistic numbers.",
     "Desired depth: Beginner-friendly, but usable for real business work.",
   ].join("\n");
-}
+} 
 
 function buildSections({ moduleIndex, lessonIndex, moduleTitle, lessonTitle }) {
   const code = `M${moduleIndex + 1}-L${lessonIndex + 1}`;

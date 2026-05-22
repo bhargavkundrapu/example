@@ -78,7 +78,7 @@ export default function PaymentFailurePage() {
           </motion.div>
         </section>
 
-        <footer className="w-full min-h-[320px] sm:min-h-[40vh] border-t border-white/5">
+        <footer className="w-full min-h-[320px] sm:min-h-[40vh] ">
           <TubesBackground className="min-h-[320px] sm:min-h-[40vh] bg-[#0a0a0a]" enableClickInteraction={false}>
             <FlowTubesFooterInner
               shellClassName="min-h-[320px] sm:min-h-[40vh]"
