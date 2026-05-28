@@ -47,6 +47,7 @@ import { useGamification } from "../../../app/providers/GamificationProvider";
 import { ConfettiBurst, XPFloat, LessonCompleteMessage } from "../../../Components/student/gamification/Confetti";
 import { BookmarkButton, LessonNotes } from "../../../Components/student/gamification/NotesBookmark";
 import LessonFeedbackCard from "../../../Components/student/LessonFeedbackCard";
+import StudentDoubtsPanel from "../../../Components/student/StudentDoubtsPanel";
 import LessonSlidesReader from "../../../Components/student/LessonSlidesReader";
 import ShareProgressModal from "../../../Components/student/gamification/ShareProgressModal";
 import KeyboardShortcutsModal from "../../../Components/student/KeyboardShortcutsModal";
@@ -1781,13 +1782,23 @@ export default function StudentLesson() {
                 </div>
                 {/* Lesson feedback-with love */}
                 {token && courseSlug && moduleSlug && lessonSlug && (
-                  <LessonFeedbackCard
-                    courseSlug={courseSlug}
-                    moduleSlug={moduleSlug}
-                    lessonSlug={lessonSlug}
-                    lessonTitle={lesson?.title}
-                    token={token}
-                  />
+                  <>
+                    <StudentDoubtsPanel
+                      scope="lesson"
+                      courseSlug={courseSlug}
+                      moduleSlug={moduleSlug}
+                      lessonSlug={lessonSlug}
+                      contextTitle={lesson?.title}
+                      token={token}
+                    />
+                    <LessonFeedbackCard
+                      courseSlug={courseSlug}
+                      moduleSlug={moduleSlug}
+                      lessonSlug={lessonSlug}
+                      lessonTitle={lesson?.title}
+                      token={token}
+                    />
+                  </>
                 )}
               </div>
             </div>

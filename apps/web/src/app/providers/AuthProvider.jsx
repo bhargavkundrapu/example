@@ -66,7 +66,7 @@ export function AuthProvider({ children }) {
   // Premium: don't run boot twice in React StrictMode (dev)
   const bootedRef = useRef(false);
 
-  async function validateTokenSilently(tkn) {
+  async function validateTokenSilently(tkn, attempt = 0) {
     // Only verify with server; do NOT logout unless 401/403
     setPermissionsLoading(true);
     try {
@@ -94,6 +94,12 @@ export function AuthProvider({ children }) {
       // ✅ remain authed
       setStatus("authed");
     } catch (e) {
+      // API may still be starting in dev — retry a few times before giving up.
+      if (e instanceof ApiError && e.isNetworkError && attempt < 4) {
+        await new Promise((r) => setTimeout(r, 1200));
+        return validateTokenSilently(tkn, attempt + 1);
+      }
+
       // ✅ Premium rule:
       // - only logout on 401/403 (invalid/expired token)
       // - if network/server error, keep session (don't kick user out)

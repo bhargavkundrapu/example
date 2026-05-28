@@ -186,7 +186,10 @@ export function GamificationProvider({ children }) {
     let cancelled = false;
     (async () => {
       try {
-        const res = await apiFetch("/api/v1/student/learning-state", { token });
+        const res = await apiFetch("/api/v1/student/learning-state", {
+          token,
+          skipIfUnreachable: true,
+        }).catch(() => null);
         if (!res?.ok || cancelled) return;
         const serverNotes = res.data?.notes && typeof res.data.notes === "object" ? res.data.notes : {};
         const serverBookmarks = Array.isArray(res.data?.bookmarks) ? res.data.bookmarks : [];
@@ -226,7 +229,10 @@ export function GamificationProvider({ children }) {
       try {
         // Use /student/progress as the primary streak source to avoid 404 noise
         // in environments where /student/streak is not deployed yet.
-        const progressRes = await apiFetch("/api/v1/student/progress", { token }).catch(() => null);
+        const progressRes = await apiFetch("/api/v1/student/progress", {
+          token,
+          skipIfUnreachable: true,
+        }).catch(() => null);
         if (cancelled) return;
         const streakFromProgress = parseInt(progressRes?.data?.streak, 10);
         const data = {

@@ -36,6 +36,7 @@ const { router: usersAdminRouter } = require("../modules/users/users.routes.admi
 const { router: approvalsAdminRouter } = require("../modules/approvals/approvals.routes.admin");
 const { router: razorpayAdminRouter } = require("../modules/payments/razorpayAdmin.routes");
 const { router: feedbackAdminRouter } = require("../modules/feedback/feedback.routes.admin");
+const { router: doubtsAdminRouter } = require("../modules/doubts/doubts.routes.admin");
 const { router: dashboardRouter } = require("../modules/dashboard/dashboard.routes");
 const { router: collegesPublicRouter } = require("../modules/colleges/colleges.routes.public");
 
@@ -228,6 +229,7 @@ app.use(
   app.use("/api/v1/admin/approvals", approvalsAdminRouter);
   app.use("/api/v1/admin/razorpay", razorpayAdminRouter);
   app.use("/api/v1/admin/feedback", feedbackAdminRouter);
+  app.use("/api/v1/admin/doubts", doubtsAdminRouter);
   app.use("/api/v1/admin/dashboard", dashboardRouter);
 
   app.use("/api/v1/referrals", referralsRoutes);

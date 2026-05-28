@@ -43,6 +43,37 @@ import {
 
 const PAGE_SIZES = [10, 25, 50, 100];
 
+function StudentProgressMeter({ percent, completed, total, compact = false }) {
+  const pct = Math.min(100, Math.max(0, Number(percent) || 0));
+  const barColor =
+    pct >= 100 ? "bg-emerald-500" : pct >= 50 ? "bg-blue-500" : pct > 0 ? "bg-amber-500" : "bg-slate-300";
+
+  return (
+    <div className={compact ? "space-y-1" : "space-y-1.5"}>
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-xs text-slate-600">
+        <span className="font-semibold text-slate-800">{pct}% complete</span>
+        {total > 0 ? (
+          <span>
+            {completed}/{total} lessons
+          </span>
+        ) : (
+          <span className="text-slate-400">No published lessons</span>
+        )}
+      </div>
+      <div className={`w-full overflow-hidden rounded-full bg-slate-200 ${compact ? "h-1.5" : "h-2.5"}`}>
+        <div
+          className={`h-full rounded-full transition-all ${barColor}`}
+          style={{ width: `${pct}%` }}
+          role="progressbar"
+          aria-valuenow={pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        />
+      </div>
+    </div>
+  );
+}
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const QUICK_SEARCH_MAX = 200;
 
@@ -1844,6 +1875,11 @@ export default function SuperAdminStudents() {
   if (view === "details" && selectedStudent) {
     const student = selectedStudent;
     const progress = student.progress || {};
+    const overallPercent = progress.progress_percent ?? 0;
+    const enrolledLessonTotal = progress.total_lessons ?? 0;
+    const enrolledLessonCompleted =
+      progress.enrolled_completed_lessons ?? progress.completed_lessons ?? 0;
+    const allTimeCompleted = progress.completed_lessons ?? 0;
     const streakDays = student.streak_days || 0;
     const totalProjects = student.total_projects || 0;
     const enrollments = Array.isArray(student.enrollments) ? student.enrollments : [];
@@ -1914,12 +1950,14 @@ export default function SuperAdminStudents() {
               <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-md p-6 border border-emerald-100">
                 <div className="flex items-center gap-3 mb-2">
                   <FiTrendingUp className="w-6 h-6 text-emerald-600" />
-                  <h3 className="text-sm font-semibold text-slate-700">Progress</h3>
+                  <h3 className="text-sm font-semibold text-slate-700">Course completion</h3>
                 </div>
-                <div className="text-3xl font-bold text-emerald-600">
-                  {progress.completed_lessons || 0}
+                <div className="text-3xl font-bold text-emerald-600">{overallPercent}%</div>
+                <div className="text-xs text-slate-600 mt-1">
+                  {enrolledLessonTotal > 0
+                    ? `${enrolledLessonCompleted}/${enrolledLessonTotal} lessons across enrolled courses`
+                    : "No enrolled course lessons yet"}
                 </div>
-                <div className="text-xs text-slate-600 mt-1">Lessons completed</div>
               </div>
 
               <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-md p-6 border border-purple-100">
@@ -1930,6 +1968,58 @@ export default function SuperAdminStudents() {
                 <div className="text-3xl font-bold text-purple-600">{totalProjects}</div>
                 <div className="text-xs text-slate-600 mt-1">Active projects</div>
               </div>
+              </div>
+
+              {/* Overall learning completion */}
+              <div className="mb-8 rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50/80 to-white p-5 sm:p-6">
+                <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">Overall learning completion</h3>
+                    <p className="text-sm text-slate-600 mt-1">
+                      Based on published lessons in courses this student is enrolled in (including courses inside packs).
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-indigo-600 tabular-nums">{overallPercent}%</div>
+                    <div className="text-xs text-slate-500">
+                      {progress.enrolled_courses_count ?? 0} course
+                      {(progress.enrolled_courses_count ?? 0) === 1 ? "" : "s"} tracked
+                    </div>
+                  </div>
+                </div>
+                <StudentProgressMeter
+                  percent={overallPercent}
+                  completed={enrolledLessonCompleted}
+                  total={enrolledLessonTotal}
+                />
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+                  <div className="rounded-lg bg-white/80 border border-slate-100 px-3 py-2">
+                    <div className="text-lg font-bold text-slate-900 tabular-nums">{enrolledLessonCompleted}</div>
+                    <div className="text-[10px] uppercase tracking-wide text-slate-500">Enrolled done</div>
+                  </div>
+                  <div className="rounded-lg bg-white/80 border border-slate-100 px-3 py-2">
+                    <div className="text-lg font-bold text-slate-900 tabular-nums">{allTimeCompleted}</div>
+                    <div className="text-[10px] uppercase tracking-wide text-slate-500">All-time completed</div>
+                  </div>
+                  <div className="rounded-lg bg-white/80 border border-slate-100 px-3 py-2">
+                    <div className="text-lg font-bold text-slate-900 tabular-nums">
+                      {progress.in_progress_lessons || 0}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wide text-slate-500">In progress</div>
+                  </div>
+                  <div className="rounded-lg bg-white/80 border border-slate-100 px-3 py-2">
+                    <div className="text-lg font-bold text-slate-900 tabular-nums">
+                      {Math.max(0, enrolledLessonTotal - enrolledLessonCompleted)}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wide text-slate-500">Remaining</div>
+                  </div>
+                  <div className="rounded-lg bg-white/80 border border-slate-100 px-3 py-2">
+                    <div className="text-lg font-bold text-slate-900 tabular-nums">
+                      {Math.floor((progress.total_watch_seconds || 0) / 60)}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wide text-slate-500">Watch min</div>
+                  </div>
+                </div>
               </div>
 
               {/* Student Information */}
@@ -2033,6 +2123,17 @@ export default function SuperAdminStudents() {
                             </div>
                             <div className="flex flex-wrap items-center gap-2 shrink-0">
                               <span
+                                className={`text-xs font-bold px-2.5 py-1 rounded-full tabular-nums ${
+                                  (row.progress_percent ?? 0) >= 100
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : (row.progress_percent ?? 0) > 0
+                                      ? "bg-blue-100 text-blue-800"
+                                      : "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                {row.progress_percent ?? 0}%
+                              </span>
+                              <span
                                 className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                                   row.active ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
                                 }`}
@@ -2046,20 +2147,38 @@ export default function SuperAdminStudents() {
                               )}
                             </div>
                           </div>
-                          {row.item_type === "pack" && Array.isArray(row.included_courses) && row.included_courses.length > 0 && (
-                            <div className="mt-3 pt-3 border-t border-slate-100">
-                              <div className="text-xs font-semibold text-slate-500 mb-1.5">Courses in this pack</div>
-                              <ul className="flex flex-wrap gap-2">
-                                {row.included_courses.map((c) => (
-                                  <li
-                                    key={`${row.item_id}-${c.slug || c.title}`}
-                                    className="text-xs bg-indigo-50 text-indigo-800 px-2 py-1 rounded-md border border-indigo-100"
-                                  >
+                          <div className="mt-3">
+                            <StudentProgressMeter
+                              percent={row.progress_percent ?? 0}
+                              completed={row.completed_lessons ?? 0}
+                              total={row.total_lessons ?? 0}
+                              compact
+                            />
+                          </div>
+                          {row.item_type === "pack" &&
+                            Array.isArray(row.course_progress) &&
+                            row.course_progress.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                              <div className="text-xs font-semibold text-slate-500">Per course in pack</div>
+                              {row.course_progress.map((c) => (
+                                <div
+                                  key={`${row.item_id}-${c.course_id || c.slug}`}
+                                  className="rounded-lg bg-slate-50/80 border border-slate-100 px-3 py-2"
+                                >
+                                  <div className="text-sm font-medium text-slate-800 mb-1 truncate">
                                     {c.title}
-                                    {c.slug ? <span className="text-indigo-500"> · {c.slug}</span> : null}
-                                  </li>
-                                ))}
-                              </ul>
+                                    {c.slug ? (
+                                      <span className="text-slate-400 font-normal"> · {c.slug}</span>
+                                    ) : null}
+                                  </div>
+                                  <StudentProgressMeter
+                                    percent={c.progress_percent ?? 0}
+                                    completed={c.completed_lessons ?? 0}
+                                    total={c.total_lessons ?? 0}
+                                    compact
+                                  />
+                                </div>
+                              ))}
                             </div>
                           )}
                         </li>
@@ -2180,30 +2299,84 @@ export default function SuperAdminStudents() {
                 </div>
               </div>
 
-              {/* Progress Details */}
-              <div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Learning Progress</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="text-xs font-semibold text-slate-500 mb-1">Completed Lessons</div>
-                    <div className="text-2xl font-bold text-slate-900">
-                      {progress.completed_lessons || 0}
-                    </div>
+              {/* Per-enrollment completion breakdown */}
+              {enrollments.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Completion by enrollment</h3>
+                  <div className="overflow-x-auto rounded-xl border border-slate-200">
+                    <table className="w-full min-w-[520px] text-sm">
+                      <thead>
+                        <tr className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          <th className="px-4 py-3">Product</th>
+                          <th className="px-4 py-3">Type</th>
+                          <th className="px-4 py-3">Progress</th>
+                          <th className="px-4 py-3 text-right">%</th>
+                          <th className="px-4 py-3 text-right">Lessons</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {enrollments.map((row, idx) => (
+                          <tr key={`${row.item_type}-${row.item_id}-${idx}`} className="bg-white">
+                            <td className="px-4 py-3 font-medium text-slate-900 max-w-[200px] truncate">
+                              {row.item_title}
+                            </td>
+                            <td className="px-4 py-3 text-slate-600 capitalize">{row.item_type}</td>
+                            <td className="px-4 py-3 min-w-[140px]">
+                              <StudentProgressMeter
+                                percent={row.progress_percent ?? 0}
+                                completed={row.completed_lessons ?? 0}
+                                total={row.total_lessons ?? 0}
+                                compact
+                              />
+                            </td>
+                            <td className="px-4 py-3 text-right font-semibold tabular-nums text-slate-900">
+                              {row.progress_percent ?? 0}%
+                            </td>
+                            <td className="px-4 py-3 text-right text-slate-600 tabular-nums">
+                              {row.completed_lessons ?? 0}/{row.total_lessons ?? 0}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                  <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="text-xs font-semibold text-slate-500 mb-1">In Progress</div>
-                    <div className="text-2xl font-bold text-slate-900">
-                      {progress.in_progress_lessons || 0}
+                  {enrollments.some((r) => r.item_type === "pack" && r.course_progress?.length > 0) && (
+                    <div className="mt-4 space-y-3">
+                      <h4 className="text-sm font-semibold text-slate-800">Pack courses (detail)</h4>
+                      {enrollments
+                        .filter((r) => r.item_type === "pack" && r.course_progress?.length > 0)
+                        .map((pack) => (
+                          <div key={pack.item_id} className="rounded-lg border border-slate-200 bg-slate-50/50 p-4">
+                            <div className="text-sm font-medium text-slate-900 mb-3">{pack.item_title}</div>
+                            <ul className="space-y-2">
+                              {pack.course_progress.map((c) => (
+                                <li
+                                  key={`${pack.item_id}-${c.course_id}`}
+                                  className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 bg-white rounded-lg border border-slate-100 px-3 py-2"
+                                >
+                                  <span className="text-sm text-slate-800 sm:w-48 shrink-0 truncate">
+                                    {c.title}
+                                  </span>
+                                  <div className="flex-1 min-w-0">
+                                    <StudentProgressMeter
+                                      percent={c.progress_percent ?? 0}
+                                      completed={c.completed_lessons ?? 0}
+                                      total={c.total_lessons ?? 0}
+                                      compact
+                                    />
+                                  </div>
+                                  <span className="text-sm font-semibold tabular-nums text-slate-700 shrink-0">
+                                    {c.progress_percent ?? 0}%
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
                     </div>
-                  </div>
-                  <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="text-xs font-semibold text-slate-500 mb-1">Watch Time</div>
-                    <div className="text-2xl font-bold text-slate-900">
-                      {Math.floor((progress.total_watch_seconds || 0) / 60)} min
-                    </div>
-                  </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               {/* Actions */}
               <div className="flex flex-wrap gap-3 pt-6 border-t border-slate-200">

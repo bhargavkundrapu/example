@@ -13,6 +13,12 @@ export default defineConfig({
   envPrefix: 'VITE_',
   server: {
     port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4000',
+        changeOrigin: true,
+      },
+    },
     watch: {
       usePolling: false,
       interval: 100,

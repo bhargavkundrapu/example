@@ -81,6 +81,16 @@ function formatUnixSeconds(sec) {
   return new Date(ms).toLocaleString();
 }
 
+function getDefaultRzDates() {
+  const to = new Date();
+  const from = new Date();
+  from.setDate(from.getDate() - 14);
+  return {
+    from: from.toISOString().slice(0, 10),
+    to: to.toISOString().slice(0, 10),
+  };
+}
+
 export default function SuperAdminApprovals() {
   const { token } = useAuth();
   const [activeTab, setActiveTab] = useState("pending");
@@ -110,17 +120,8 @@ export default function SuperAdminApprovals() {
   const [rzError, setRzError] = useState("");
   const [rzPage, setRzPage] = useState(1);
   const [rzPageSize, setRzPageSize] = useState(50);
-  const defaultDates = () => {
-    const to = new Date();
-    const from = new Date();
-    from.setDate(from.getDate() - 14);
-    return {
-      from: from.toISOString().slice(0, 10),
-      to: to.toISOString().slice(0, 10),
-    };
-  };
-  const [rzDateFrom, setRzDateFrom] = useState(defaultDates().from);
-  const [rzDateTo, setRzDateTo] = useState(defaultDates().to);
+  const [rzDateFrom, setRzDateFrom] = useState(() => getDefaultRzDates().from);
+  const [rzDateTo, setRzDateTo] = useState(() => getDefaultRzDates().to);
   const [rzFilterStatus, setRzFilterStatus] = useState("");
   const [rzFilterMethod, setRzFilterMethod] = useState("");
   /** '' | 'captured_not_approved' — Razorpay captured payments not marked approved in ExpoGraph */
@@ -176,11 +177,49 @@ export default function SuperAdminApprovals() {
   const activeFilterCount =
     Object.values(filters).filter((v) => v.trim()).length + (searchQuery.trim() ? 1 : 0);
 
-  const rzActiveFilterCount =
-    (rzFilterStatus ? 1 : 0) +
-    (rzFilterMethod ? 1 : 0) +
-    (rzFilterLocalApproval ? 1 : 0) +
-    (rzSearch.trim() ? 1 : 0);
+  const rzHasActiveFilters = useMemo(() => {
+    const defaults = getDefaultRzDates();
+    return (
+      Boolean(rzFilterStatus) ||
+      Boolean(rzFilterMethod) ||
+      Boolean(rzFilterLocalApproval) ||
+      Boolean(rzSearch.trim()) ||
+      rzDateFrom !== defaults.from ||
+      rzDateTo !== defaults.to ||
+      rzSortField !== "created_at" ||
+      rzSortDir !== "desc"
+    );
+  }, [
+    rzFilterStatus,
+    rzFilterMethod,
+    rzFilterLocalApproval,
+    rzSearch,
+    rzDateFrom,
+    rzDateTo,
+    rzSortField,
+    rzSortDir,
+  ]);
+
+  const rzActiveFilterCount = useMemo(() => {
+    const defaults = getDefaultRzDates();
+    let n = 0;
+    if (rzFilterStatus) n += 1;
+    if (rzFilterMethod) n += 1;
+    if (rzFilterLocalApproval) n += 1;
+    if (rzSearch.trim()) n += 1;
+    if (rzDateFrom !== defaults.from || rzDateTo !== defaults.to) n += 1;
+    if (rzSortField !== "created_at" || rzSortDir !== "desc") n += 1;
+    return n;
+  }, [
+    rzFilterStatus,
+    rzFilterMethod,
+    rzFilterLocalApproval,
+    rzSearch,
+    rzDateFrom,
+    rzDateTo,
+    rzSortField,
+    rzSortDir,
+  ]);
 
   const handleDownloadExport = () => {
     if (activeTab === "payments") {
@@ -209,10 +248,15 @@ export default function SuperAdminApprovals() {
   };
 
   const clearRzFilters = () => {
+    const defaults = getDefaultRzDates();
     setRzFilterStatus("");
     setRzFilterMethod("");
     setRzFilterLocalApproval("");
     setRzSearch("");
+    setRzDateFrom(defaults.from);
+    setRzDateTo(defaults.to);
+    setRzSortField("created_at");
+    setRzSortDir("desc");
     setRzPage(1);
   };
 
@@ -575,10 +619,16 @@ export default function SuperAdminApprovals() {
                     {rzActiveFilterCount}
                   </span>
                 )}
+                {rzShowFilters ? <FiChevronUp className="w-4 h-4" /> : <FiChevronDown className="w-4 h-4" />}
               </button>
-              {rzActiveFilterCount > 0 && (
-                <button type="button" onClick={clearRzFilters} className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1">
-                  <FiX className="w-4 h-4" /> Clear
+              {rzHasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearRzFilters}
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-red-200 bg-red-50 text-sm font-medium text-red-700 hover:bg-red-100 transition-colors"
+                >
+                  <FiX className="w-4 h-4" />
+                  Clear filters
                 </button>
               )}
             </div>
@@ -586,7 +636,20 @@ export default function SuperAdminApprovals() {
             <AnimatePresence>
               {rzShowFilters && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center justify-between gap-3 mb-4">
+                      <h3 className="text-sm font-semibold text-slate-900">Payment filters</h3>
+                      <button
+                        type="button"
+                        onClick={clearRzFilters}
+                        disabled={!rzHasActiveFilters}
+                        className="text-xs font-medium text-red-600 hover:text-red-700 disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1"
+                      >
+                        <FiX className="w-3.5 h-3.5" />
+                        Clear all
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-slate-600 mb-1">Payment status</label>
                       <select
@@ -634,16 +697,17 @@ export default function SuperAdminApprovals() {
                         Matches Razorpay <span className="font-mono">order_*</span> to pending approvals (and captured payments still lacking an approved row).
                       </p>
                     </div>
-                      <p className="text-xs text-slate-500 flex items-end pb-1 sm:col-span-2 xl:col-span-1">
+                    <p className="text-xs text-slate-500 sm:col-span-2 xl:col-span-4">
                       Opening / refreshing this tab reconciles captured ExpoGraph checkouts (attempts auto-approve). Filters apply to the{" "}
-                      <strong className="mx-1">current Razorpay page</strong>.
+                      <strong>current Razorpay page</strong>.
                     </p>
+                    </div>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-between gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-medium text-slate-600 uppercase tracking-wide">Sort</span>
                 <select
@@ -667,6 +731,16 @@ export default function SuperAdminApprovals() {
                   {rzSortDir === "asc" ? "Ascending" : "Descending"}
                 </button>
               </div>
+              {rzHasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearRzFilters}
+                  className="text-xs font-medium text-red-600 hover:text-red-700 flex items-center gap-1 self-start sm:self-center"
+                >
+                  <FiX className="w-3.5 h-3.5" />
+                  Reset filters &amp; sort
+                </button>
+              )}
             </div>
 
             <div className="flex flex-col lg:flex-row flex-wrap items-stretch lg:items-center justify-between gap-3 text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">

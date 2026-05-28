@@ -32,6 +32,7 @@ import {
 } from "react-icons/fi";
 import LearningPath from "../../../Components/student/gamification/LearningPath";
 import CourseFeedbackCard from "../../../Components/student/CourseFeedbackCard";
+import StudentDoubtsPanel from "../../../Components/student/StudentDoubtsPanel";
 import { getCourseCardCover } from "../../../data/courseCardMedia";
 
 const COURSE_HIGHLIGHTS = [
@@ -650,7 +651,13 @@ export default function StudentCourseLanding() {
 
               {/* Course feedback-with love (enrolled only) */}
               {token && pathSlug && (
-                <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
+                <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700 space-y-0">
+                  <StudentDoubtsPanel
+                    scope="course"
+                    courseSlug={pathSlug}
+                    contextTitle={course?.title || course?.name}
+                    token={token}
+                  />
                   <CourseFeedbackCard
                     courseSlug={pathSlug}
                     courseTitle={course?.title || course?.name}

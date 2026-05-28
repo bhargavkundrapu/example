@@ -2,7 +2,25 @@ import * as Sentry from "@sentry/react";
 import { getOrCreateDeviceId } from "./device";
 import { getToken, getTenant, clearSession } from "./session";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+// In dev, use same-origin `/api` via Vite proxy (vite.config.js) unless VITE_API_URL is set.
+const BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? "" : "http://localhost:4000");
+
+const API_DOWN_COOLDOWN_MS = 12_000;
+let apiDownUntil = 0;
+
+function markApiReachable() {
+  apiDownUntil = 0;
+}
+
+function markApiUnreachable() {
+  apiDownUntil = Date.now() + API_DOWN_COOLDOWN_MS;
+}
+
+function isApiInCooldown() {
+  return Date.now() < apiDownUntil;
+}
 
 // Speed up dev + strict-mode by coalescing identical in-flight GET requests.
 // This avoids duplicate network calls during React double-invocation and fast route switching.
@@ -32,9 +50,10 @@ function shouldReportApiError(err) {
   if (err.isMissingTableError) return false;
   if (err.status === 403) return false;
 
-  // Report network errors (status=0) and auth/permission/server errors.
+  // Network / connection errors are expected when API is starting or offline.
+  if (err.isNetworkError || err.status === 0) return false;
+
   if (typeof err.status === "number") {
-    if (err.status === 0) return true;
     if (err.status >= 500) return true;
     if (err.status === 401) return true;
   }
@@ -60,6 +79,18 @@ function captureApiError(err, { url, status, payload }) {
   }
 }
 
+function createNetworkError(originalMessage, url) {
+  const apiErr = new ApiError(
+    import.meta.env.DEV
+      ? "Cannot reach API. Start it with: cd apps/api && npm run dev"
+      : "Cannot connect to the server. Check your connection and try again.",
+    0,
+    { originalError: originalMessage, url }
+  );
+  apiErr.isNetworkError = true;
+  return apiErr;
+}
+
 export async function apiFetch(path, options = {}) {
   const {
     method = "GET",
@@ -67,7 +98,15 @@ export async function apiFetch(path, options = {}) {
     headers = {},
     body,
     signal,
+    /** Skip fetch while API is in cooldown after a recent connection failure (optional sync calls). */
+    skipIfUnreachable = false,
+    /** Bypass in-memory GET cache (use for manual refresh). */
+    noCache = false,
   } = options;
+
+  if (skipIfUnreachable && isApiInCooldown()) {
+    throw createNetworkError("skipped_unreachable", buildUrl(path));
+  }
 
   const token = tokenOpt ?? (typeof localStorage !== "undefined" ? getToken() : null);
 
@@ -87,6 +126,7 @@ export async function apiFetch(path, options = {}) {
 
   const canCacheGet =
     method === "GET" &&
+    !noCache &&
     !signal &&
     body == null &&
     // Avoid caching if caller explicitly passes custom headers for this request
@@ -180,6 +220,7 @@ export async function apiFetch(path, options = {}) {
           throw error;
         }
 
+        markApiReachable();
         return json;
       } catch (error) {
         const isAbort =
@@ -188,22 +229,16 @@ export async function apiFetch(path, options = {}) {
         if (isAbort) throw error;
 
         if (error instanceof TypeError && error.message.includes("fetch")) {
-          const apiErr = new ApiError(
-            `Cannot connect to API server. Make sure the API server is running on port 4000.`,
-            0,
-            { originalError: error.message, url }
-          );
-          captureApiError(apiErr, { url, status: 0, payload: { originalError: error.message } });
-          throw apiErr;
+          markApiUnreachable();
+          throw createNetworkError(error.message, url);
         }
 
         if (error instanceof ApiError) {
           throw error;
         }
 
-        const apiErr = new ApiError(error.message || "Network error", 0, { originalError: error });
-        captureApiError(apiErr, { url, status: 0, payload: { originalError: error } });
-        throw apiErr;
+        markApiUnreachable();
+        throw createNetworkError(error.message || "Network error", url);
       }
     })();
 
@@ -284,24 +319,19 @@ export async function apiFetch(path, options = {}) {
       throw error;
     }
 
+    markApiReachable();
     return json;
   } catch (error) {
     const isAbort = error?.name === "AbortError" || (error?.message && /abort|signal\s+is\s+aborted/i.test(String(error.message)));
     if (isAbort) throw error;
     if (error instanceof TypeError && error.message.includes("fetch")) {
-      const apiErr = new ApiError(
-        `Cannot connect to API server. Make sure the API server is running on port 4000.`,
-        0,
-        { originalError: error.message, url }
-      );
-      captureApiError(apiErr, { url, status: 0, payload: { originalError: error.message } });
-      throw apiErr;
+      markApiUnreachable();
+      throw createNetworkError(error.message, url);
     }
     if (error instanceof ApiError) {
       throw error;
     }
-    const apiErr = new ApiError(error.message || "Network error", 0, { originalError: error });
-    captureApiError(apiErr, { url, status: 0, payload: { originalError: error } });
-    throw apiErr;
+    markApiUnreachable();
+    throw createNetworkError(error.message || "Network error", url);
   }
 }

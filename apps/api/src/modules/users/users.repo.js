@@ -223,6 +223,104 @@ async function listStudents({
   return rows;
 }
 
+function lessonProgressPercent(completed, total) {
+  const c = Number(completed) || 0;
+  const t = Number(total) || 0;
+  if (t <= 0) return 0;
+  return Math.min(100, Math.round((c / t) * 100));
+}
+
+async function fetchCourseProgressMap({ tenantId, userId, courseIds }) {
+  if (!courseIds?.length) return new Map();
+  const { rows } = await query(
+    `SELECT c.id AS course_id,
+            c.title,
+            c.slug,
+            COUNT(DISTINCT l.id) FILTER (WHERE lp.completed_at IS NOT NULL)::int AS completed_lessons,
+            COUNT(DISTINCT l.id)::int AS total_lessons
+     FROM courses c
+     LEFT JOIN course_modules cm ON cm.course_id = c.id AND cm.status = 'published'
+     LEFT JOIN lessons l ON l.module_id = cm.id AND l.status = 'published'
+     LEFT JOIN lesson_progress lp
+       ON lp.lesson_id = l.id AND lp.user_id = $2 AND lp.tenant_id = $1
+     WHERE c.tenant_id = $1 AND c.id = ANY($3::uuid[])
+     GROUP BY c.id, c.title, c.slug`,
+    [tenantId, userId, courseIds]
+  );
+  const map = new Map();
+  for (const row of rows) {
+    const completed = row.completed_lessons || 0;
+    const total = row.total_lessons || 0;
+    map.set(String(row.course_id), {
+      course_id: row.course_id,
+      title: row.title,
+      slug: row.slug,
+      completed_lessons: completed,
+      total_lessons: total,
+      progress_percent: lessonProgressPercent(completed, total),
+    });
+  }
+  return map;
+}
+
+function collectEnrolledCourseIds(enrollments) {
+  const ids = new Set();
+  for (const e of enrollments) {
+    if (e.item_type === "course" && e.item_id) ids.add(String(e.item_id));
+    if (e.item_type === "pack" && Array.isArray(e.included_courses)) {
+      for (const c of e.included_courses) {
+        if (c.course_id) ids.add(String(c.course_id));
+      }
+    }
+  }
+  return [...ids];
+}
+
+function attachEnrollmentProgress(enrollment, progressMap) {
+  if (enrollment.item_type === "course") {
+    const cp = progressMap.get(String(enrollment.item_id));
+    return {
+      ...enrollment,
+      completed_lessons: cp?.completed_lessons ?? 0,
+      total_lessons: cp?.total_lessons ?? 0,
+      progress_percent: cp?.progress_percent ?? 0,
+    };
+  }
+  if (enrollment.item_type === "pack") {
+    const courses = Array.isArray(enrollment.included_courses) ? enrollment.included_courses : [];
+    const courseProgress = courses.map((c) => {
+      const cp = progressMap.get(String(c.course_id));
+      return {
+        course_id: c.course_id,
+        title: c.title,
+        slug: c.slug,
+        completed_lessons: cp?.completed_lessons ?? 0,
+        total_lessons: cp?.total_lessons ?? 0,
+        progress_percent: cp?.progress_percent ?? 0,
+      };
+    });
+    let completed = 0;
+    let total = 0;
+    for (const cp of courseProgress) {
+      completed += cp.completed_lessons;
+      total += cp.total_lessons;
+    }
+    return {
+      ...enrollment,
+      completed_lessons: completed,
+      total_lessons: total,
+      progress_percent: lessonProgressPercent(completed, total),
+      course_progress: courseProgress,
+    };
+  }
+  return {
+    ...enrollment,
+    completed_lessons: 0,
+    total_lessons: 0,
+    progress_percent: 0,
+  };
+}
+
 // SuperAdmin: Get student with progress and stats
 async function getStudentWithStats({ tenantId, userId }) {
   // Get basic user info
@@ -303,6 +401,12 @@ async function getStudentWithStats({ tenantId, userId }) {
   let enrollments = [];
   let paid_purchases = [];
   let purchase_approvals = [];
+  let enrolledProgressSummary = {
+    completed_lessons: 0,
+    total_lessons: 0,
+    progress_percent: 0,
+    enrolled_courses_count: 0,
+  };
 
   try {
     const enrollmentRows = await query(
@@ -327,7 +431,7 @@ async function getStudentWithStats({ tenantId, userId }) {
     const packCoursesByPack = new Map();
     if (packIds.length > 0) {
       const packCourseRows = await query(
-        `SELECT cpc.pack_id, c.title, c.slug
+        `SELECT cpc.pack_id, c.id AS course_id, c.title, c.slug
          FROM course_pack_courses cpc
          JOIN courses c ON c.id = cpc.course_id AND c.tenant_id = $2
          WHERE cpc.pack_id = ANY($1::uuid[])
@@ -336,7 +440,7 @@ async function getStudentWithStats({ tenantId, userId }) {
       );
       for (const row of packCourseRows.rows) {
         const list = packCoursesByPack.get(row.pack_id) || [];
-        list.push({ title: row.title, slug: row.slug });
+        list.push({ course_id: row.course_id, title: row.title, slug: row.slug });
         packCoursesByPack.set(row.pack_id, list);
       }
     }
@@ -352,6 +456,30 @@ async function getStudentWithStats({ tenantId, userId }) {
       created_at: r.created_at,
       included_courses: r.item_type === "pack" ? packCoursesByPack.get(r.item_id) || [] : [],
     }));
+
+    const enrolledCourseIds = collectEnrolledCourseIds(enrollments);
+    const courseProgressMap = await fetchCourseProgressMap({
+      tenantId,
+      userId,
+      courseIds: enrolledCourseIds,
+    });
+    enrollments = enrollments.map((row) => attachEnrollmentProgress(row, courseProgressMap));
+
+    let enrolledCompleted = 0;
+    let enrolledTotal = 0;
+    for (const id of enrolledCourseIds) {
+      const cp = courseProgressMap.get(id);
+      if (cp) {
+        enrolledCompleted += cp.completed_lessons;
+        enrolledTotal += cp.total_lessons;
+      }
+    }
+    enrolledProgressSummary = {
+      completed_lessons: enrolledCompleted,
+      total_lessons: enrolledTotal,
+      progress_percent: lessonProgressPercent(enrolledCompleted, enrolledTotal),
+      enrolled_courses_count: enrolledCourseIds.length,
+    };
 
     const paidOrderRows = await query(
       `SELECT DISTINCT ON (po.id)
@@ -448,9 +576,20 @@ async function getStudentWithStats({ tenantId, userId }) {
     console.error("[getStudentWithStats] enrollments/purchases/approvals query failed:", err?.message || err);
   }
 
+  const baseProgress = progressRows.rows[0] || {
+    completed_lessons: 0,
+    in_progress_lessons: 0,
+    total_watch_seconds: 0,
+  };
   return {
     ...user,
-    progress: progressRows.rows[0] || { completed_lessons: 0, in_progress_lessons: 0, total_watch_seconds: 0 },
+    progress: {
+      ...baseProgress,
+      enrolled_completed_lessons: enrolledProgressSummary.completed_lessons,
+      total_lessons: enrolledProgressSummary.total_lessons,
+      progress_percent: enrolledProgressSummary.progress_percent,
+      enrolled_courses_count: enrolledProgressSummary.enrolled_courses_count,
+    },
     total_projects: projectRows.rows[0]?.total_projects || 0,
     streak_days: streakRows.rows[0]?.streak_days || 0,
     enrollments,

@@ -2,6 +2,7 @@
 const express = require("express");
 const ctrl = require("./student.controller");
 const feedbackCtrl = require("../feedback/feedback.controller.student");
+const doubtsCtrl = require("../doubts/doubts.controller.student");
 const { requireAuth } = require("../../middlewares/auth/requireAuth");
 const { requirePermission } = require("../../middlewares/rbac/requirePermission");
 
@@ -22,10 +23,18 @@ router.get("/events", ctrl.getEvents);
 router.get("/courses", ctrl.listCourses);
 router.get("/search", ctrl.search);
 router.get("/courses/:courseSlug/continue-target", ctrl.getContinueTarget);
+router.get("/courses/:courseSlug/doubts", doubtsCtrl.listCourseDoubts);
+router.post("/courses/:courseSlug/doubts", requirePermission("student:write"), doubtsCtrl.createCourseDoubt);
 router.get("/courses/:courseSlug", ctrl.getCourseTree);
 router.post("/courses/:courseSlug/feedback", requirePermission("student:write"), feedbackCtrl.submitCourseFeedback);
 // POST lesson routes (literal /complete and /feedback) before GET lesson so they match correctly
 router.post("/courses/:courseSlug/modules/:moduleSlug/lessons/:lessonSlug/complete", ctrl.completeLesson);
+router.get("/courses/:courseSlug/modules/:moduleSlug/lessons/:lessonSlug/doubts", doubtsCtrl.listLessonDoubts);
+router.post(
+  "/courses/:courseSlug/modules/:moduleSlug/lessons/:lessonSlug/doubts",
+  requirePermission("student:write"),
+  doubtsCtrl.createLessonDoubt
+);
 router.post("/courses/:courseSlug/modules/:moduleSlug/lessons/:lessonSlug/feedback", requirePermission("student:write"), feedbackCtrl.submitLessonFeedback);
 router.get("/courses/:courseSlug/modules/:moduleSlug/lessons/:lessonSlug", ctrl.getLesson);
 
@@ -47,6 +56,10 @@ router.put("/lesson-bookmarks", requirePermission("student:write"), ctrl.upsertL
 router.delete("/lesson-bookmarks", requirePermission("student:write"), ctrl.deleteLessonBookmark);
 router.put("/lesson-notes", requirePermission("student:write"), ctrl.upsertLessonNote);
 router.delete("/lesson-notes", requirePermission("student:write"), ctrl.deleteLessonNote);
+
+// Doubt threads (student-owned)
+router.get("/doubts/:doubtId", doubtsCtrl.getDoubtThread);
+router.post("/doubts/:doubtId/messages", requirePermission("student:write"), doubtsCtrl.replyToDoubt);
 
 // Profile
 router.get("/profile", ctrl.getProfile);
