@@ -151,19 +151,22 @@ export function PricingWithChart() {
               </Link>
             </div>
           </div>
-          <div className="flex items-end gap-2 mb-3 flex-wrap">
-            <span className="font-mono text-4xl font-semibold tracking-tight text-white">
-              {isBonus ? "Free" : formatPrice(course?.price_in_paise)}
-            </span>
-            {!isBonus && (
-              <>
+          <div className="mb-3">
+            <h3 className="text-xl sm:text-2xl font-bold text-white leading-tight mb-2">{displayTitle}</h3>
+            <div className="flex items-end gap-2 flex-wrap">
+              <span className="font-mono text-4xl font-semibold tracking-tight text-white">
+                {isBonus ? "Free" : formatPrice(course?.price_in_paise)}
+              </span>
+              {!isBonus && (
                 <span className="relative inline-block text-rose-100 text-lg font-bold leading-none px-0.5">
                   <span className="absolute left-0 top-1/2 w-full h-px bg-red-400 rotate-[28deg] pointer-events-none" aria-hidden />
                   <span className="absolute left-0 top-1/2 w-full h-px bg-red-400 -rotate-[28deg] pointer-events-none" aria-hidden />
                   <span>{MARKETING_MRP_LABEL}</span>
                 </span>
-                {course?.price_in_paise != null && <span className="text-white/50 text-sm">one-time</span>}
-              </>
+              )}
+            </div>
+            {!isBonus && course?.price_in_paise != null && (
+              <p className="text-white/50 text-sm mt-1">one-time</p>
             )}
           </div>
           {COURSE_DURATION_HOURS[orderSlug as keyof typeof COURSE_DURATION_HOURS] != null && (
@@ -171,7 +174,6 @@ export function PricingWithChart() {
               <span className="text-white/70 font-medium">{COURSE_DURATION_HOURS[orderSlug as keyof typeof COURSE_DURATION_HOURS]} hrs</span> to complete
             </p>
           )}
-          <h3 className="text-base font-bold text-white leading-tight mb-2">{displayTitle}</h3>
           <p className="text-sm text-white/55 line-clamp-2 mb-4">{course?.description || "Self-paced learning"}</p>
           <ul className="text-white/60 space-y-2 text-sm mb-4 flex-1">
             {features.map((f, i) => (
@@ -290,11 +292,11 @@ export function PricingWithChart() {
             Included when you buy All Pack or own all three main courses-not with a single course alone.
           </div>
         )}
+        <h3 className="text-xl sm:text-2xl font-bold text-white leading-tight mb-2">{title}</h3>
         <div className="flex items-end gap-2 mb-3">
           <span className="font-mono text-2xl sm:text-3xl font-semibold tracking-tight text-white">Included</span>
           <span className="text-white/50 text-sm">with your LMS</span>
         </div>
-        <h3 className="text-base font-bold text-white leading-tight mb-2">{title}</h3>
         <p className="text-sm text-white/55 line-clamp-3 mb-4">{subtitle}</p>
         <ul className="text-white/60 space-y-2 text-sm mb-4 flex-1">
           {features.map((f, i) => (
@@ -377,7 +379,7 @@ export function PricingWithChart() {
           </div>
           <div className="relative flex flex-col flex-1 p-4 lg:flex-row lg:gap-6">
             <div className="pb-4 lg:w-[28%]">
-              <h3 className="text-base font-bold text-white leading-tight mb-2">All Pack</h3>
+              <h3 className="text-2xl sm:text-3xl font-bold text-white leading-tight mb-2">All Pack</h3>
               <div className="flex items-end gap-2 flex-wrap">
                 <span className="font-mono text-5xl font-semibold tracking-tight text-purple-400 block">
                   {formatPrice(allPack?.price_in_paise)}
