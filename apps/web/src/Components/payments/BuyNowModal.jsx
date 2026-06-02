@@ -310,6 +310,7 @@ function buildLoginUrlWithParams(email) {
 
 export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, isLoggedIn, fromCourseRoute }) {
   const { tenant } = useAuth();
+  const [checkoutItem, setCheckoutItem] = useState(item || null);
   const [form, setForm] = useState({ name: "", email: "", phone: "", college: "" });
   const [colleges, setColleges] = useState([]);
   const [emailTouched, setEmailTouched] = useState(false);
@@ -333,8 +334,11 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [step, setStep] = useState("form");
+  const [upsellLoading, setUpsellLoading] = useState(false);
+  const [allPackOption, setAllPackOption] = useState(null);
 
   const isAuth = !!(isLoggedIn && prefill?.email);
+  const activeItem = checkoutItem || item;
 
   // Preload Razorpay script when modal opens so Pay click feels instant
   useEffect(() => {
@@ -345,6 +349,7 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
   // When the modal opens, decide the flow
   useEffect(() => {
     if (!open) return;
+    setCheckoutItem(item || null);
     if (prefill) {
       setForm({
         name: prefill.name ?? "",
@@ -360,23 +365,23 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
     } else {
       setStep("form");
     }
-  }, [open]); // only re-run when open changes
+  }, [open, item]); // only re-run when open changes
 
   useEffect(() => {
-    if (!open || !item?.type || !item?.id) {
+    if (!open || !activeItem?.type || !activeItem?.id) {
       setPriceBreakdown(null);
       return;
     }
     setPriceLoading(true);
     setPriceBreakdown(null);
-    apiFetch(`/api/v1/payments/price-breakdown?item_type=${item.type}&item_id=${item.id}`)
+    apiFetch(`/api/v1/payments/price-breakdown?item_type=${activeItem.type}&item_id=${activeItem.id}`)
       .then((res) => {
         const data = res?.data ?? res;
         setPriceBreakdown(data);
       })
       .catch(() => setPriceBreakdown(null))
       .finally(() => setPriceLoading(false));
-  }, [open, item?.type, item?.id]);
+  }, [open, activeItem?.type, activeItem?.id]);
 
   useEffect(() => {
     if (!open) return;
@@ -385,6 +390,45 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
       .then((res) => setColleges(Array.isArray(res?.data) ? res.data : []))
       .catch(() => setColleges([]));
   }, [open, tenant?.slug]);
+
+  useEffect(() => {
+    if (!open) {
+      setAllPackOption(null);
+      return;
+    }
+    if (activeItem?.type !== "course") {
+      setAllPackOption(null);
+      return;
+    }
+    let cancelled = false;
+    setUpsellLoading(true);
+    apiFetch("/api/v1/packs")
+      .then((packsRes) => {
+        if (cancelled) return;
+        const packs = Array.isArray(packsRes?.data) ? packsRes.data : [];
+        const norm = (s) => String(s || "").toLowerCase().replace(/_/g, "-");
+        const allPack = packs.find((p) => norm(p.slug).includes("all-pack")) || packs.find((p) => norm(p.slug).includes("pack")) || null;
+        setAllPackOption(
+          allPack
+            ? {
+                type: "pack",
+                id: allPack.id,
+                title: allPack.title || "All Pack",
+                price_in_paise: Number(allPack.price_in_paise) || 0,
+              }
+            : null
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setAllPackOption(null);
+      })
+      .finally(() => {
+        if (!cancelled) setUpsellLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, activeItem?.type]);
 
   // Reset verification when email changes (only for guest users) - also clear cooldown so "Verify" works for the new email
   useEffect(() => {
@@ -513,8 +557,8 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
         apiFetch("/api/v1/payments/razorpay/create-order", {
           method: "POST",
           body: {
-            item_type: item.type,
-            item_id: item.id,
+            item_type: activeItem.type,
+            item_id: activeItem.id,
             name: form.name.trim(),
             email: form.email.trim().toLowerCase(),
             phone: form.phone.trim(),
@@ -538,15 +582,15 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
         order_id: data.razorpay_order_id,
         callback_url: data.callback_url,
         name: "ExpoGraph",
-        description: item.title,
+        description: activeItem.title,
         prefill: {
           name: form.name.trim(),
           email: form.email.trim(),
           contact: form.phone.trim(),
         },
         notes: {
-          item_type: item.type,
-          item_id: item.id,
+          item_type: activeItem.type,
+          item_id: activeItem.id,
           college: form.college.trim() || "",
         },
         handler: async (response) => {
@@ -602,9 +646,9 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
         submittingRef.current = false;
         onError?.();
         const params = new URLSearchParams();
-        if (item?.title) params.set("title", item.title);
-        if (item?.type) params.set("item_type", item.type);
-        if (item?.id) params.set("item_id", item.id);
+        if (activeItem?.title) params.set("title", activeItem.title);
+        if (activeItem?.type) params.set("item_type", activeItem.type);
+        if (activeItem?.id) params.set("item_id", activeItem.id);
         const base = typeof window !== "undefined" ? window.location.origin : "";
         window.location.href = `${base}/payment-failure${params.toString() ? `?${params.toString()}` : ""}`;
       });
@@ -622,6 +666,8 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
   if (!open) return null;
 
   const emailValid = EMAIL_RE.test(form.email?.trim());
+  const canShowUpsell =
+    activeItem?.type === "course" && allPackOption && allPackOption.id && String(allPackOption.id) !== String(activeItem?.id);
 
   return (
     <AnimatePresence>
@@ -630,14 +676,14 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm"
           aria-hidden="true"
         />
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 md:p-8 text-slate-900"
+          className="relative z-10 bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 md:p-8 text-slate-900"
           onClick={(e) => e.stopPropagation()}
         >
           <button
@@ -658,7 +704,8 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
                 .buy-now-modal-form input::-webkit-input-placeholder { color: #94a3b8; }
               `}</style>
               <h2 className="text-xl font-bold text-slate-900 mb-1">Complete your purchase</h2>
-              <p className="text-slate-600 text-sm mb-2">{item?.title}</p>
+              <p className="text-slate-600 text-sm mb-2">{activeItem?.title}</p>
+              {upsellLoading ? null : null}
 
               {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -884,6 +931,27 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
                   )}
                 </div>
 
+                {/* Minimal upsell: show only right above Pay */}
+                {canShowUpsell && (
+                  <div className="rounded-xl border border-purple-200 bg-purple-50 px-3 py-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-purple-800 leading-tight">All Pack — just ₹199</p>
+                        <p className="text-[11px] text-purple-700/80 leading-tight truncate">
+                          Upgrade before paying for best value.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setCheckoutItem({ type: "pack", id: allPackOption.id, title: allPackOption.title })}
+                        className="shrink-0 px-3 py-2 rounded-lg bg-purple-600 text-white text-xs font-semibold hover:bg-purple-700 transition-colors"
+                      >
+                        Get All Pack
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex gap-3 pt-2">
                   <button
                     type="button"
@@ -928,7 +996,7 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
                 </div>
               </div>
 
-              <p className="text-slate-600 text-sm mt-3 mb-4">{item?.title}</p>
+              <p className="text-slate-600 text-sm mt-3 mb-4">{activeItem?.title}</p>
 
               {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -1004,6 +1072,27 @@ export function BuyNowModal({ open, onClose, item, onSuccess, onError, prefill, 
                   <p className="text-sm text-slate-500">Could not load price details.</p>
                 )}
               </div>
+
+              {/* Minimal upsell: show only right above Pay */}
+              {canShowUpsell && (
+                <div className="rounded-xl border border-purple-200 bg-purple-50 px-3 py-2 mb-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-purple-800 leading-tight">All Pack — just ₹199</p>
+                      <p className="text-[11px] text-purple-700/80 leading-tight truncate">
+                        Upgrade before paying for best value.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCheckoutItem({ type: "pack", id: allPackOption.id, title: allPackOption.title })}
+                      className="shrink-0 px-3 py-2 rounded-lg bg-purple-600 text-white text-xs font-semibold hover:bg-purple-700 transition-colors"
+                    >
+                      Get All Pack
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="flex gap-3">
                 <button

@@ -20,6 +20,11 @@ function formatPrice(paise: number | null | undefined) {
   return `₹${rupees.toLocaleString("en-IN")}`;
 }
 
+const MARKETING_MRP_RUPEES = 1999;
+const MARKETING_MRP_LABEL = `₹${MARKETING_MRP_RUPEES.toLocaleString("en-IN")}`;
+const MARKETING_PACK_MRP_RUPEES = 4999;
+const MARKETING_PACK_MRP_LABEL = `₹${MARKETING_PACK_MRP_RUPEES.toLocaleString("en-IN")}`;
+
 const courseDisplayNames: Record<string, string> = {
   "vibe-coding": "Vibe Coding",
   "prompt-engineering": "Prompt Engineering",
@@ -146,11 +151,20 @@ export function PricingWithChart() {
               </Link>
             </div>
           </div>
-          <div className="flex items-end gap-2 mb-3">
-            <span className="font-mono text-3xl font-semibold tracking-tight text-white">
+          <div className="flex items-end gap-2 mb-3 flex-wrap">
+            <span className="font-mono text-4xl font-semibold tracking-tight text-white">
               {isBonus ? "Free" : formatPrice(course?.price_in_paise)}
             </span>
-            {!isBonus && course?.price_in_paise != null && <span className="text-white/50 text-sm">one-time</span>}
+            {!isBonus && (
+              <>
+                <span className="relative inline-block text-rose-100 text-lg font-bold leading-none px-0.5">
+                  <span className="absolute left-0 top-1/2 w-full h-px bg-red-400 rotate-[28deg] pointer-events-none" aria-hidden />
+                  <span className="absolute left-0 top-1/2 w-full h-px bg-red-400 -rotate-[28deg] pointer-events-none" aria-hidden />
+                  <span>{MARKETING_MRP_LABEL}</span>
+                </span>
+                {course?.price_in_paise != null && <span className="text-white/50 text-sm">one-time</span>}
+              </>
+            )}
           </div>
           {COURSE_DURATION_HOURS[orderSlug as keyof typeof COURSE_DURATION_HOURS] != null && (
             <p className="text-xs text-white/55 mb-2">
@@ -171,7 +185,9 @@ export function PricingWithChart() {
             <div className="mb-4">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-2">You&apos;ll work with</p>
               <div className="flex flex-wrap gap-2">
-                {(COURSE_EXPLORE_DATA[orderSlug as keyof typeof COURSE_EXPLORE_DATA].tools || []).slice(0, orderSlug === "prompt-to-profit" ? 12 : 6).map((toolName, i) => {
+                {(COURSE_EXPLORE_DATA[orderSlug as keyof typeof COURSE_EXPLORE_DATA].tools || [])
+                  .slice(0, ["prompt-to-profit", "vibe-coding", "prompt-engineering"].includes(orderSlug) ? 12 : 6)
+                  .map((toolName, i) => {
                   const Icon = getToolIcon(toolName);
                   const iconColor = getToolIconColor(toolName);
                   return (
@@ -204,7 +220,7 @@ export function PricingWithChart() {
                   if (course) handleGetCourse({ type: "course", id: course.id, title: displayTitle });
                 }}
                 disabled={!canBuy}
-                className="w-full h-10 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-10 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Get Course
               </Button>
@@ -362,9 +378,16 @@ export function PricingWithChart() {
           <div className="relative flex flex-col flex-1 p-4 lg:flex-row lg:gap-6">
             <div className="pb-4 lg:w-[28%]">
               <h3 className="text-base font-bold text-white leading-tight mb-2">All Pack</h3>
-              <span className="font-mono text-4xl font-semibold tracking-tight text-purple-400 block">
-                {formatPrice(allPack?.price_in_paise)}
-              </span>
+              <div className="flex items-end gap-2 flex-wrap">
+                <span className="font-mono text-5xl font-semibold tracking-tight text-purple-400 block">
+                  {formatPrice(allPack?.price_in_paise)}
+                </span>
+                <span className="relative inline-block text-rose-100 text-lg font-bold leading-none px-0.5">
+                  <span className="absolute left-0 top-1/2 w-full h-px bg-red-400 rotate-[28deg] pointer-events-none" aria-hidden />
+                  <span className="absolute left-0 top-1/2 w-full h-px bg-red-400 -rotate-[28deg] pointer-events-none" aria-hidden />
+                  <span>{MARKETING_PACK_MRP_LABEL}</span>
+                </span>
+              </div>
               <span className="text-white/50 text-sm">one-time</span>
               {COURSE_EXPLORE_DATA["all-pack"]?.durationHours != null && (
                 <p className="text-xs text-purple-300/80 mt-1">{COURSE_EXPLORE_DATA["all-pack"].durationHours} hrs of learning</p>
@@ -456,7 +479,7 @@ export function PricingWithChart() {
                 <Button
                   onClick={() => handleGetCourse({ type: "pack", id: allPack.id, title: allPack.title })}
                   disabled={(allPack.price_in_paise ?? 0) < 100}
-                  className="w-full h-10 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg border-0"
+                  className="w-full h-10 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg border-0 cursor-pointer disabled:cursor-not-allowed"
                 >
                   Get Pack
                 </Button>

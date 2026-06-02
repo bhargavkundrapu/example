@@ -81,16 +81,6 @@ function formatUnixSeconds(sec) {
   return new Date(ms).toLocaleString();
 }
 
-function getDefaultRzDates() {
-  const to = new Date();
-  const from = new Date();
-  from.setDate(from.getDate() - 14);
-  return {
-    from: from.toISOString().slice(0, 10),
-    to: to.toISOString().slice(0, 10),
-  };
-}
-
 export default function SuperAdminApprovals() {
   const { token } = useAuth();
   const [activeTab, setActiveTab] = useState("pending");
@@ -120,8 +110,8 @@ export default function SuperAdminApprovals() {
   const [rzError, setRzError] = useState("");
   const [rzPage, setRzPage] = useState(1);
   const [rzPageSize, setRzPageSize] = useState(50);
-  const [rzDateFrom, setRzDateFrom] = useState(() => getDefaultRzDates().from);
-  const [rzDateTo, setRzDateTo] = useState(() => getDefaultRzDates().to);
+  const [rzDateFrom, setRzDateFrom] = useState("");
+  const [rzDateTo, setRzDateTo] = useState("");
   const [rzFilterStatus, setRzFilterStatus] = useState("");
   const [rzFilterMethod, setRzFilterMethod] = useState("");
   /** '' | 'captured_not_approved' — Razorpay captured payments not marked approved in ExpoGraph */
@@ -178,14 +168,13 @@ export default function SuperAdminApprovals() {
     Object.values(filters).filter((v) => v.trim()).length + (searchQuery.trim() ? 1 : 0);
 
   const rzHasActiveFilters = useMemo(() => {
-    const defaults = getDefaultRzDates();
     return (
       Boolean(rzFilterStatus) ||
       Boolean(rzFilterMethod) ||
       Boolean(rzFilterLocalApproval) ||
       Boolean(rzSearch.trim()) ||
-      rzDateFrom !== defaults.from ||
-      rzDateTo !== defaults.to ||
+      Boolean(rzDateFrom) ||
+      Boolean(rzDateTo) ||
       rzSortField !== "created_at" ||
       rzSortDir !== "desc"
     );
@@ -201,13 +190,12 @@ export default function SuperAdminApprovals() {
   ]);
 
   const rzActiveFilterCount = useMemo(() => {
-    const defaults = getDefaultRzDates();
     let n = 0;
     if (rzFilterStatus) n += 1;
     if (rzFilterMethod) n += 1;
     if (rzFilterLocalApproval) n += 1;
     if (rzSearch.trim()) n += 1;
-    if (rzDateFrom !== defaults.from || rzDateTo !== defaults.to) n += 1;
+    if (rzDateFrom || rzDateTo) n += 1;
     if (rzSortField !== "created_at" || rzSortDir !== "desc") n += 1;
     return n;
   }, [
@@ -248,13 +236,12 @@ export default function SuperAdminApprovals() {
   };
 
   const clearRzFilters = () => {
-    const defaults = getDefaultRzDates();
     setRzFilterStatus("");
     setRzFilterMethod("");
     setRzFilterLocalApproval("");
     setRzSearch("");
-    setRzDateFrom(defaults.from);
-    setRzDateTo(defaults.to);
+    setRzDateFrom("");
+    setRzDateTo("");
     setRzSortField("created_at");
     setRzSortDir("desc");
     setRzPage(1);
@@ -286,18 +273,22 @@ export default function SuperAdminApprovals() {
     setRzLoading(true);
     setRzError("");
     try {
-      const fromUnix = Math.floor(new Date(`${rzDateFrom}T00:00:00`).getTime() / 1000);
-      const toUnix = Math.floor(new Date(`${rzDateTo}T23:59:59`).getTime() / 1000);
       const skip = (rzPage - 1) * rzPageSize;
       const qs = new URLSearchParams({
-        from: String(fromUnix),
-        to: String(toUnix),
         count: String(rzPageSize),
         skip: String(skip),
         include_local_approval: "1",
         sweep_auto_approve: "1",
         sweep_max: String(Math.min(100, rzPageSize)),
       });
+      if (rzDateFrom) {
+        const fromUnix = Math.floor(new Date(`${rzDateFrom}T00:00:00`).getTime() / 1000);
+        if (Number.isFinite(fromUnix)) qs.set("from", String(fromUnix));
+      }
+      if (rzDateTo) {
+        const toUnix = Math.floor(new Date(`${rzDateTo}T23:59:59`).getTime() / 1000);
+        if (Number.isFinite(toUnix)) qs.set("to", String(toUnix));
+      }
       const res = await apiFetch(`/api/v1/admin/razorpay/payments?${qs.toString()}`);
       setRzItems(Array.isArray(res?.data?.items) ? res.data.items : []);
     } catch (e) {

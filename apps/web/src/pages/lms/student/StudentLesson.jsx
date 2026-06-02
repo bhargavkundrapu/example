@@ -1282,7 +1282,7 @@ export default function StudentLesson() {
                               : "text-slate-600 hover:bg-slate-100"
                           }`}
                         >
-                          తెలు�-ు
+                          తెలుగు
                         </button>
                       </div>
                     </div>
