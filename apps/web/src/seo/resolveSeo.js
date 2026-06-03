@@ -54,7 +54,7 @@ const NOINDEX_PATH_PREFIXES = [
   "/demo",
 ];
 
-const NOINDEX_EXACT = new Set(["/not-found"]);
+const NOINDEX_EXACT = new Set(["/not-found", "/solutions/thank-you"]);
 
 function pathIsNoIndex(pathname) {
   if (NOINDEX_EXACT.has(pathname)) return true;
@@ -207,6 +207,16 @@ export function resolveSeo(pathname) {
     return {
       title: "Contact & Support | ExpoGraph",
       description: "Get in touch with ExpoGraph for course support, partnerships, and general inquiries.",
+      robots,
+      canonicalPath: path,
+      jsonLd: null,
+    };
+  }
+
+  if (path === "/presentation") {
+    return {
+      title: "Product Presentation | ExpoGraph",
+      description: "A detailed product overview and master presentation of ExpoGraph, outlining Vibe Coding, Prompt Engineering, AI Automations, and core features.",
       robots,
       canonicalPath: path,
       jsonLd: null,

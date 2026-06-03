@@ -8,5 +8,6 @@ Disallow: /adminlogin
 Disallow: /account-pending
 Disallow: /payment-failure
 Disallow: /demo/
+Disallow: /solutions/thank-you
 
 Sitemap: https://expograph.in/sitemap.xml
