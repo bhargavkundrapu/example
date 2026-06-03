@@ -96,10 +96,22 @@ export default function SuperAdminLayout() {
     return menuItems.filter((item) => item.label.toLowerCase().includes(q));
   }, [sidebarSearch]);
 
-  const isActive = (path) => {
-    if (path === "/lms/superadmin") return location.pathname === path;
-    return location.pathname.startsWith(path);
-  };
+  const activeMenuPath = useMemo(() => {
+    const pathname = location.pathname;
+    if (pathname === "/lms/superadmin") return "/lms/superadmin";
+
+    let best = null;
+    for (const item of menuItems) {
+      if (item.path === "/lms/superadmin") continue;
+      const exact = pathname === item.path;
+      const nested = pathname.startsWith(`${item.path}/`);
+      if (!exact && !nested) continue;
+      if (!best || item.path.length > best.length) best = item.path;
+    }
+    return best;
+  }, [location.pathname]);
+
+  const isActive = (path) => activeMenuPath === path;
 
   const handleLogout = () => {
     setProfileOpen(false);

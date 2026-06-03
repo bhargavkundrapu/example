@@ -10,5 +10,6 @@ router.use(requireAuth, requireRole(["SuperAdmin"]));
 router.get("/route-visits/overview", controller.getOverview);
 router.get("/route-visits/summary", controller.listSummary);
 router.get("/route-visits/recent", controller.listRecent);
+router.get("/route-visits/people", controller.listPeople);
 
 module.exports = { router };
