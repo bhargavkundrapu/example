@@ -71,6 +71,7 @@ const SuperAdminApprovals = lazy(() => import("../pages/lms/superadmin/SuperAdmi
 const SuperAdminFeedback = lazy(() => import("../pages/lms/superadmin/SuperAdminFeedback"));
 const SuperAdminDoubts = lazy(() => import("../pages/lms/superadmin/SuperAdminDoubts"));
 const SuperAdminStudents = lazy(() => import("../pages/lms/superadmin/SuperAdminStudents"));
+const SuperAdminLeaderboard = lazy(() => import("../pages/lms/superadmin/SuperAdminLeaderboard"));
 const SuperAdminMentors = lazy(() => import("../pages/lms/superadmin/SuperAdminMentors"));
 const SuperAdminColleges = lazy(() => import("../pages/lms/superadmin/SuperAdminColleges"));
 const SuperAdminCertificationRequests = lazy(() => import("../pages/lms/superadmin/SuperAdminCertificationRequests"));
@@ -369,6 +370,7 @@ export const router = createBrowserRouter([
           
           // Students Management
           { path: "students", element: <L><SuperAdminStudents /></L> },
+          { path: "students/leaderboard", element: <L><SuperAdminLeaderboard /></L> },
           { path: "students/cards", element: <L><SuperAdminStudents /></L> },
           { path: "students/list", element: <L><SuperAdminStudents /></L> },
           { path: "students/undo", element: <L><SuperAdminStudents /></L> },

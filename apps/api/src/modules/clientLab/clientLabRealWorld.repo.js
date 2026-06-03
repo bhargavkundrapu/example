@@ -26,7 +26,7 @@ async function createProject({ tenantId, title, slug, scope, status, startDate, 
   return rows[0];
 }
 
-async function updateProject({ tenantId, projectId, title, scope, status, startDate, endDate, archivedAt, updatedBy }) {
+async function updateProject({ tenantId, projectId, title, scope, status, startDate, endDate, hasArchivedAt, archivedAt, updatedBy }) {
   const { rows } = await query(
     `UPDATE client_lab_projects SET
        title = COALESCE($1, title),
@@ -34,12 +34,12 @@ async function updateProject({ tenantId, projectId, title, scope, status, startD
        status = COALESCE($3, status),
        start_date = COALESCE($4, start_date),
        end_date = COALESCE($5, end_date),
-       archived_at = COALESCE($6, archived_at),
-       updated_by = $7,
+       archived_at = CASE WHEN $6 THEN $7 ELSE archived_at END,
+       updated_by = $8,
        updated_at = now()
-     WHERE tenant_id = $8 AND id = $9
+     WHERE tenant_id = $9 AND id = $10
      RETURNING *`,
-    [title ?? null, scope ?? null, status ?? null, startDate ?? null, endDate ?? null, archivedAt ?? null, updatedBy, tenantId, projectId]
+    [title ?? null, scope ?? null, status ?? null, startDate ?? null, endDate ?? null, !!hasArchivedAt, archivedAt ?? null, updatedBy, tenantId, projectId]
   );
   return rows[0] ?? null;
 }

@@ -33,6 +33,11 @@ const ListStudentsQuerySchema = z.object({
   enrollment_pack_id: z.string().uuid().optional(),
 });
 
+const StudentsLeaderboardQuerySchema = z.object({
+  search: z.string().trim().max(200).optional(),
+  limit: z.coerce.number().int().min(1).max(1000).optional(),
+});
+
 /** Express can surface duplicate keys as string[]; take first scalar for validation. */
 function firstQueryString(val) {
   if (val == null) return undefined;
@@ -159,6 +164,22 @@ const listStudents = asyncHandler(async (req, res) => {
     enrollmentPackId,
   });
   res.json({ ok: true, data: students });
+});
+
+const listStudentsLeaderboard = asyncHandler(async (req, res) => {
+  const tenantId = req.tenant.id;
+  const parsed = StudentsLeaderboardQuerySchema.safeParse({
+    search: firstQueryString(req.query.search),
+    limit: firstQueryString(req.query.limit),
+  });
+  if (!parsed.success) throw new HttpError(400, "Invalid query", parsed.error.flatten());
+
+  const rows = await repo.listStudentsLeaderboard({
+    tenantId,
+    search: parsed.data.search?.trim() || "",
+    limit: parsed.data.limit ?? 200,
+  });
+  res.json({ ok: true, data: rows });
 });
 
 // SuperAdmin: Get student with stats
@@ -485,6 +506,7 @@ module.exports = {
   updateUserStatus,
   listTenantRoles,
   listStudents,
+  listStudentsLeaderboard,
   getStudentWithStats,
   createStudent,
   updateStudent,

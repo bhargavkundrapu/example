@@ -56,6 +56,8 @@ import {
   getVibeSetupFullstackAlternateVideos,
   VIBE_SETUP_FULLSTACK_VIDEO_LANG_KEY,
 } from "../../../utils/vibeCodingLessonAlternateVideos";
+import { getVibeLessonImportantLinks } from "../../../utils/vibeCodingLessonImportantLinks";
+import LessonImportantLinks from "../../../Components/lessons/LessonImportantLinks";
 
 const NATIVE_SEEK_BACK_SEC = 20;
 const NATIVE_SEEK_FWD_SEC = 10;
@@ -772,6 +774,17 @@ export default function StudentLesson() {
     return lessonAlternateVideoLang === "te" ? alternateNativeVideos.telugu : alternateNativeVideos.english;
   }, [alternateNativeVideos, lessonAlternateVideoLang]);
 
+  const lessonImportantLinks = useMemo(() => {
+    if (!lesson) return null;
+    return getVibeLessonImportantLinks({
+      courseSlug,
+      moduleSlug,
+      lessonSlug,
+      moduleTitle,
+      lessonTitle: lesson.title,
+    });
+  }, [lesson, courseSlug, moduleSlug, lessonSlug, moduleTitle]);
+
   // Fetch Cloudflare token only when not using alternate native URLs for this lesson
   useEffect(() => {
     if (alternateNativeVideos) {
@@ -1378,6 +1391,7 @@ export default function StudentLesson() {
                 ) : isVibeCodingCourse ? (
                   <ComingSoonVideoPlaceholder lessonTitle={lesson?.title || "this lesson"} />
                 ) : null}
+                {lessonImportantLinks && <LessonImportantLinks links={lessonImportantLinks} />}
                 </div>
               </div>
               ) : null}

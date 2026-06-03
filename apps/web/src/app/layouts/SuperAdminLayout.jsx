@@ -23,6 +23,7 @@ import {
   FiHelpCircle,
   FiUser,
   FiMessageSquare,
+  FiTrendingUp,
 } from "react-icons/fi";
 
 export default function SuperAdminLayout() {
@@ -70,6 +71,7 @@ export default function SuperAdminLayout() {
     { path: "/lms/superadmin/feedback", label: "Feedback", icon: FiMessageSquare },
     { path: "/lms/superadmin/doubts", label: "Doubts", icon: FiHelpCircle },
     { path: "/lms/superadmin/students", label: "Students", icon: FiUsers },
+    { path: "/lms/superadmin/students/leaderboard", label: "Leaderboard", icon: FiTrendingUp },
     { path: "/lms/superadmin/courses", label: "Courses", icon: FiBook },
     { path: "/lms/superadmin/course-packs", label: "Course Packs", icon: FiPackage },
     { path: "/lms/superadmin/mentors", label: "Mentors", icon: FiUserCheck },

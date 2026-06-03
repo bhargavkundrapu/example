@@ -41,6 +41,7 @@ async function updateProject(req, projectId, data) {
   const tenantId = req.tenant.id;
   const existing = await repo.getProjectById({ tenantId, projectId });
   if (!existing) throw new HttpError(404, "Project not found");
+  const hasArchivedAt = Object.prototype.hasOwnProperty.call(data || {}, "archivedAt");
   const updated = await repo.updateProject({
     tenantId,
     projectId,
@@ -49,6 +50,7 @@ async function updateProject(req, projectId, data) {
     status: data.status,
     startDate: data.startDate,
     endDate: data.endDate,
+    hasArchivedAt,
     archivedAt: data.archivedAt,
     updatedBy: req.auth.userId,
   });

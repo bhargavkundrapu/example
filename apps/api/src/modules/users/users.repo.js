@@ -223,6 +223,147 @@ async function listStudents({
   return rows;
 }
 
+async function listStudentsLeaderboard({ tenantId, search, limit = 200 }) {
+  const safeLimit = Math.max(1, Math.min(1000, Number(limit) || 200));
+  const searchLike = search ? `%${escapeIlikeMetacharacters(search)}%` : null;
+  const { rows } = await query(
+    `WITH active_students AS (
+       SELECT
+         u.id,
+         u.full_name,
+         u.email,
+         u.phone,
+         u.college,
+         u.created_at
+       FROM users u
+       JOIN memberships m ON m.user_id = u.id AND m.tenant_id = $1
+       JOIN roles r ON r.id = m.role_id
+       WHERE r.name = 'Student'
+         AND u.is_active = true
+         AND (
+           $2::text IS NULL
+           OR u.full_name ILIKE $2 ESCAPE '\\'
+           OR u.email ILIKE $2 ESCAPE '\\'
+           OR u.phone ILIKE $2 ESCAPE '\\'
+           OR u.college ILIKE $2 ESCAPE '\\'
+         )
+     ),
+     student_enrolled_courses AS (
+       SELECT DISTINCT
+         e.user_id,
+         e.item_id AS course_id
+       FROM enrollments e
+       JOIN active_students s ON s.id = e.user_id
+       WHERE e.tenant_id = $1
+         AND e.active = true
+         AND e.item_type = 'course'
+
+       UNION
+
+       SELECT DISTINCT
+         e.user_id,
+         cpc.course_id
+       FROM enrollments e
+       JOIN active_students s ON s.id = e.user_id
+       JOIN course_pack_courses cpc ON cpc.pack_id = e.item_id
+       WHERE e.tenant_id = $1
+         AND e.active = true
+         AND e.item_type = 'pack'
+     ),
+     course_lesson_totals AS (
+       SELECT
+         c.id AS course_id,
+         c.title AS course_title,
+         c.slug AS course_slug,
+         COUNT(DISTINCT l.id)::int AS total_lessons
+       FROM courses c
+       LEFT JOIN course_modules cm ON cm.course_id = c.id AND cm.status = 'published'
+       LEFT JOIN lessons l ON l.module_id = cm.id AND l.status = 'published'
+       WHERE c.tenant_id = $1
+       GROUP BY c.id, c.title, c.slug
+     ),
+     student_course_progress AS (
+       SELECT
+         sec.user_id,
+         sec.course_id,
+         clt.course_title,
+         clt.course_slug,
+         COALESCE(clt.total_lessons, 0)::int AS total_lessons,
+         COUNT(DISTINCT l.id) FILTER (WHERE lp.completed_at IS NOT NULL)::int AS completed_lessons
+       FROM student_enrolled_courses sec
+       LEFT JOIN course_lesson_totals clt ON clt.course_id = sec.course_id
+       LEFT JOIN course_modules cm ON cm.course_id = sec.course_id AND cm.status = 'published'
+       LEFT JOIN lessons l ON l.module_id = cm.id AND l.status = 'published'
+       LEFT JOIN lesson_progress lp
+         ON lp.tenant_id = $1
+        AND lp.user_id = sec.user_id
+        AND lp.lesson_id = l.id
+       GROUP BY sec.user_id, sec.course_id, clt.course_title, clt.course_slug, clt.total_lessons
+     ),
+     student_summary AS (
+       SELECT
+         scp.user_id,
+         COALESCE(SUM(scp.completed_lessons), 0)::int AS completed_lessons,
+         COALESCE(SUM(scp.total_lessons), 0)::int AS total_lessons,
+         COUNT(*)::int AS enrolled_courses_count,
+         COALESCE(
+           json_agg(
+             json_build_object(
+               'course_id', scp.course_id,
+               'title', scp.course_title,
+               'slug', scp.course_slug,
+               'completed_lessons', scp.completed_lessons,
+               'total_lessons', scp.total_lessons,
+               'progress_percent',
+               CASE
+                 WHEN scp.total_lessons > 0
+                   THEN LEAST(100, ROUND((scp.completed_lessons::numeric / scp.total_lessons::numeric) * 100))
+                 ELSE 0
+               END
+             )
+             ORDER BY scp.course_title ASC
+           ),
+           '[]'::json
+         ) AS course_progress
+       FROM student_course_progress scp
+       GROUP BY scp.user_id
+     )
+     SELECT
+       s.id,
+       s.full_name,
+       s.email,
+       s.phone,
+       s.college,
+       s.created_at,
+       COALESCE(ss.completed_lessons, 0)::int AS completed_lessons,
+       COALESCE(ss.total_lessons, 0)::int AS total_lessons,
+       CASE
+         WHEN COALESCE(ss.total_lessons, 0) > 0
+           THEN LEAST(100, ROUND((COALESCE(ss.completed_lessons, 0)::numeric / ss.total_lessons::numeric) * 100))
+         ELSE 0
+       END::int AS progress_percent,
+       COALESCE(ss.enrolled_courses_count, 0)::int AS enrolled_courses_count,
+       COALESCE(ss.course_progress, '[]'::json) AS course_progress
+     FROM active_students s
+     LEFT JOIN student_summary ss ON ss.user_id = s.id
+     ORDER BY
+       CASE
+         WHEN COALESCE(ss.total_lessons, 0) > 0
+           THEN ROUND((COALESCE(ss.completed_lessons, 0)::numeric / ss.total_lessons::numeric) * 100)
+         ELSE 0
+       END DESC,
+       COALESCE(ss.completed_lessons, 0) DESC,
+       s.full_name ASC
+     LIMIT $3`,
+    [tenantId, searchLike, safeLimit]
+  );
+
+  return rows.map((row, idx) => ({
+    ...row,
+    rank: idx + 1,
+  }));
+}
+
 function lessonProgressPercent(completed, total) {
   const c = Number(completed) || 0;
   const t = Number(total) || 0;
@@ -943,6 +1084,7 @@ module.exports = {
   updateUserStatus,
   listTenantRoles,
   listStudents,
+  listStudentsLeaderboard,
   getStudentWithStats,
   updateStudentDetails,
   createStudent,
