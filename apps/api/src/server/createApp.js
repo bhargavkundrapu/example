@@ -38,6 +38,8 @@ const { router: razorpayAdminRouter } = require("../modules/payments/razorpayAdm
 const { router: feedbackAdminRouter } = require("../modules/feedback/feedback.routes.admin");
 const { router: doubtsAdminRouter } = require("../modules/doubts/doubts.routes.admin");
 const { router: dashboardRouter } = require("../modules/dashboard/dashboard.routes");
+const { router: routeVisitsPublicRouter } = require("../modules/routeVisits/routeVisits.routes.public");
+const { router: routeVisitsAdminRouter } = require("../modules/routeVisits/routeVisits.routes.admin");
 const { router: collegesPublicRouter } = require("../modules/colleges/colleges.routes.public");
 
 const { router: lmsInternRouter } = require("../modules/internships/internships.routes.lms");
@@ -217,6 +219,7 @@ app.use(
   app.use("/api/v1/public", collegesPublicRouter);
   app.use("/api/v1/public", certPublic);
   app.use("/api/v1/public", featureFlagsPublic);
+  app.use("/api/v1/public", routeVisitsPublicRouter);
 
   app.use("/api/v1", publicContentRouter);
 
@@ -231,6 +234,7 @@ app.use(
   app.use("/api/v1/admin/feedback", feedbackAdminRouter);
   app.use("/api/v1/admin/doubts", doubtsAdminRouter);
   app.use("/api/v1/admin/dashboard", dashboardRouter);
+  app.use("/api/v1/admin", routeVisitsAdminRouter);
 
   app.use("/api/v1/referrals", referralsRoutes);
   app.use("/api/v1/resume", resumeRouter);

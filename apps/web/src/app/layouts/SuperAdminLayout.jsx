@@ -24,6 +24,7 @@ import {
   FiUser,
   FiMessageSquare,
   FiTrendingUp,
+  FiGlobe,
 } from "react-icons/fi";
 
 export default function SuperAdminLayout() {
@@ -67,6 +68,7 @@ export default function SuperAdminLayout() {
 
   const menuItems = [
     { path: "/lms/superadmin", label: "Home", icon: FiHome },
+    { path: "/lms/superadmin/route-visits", label: "Route visits", icon: FiGlobe },
     { path: "/lms/superadmin/approvals", label: "Approvals", icon: FiCheckSquare },
     { path: "/lms/superadmin/feedback", label: "Feedback", icon: FiMessageSquare },
     { path: "/lms/superadmin/doubts", label: "Doubts", icon: FiHelpCircle },

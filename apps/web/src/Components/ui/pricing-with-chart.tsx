@@ -454,9 +454,9 @@ export function PricingWithChart() {
             {allPack && (
               <>
                 <div className="mb-3 rounded-lg border border-amber-500/35 bg-gradient-to-r from-amber-500/12 via-orange-500/6 to-transparent px-3 py-2.5 shadow-[inset_0_0_0_1px_rgba(251,191,36,0.06)]">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-amber-300/95 mb-1">Only with All Pack or all three courses</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-amber-300/95 mb-1">Only with All Pack or all three courses get below features:</p>
                   <p className="text-[11px] text-white/55 mb-2">
-                    These unlock together with the bundle entitlement:
+                    These unlock together with the All Pack or all three courses:
                   </p>
                   <ul className="space-y-1 text-xs text-white/88">
                     <li>
