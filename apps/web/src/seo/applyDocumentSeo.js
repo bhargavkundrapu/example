@@ -49,7 +49,7 @@ export function applyDocumentSeo(seo) {
   ensureMetaProperty("og:title", seo.title);
   ensureMetaProperty("og:description", seo.description);
   ensureMetaProperty("og:url", canonical);
-  ensureMetaProperty("og:site_name", "ExpoGraph");
+  ensureMetaProperty("og:site_name", "ExpoGraph Academy");
   ensureMetaProperty("og:image", absoluteUrl("/pwa-icon-512.png"));
 
   ensureMetaName("twitter:card", "summary_large_image");
@@ -85,13 +85,12 @@ export function applyCourseDetailSeo({ slug, title, description, isCourse }) {
 
   const baseProvider = {
     "@type": "Organization",
-    name: "ExpoGraph",
+    name: "ExpoGraph Academy",
     url: getSiteOrigin(),
   };
 
-  const jsonLd = isCourse
+  const mainSchema = isCourse
     ? {
-        "@context": "https://schema.org",
         "@type": "Course",
         name: title,
         description: metaDesc,
@@ -99,21 +98,47 @@ export function applyCourseDetailSeo({ slug, title, description, isCourse }) {
         provider: baseProvider,
       }
     : {
-        "@context": "https://schema.org",
         "@type": "Product",
         name: title,
         description: metaDesc,
         url: absoluteUrl(canonicalPath),
-        brand: { "@type": "Brand", name: "ExpoGraph" },
+        brand: { "@type": "Brand", name: "ExpoGraph Academy" },
         category: "Educational",
       };
+
+  const breadcrumbSchema = {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": absoluteUrl("/")
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Courses",
+        "item": absoluteUrl("/courses")
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": title,
+        "item": absoluteUrl(canonicalPath)
+      }
+    ]
+  };
 
   applyDocumentSeo({
     title: pageTitle,
     description: metaDesc,
     robots: "index, follow",
     canonicalPath,
-    jsonLd,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@graph": [mainSchema, breadcrumbSchema]
+    },
   });
 }
 

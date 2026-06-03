@@ -583,7 +583,7 @@ export default function AcademyPage() {
                     <div className="rounded-lg bg-white p-1 shadow-md ring-2 ring-black/40">
                       <img
                         src={MCA_LOGO_URL}
-                        alt=""
+                        alt="Ministry of Corporate Affairs Logo"
                         width={72}
                         height={28}
                         className="h-7 w-auto max-w-[80px] object-contain"
@@ -594,7 +594,7 @@ export default function AcademyPage() {
                     <div className="rounded-lg bg-white p-1 shadow-md ring-2 ring-black/40">
                       <img
                         src={MSME_LOGO_URL}
-                        alt=""
+                        alt="Ministry of Micro, Small and Medium Enterprises Logo"
                         width={72}
                         height={28}
                         className="h-7 w-auto max-w-[88px] object-contain"

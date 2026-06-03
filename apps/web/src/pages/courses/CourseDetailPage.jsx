@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { apiFetch } from "../../services/api";
 import { Header } from "../../Components/ui/header-2";
@@ -8,6 +8,7 @@ import { cn } from "../../lib/utils";
 import { FiArrowLeft, FiBookOpen } from "react-icons/fi";
 import { RouteFallbackSkeleton } from "../../Components/common/SkeletonLoaders";
 import { applyCourseDetailSeo, sendGtagPageView } from "../../seo/applyDocumentSeo";
+import { COURSE_EXPLORE_DATA } from "../../data/courseExploreData";
 import { getCourseCardCover } from "../../data/courseCardMedia";
 
 function formatPrice(paise) {
@@ -142,7 +143,7 @@ export default function CourseDetailPage() {
           )}
         >
           <div className="relative aspect-[21/9] w-full overflow-hidden bg-white/5 sm:aspect-[3/1]">
-            <img src={coverSrc} alt="" className="h-full w-full object-cover" loading="lazy" decoding="async" />
+            <img src={coverSrc} alt={`${item.title} Course cover`} className="h-full w-full object-cover" loading="lazy" decoding="async" />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" aria-hidden />
           </div>
           <div className="p-6 md:p-8">
@@ -190,6 +191,33 @@ export default function CourseDetailPage() {
               </ul>
             </div>
           )}
+
+          {/* Related Courses */}
+          <div className="mt-8 pt-8 border-t border-white/10">
+            <h3 className="text-lg font-semibold mb-4 text-white">Other Courses You Might Like</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Object.keys(COURSE_EXPLORE_DATA)
+                .filter((k) => k !== slug)
+                .map((k) => {
+                  const rCourse = COURSE_EXPLORE_DATA[k];
+                  return (
+                    <Link
+                      key={k}
+                      to={`/courses/${k}`}
+                      className="p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors flex flex-col justify-between"
+                    >
+                      <div>
+                        <h4 className="text-sm font-semibold text-white">{rCourse.title}</h4>
+                        <p className="text-xs text-slate-400 mt-1 line-clamp-1">{rCourse.tagline}</p>
+                      </div>
+                      <span className="text-xs text-blue-400 font-medium mt-3 inline-flex items-center gap-0.5">
+                        View details →
+                      </span>
+                    </Link>
+                  );
+                })}
+            </div>
+          </div>
           </div>
         </motion.div>
       </div>

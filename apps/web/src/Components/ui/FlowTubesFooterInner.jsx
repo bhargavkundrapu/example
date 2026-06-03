@@ -43,8 +43,27 @@ export default function FlowTubesFooterInner({
         <span className="text-xs text-white/40">&copy; {year} ExpoGraph Academy</span>
         <nav
           className="flex max-w-sm flex-row flex-wrap items-center justify-center gap-x-5 gap-y-2.5 px-2 text-center text-xs leading-relaxed text-white/55 [&_a]:whitespace-normal sm:max-w-none"
-          aria-label="Legal links"
+          aria-label="Footer links"
         >
+          <Link to="/courses" className="underline underline-offset-4 hover:text-white/80">
+            Courses
+          </Link>
+          <Link to="/solutions" className="underline underline-offset-4 hover:text-white/80">
+            Solutions
+          </Link>
+          <Link to="/academy#features" className="underline underline-offset-4 hover:text-white/80">
+            Features
+          </Link>
+          <Link to="/contact" className="underline underline-offset-4 hover:text-white/80">
+            Contact
+          </Link>
+          <Link to="/blog" className="underline underline-offset-4 hover:text-white/80">
+            Blog
+          </Link>
+          <Link to="/sitemap" className="underline underline-offset-4 hover:text-white/80">
+            Sitemap
+          </Link>
+          <span className="text-white/20" aria-hidden="true">|</span>
           <Link to="/privacy-policy" className="underline underline-offset-4 hover:text-white/80">
             Privacy Policy
           </Link>

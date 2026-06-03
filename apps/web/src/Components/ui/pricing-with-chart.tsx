@@ -20,6 +20,14 @@ function formatPrice(paise: number | null | undefined) {
   return `₹${rupees.toLocaleString("en-IN")}`;
 }
 
+function getDiscountPercent(priceInPaise: number | null | undefined, mrpRupees: number) {
+  if (priceInPaise == null || priceInPaise === undefined || mrpRupees <= 0) return 0;
+  const priceRupees = Math.round(priceInPaise / 100);
+  const discount = mrpRupees - priceRupees;
+  if (discount <= 0) return 0;
+  return Math.round((discount / mrpRupees) * 100);
+}
+
 const MARKETING_MRP_RUPEES = 1999;
 const MARKETING_MRP_LABEL = `₹${MARKETING_MRP_RUPEES.toLocaleString("en-IN")}`;
 const MARKETING_PACK_MRP_RUPEES = 4999;
@@ -31,8 +39,8 @@ const courseDisplayNames: Record<string, string> = {
   "prompt-to-profit": "Prompt to Profit",
   "ai-automations": "AI Automations",
 };
-const BONUS_SLUGS = ["ai-automations"];
-const COURSE_ORDER = ["vibe-coding", "prompt-engineering", "prompt-to-profit", "ai-automations"];
+// const BONUS_SLUGS = ["ai-automations"];
+// const COURSE_ORDER = ["vibe-coding", "prompt-engineering", "prompt-to-profit", "ai-automations"];
 
 function matchCourse(co: { slug?: string; title?: string }, orderSlug: string) {
   const s = (co.slug || "").toLowerCase().replace(/_/g, "-");
@@ -153,16 +161,19 @@ export function PricingWithChart() {
           </div>
           <div className="mb-3">
             <h3 className="text-xl sm:text-2xl font-bold text-white leading-tight mb-2">{displayTitle}</h3>
-            <div className="flex items-end gap-2 flex-wrap">
+            <div className="flex items-baseline gap-2.5 flex-wrap">
               <span className="font-mono text-4xl font-semibold tracking-tight text-white">
                 {isBonus ? "Free" : formatPrice(course?.price_in_paise)}
               </span>
-              {!isBonus && (
-                <span className="relative inline-block text-rose-100 text-lg font-bold leading-none px-0.5">
-                  <span className="absolute left-0 top-1/2 w-full h-px bg-red-400 rotate-[28deg] pointer-events-none" aria-hidden />
-                  <span className="absolute left-0 top-1/2 w-full h-px bg-red-400 -rotate-[28deg] pointer-events-none" aria-hidden />
-                  <span>{MARKETING_MRP_LABEL}</span>
-                </span>
+              {!isBonus && course?.price_in_paise != null && (
+                <>
+                  <span className="line-through text-white/40 text-lg font-medium">
+                    {MARKETING_MRP_LABEL}
+                  </span>
+                  <span className="text-emerald-400 text-base font-bold">
+                    {getDiscountPercent(course.price_in_paise, MARKETING_MRP_RUPEES)}% off
+                  </span>
+                </>
               )}
             </div>
             {!isBonus && course?.price_in_paise != null && (
@@ -380,15 +391,20 @@ export function PricingWithChart() {
           <div className="relative flex flex-col flex-1 p-4 lg:flex-row lg:gap-6">
             <div className="pb-4 lg:w-[28%]">
               <h3 className="text-2xl sm:text-3xl font-bold text-white leading-tight mb-2">All Pack</h3>
-              <div className="flex items-end gap-2 flex-wrap">
+              <div className="flex items-baseline gap-2.5 flex-wrap">
                 <span className="font-mono text-5xl font-semibold tracking-tight text-purple-400 block">
                   {formatPrice(allPack?.price_in_paise)}
                 </span>
-                <span className="relative inline-block text-rose-100 text-lg font-bold leading-none px-0.5">
-                  <span className="absolute left-0 top-1/2 w-full h-px bg-red-400 rotate-[28deg] pointer-events-none" aria-hidden />
-                  <span className="absolute left-0 top-1/2 w-full h-px bg-red-400 -rotate-[28deg] pointer-events-none" aria-hidden />
-                  <span>{MARKETING_PACK_MRP_LABEL}</span>
-                </span>
+                {allPack?.price_in_paise != null && (
+                  <>
+                    <span className="line-through text-white/40 text-lg font-medium">
+                      {MARKETING_PACK_MRP_LABEL}
+                    </span>
+                    <span className="text-emerald-400 text-base font-bold">
+                      {getDiscountPercent(allPack.price_in_paise, MARKETING_PACK_MRP_RUPEES)}% off
+                    </span>
+                  </>
+                )}
               </div>
               <span className="text-white/50 text-sm">one-time</span>
               {COURSE_EXPLORE_DATA["all-pack"]?.durationHours != null && (

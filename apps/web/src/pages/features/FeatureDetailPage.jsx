@@ -451,7 +451,7 @@ export default function FeatureDetailPage() {
             <div className="relative mx-auto mt-10 max-w-3xl overflow-hidden rounded-2xl border border-white/10 aspect-[2/1] sm:aspect-[21/9]">
               <img
                 src={getFeatureCardCover(slug)}
-                alt=""
+                alt={detail.hero.title}
                 className="h-full w-full object-cover"
                 loading="lazy"
                 decoding="async"

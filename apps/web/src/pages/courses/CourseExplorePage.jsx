@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Header } from "../../Components/ui/header-2";
 import { TubesBackground } from "../../Components/ui/neon-flow";
 import FlowTubesFooterInner from "../../Components/ui/FlowTubesFooterInner";
@@ -82,7 +82,7 @@ export default function CourseExplorePage() {
           <div className="relative mb-8 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] aspect-[21/9] sm:aspect-[2/1]">
             <img
               src={COURSE_CARD_COVER[slug] ?? COURSE_CARD_FALLBACK}
-              alt=""
+              alt={`${data.title} Course cover`}
               className="h-full w-full object-cover"
               loading="eager"
               decoding="async"
@@ -273,6 +273,33 @@ export default function CourseExplorePage() {
                 </span>
               );
             })}
+          </div>
+        </section>
+
+        {/* Related Courses */}
+        <section className="mb-12 border-t border-white/10 pt-10">
+          <h3 className="text-xl font-bold mb-4 text-white">Other Courses You Might Like</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {Object.keys(COURSE_EXPLORE_DATA)
+              .filter((k) => k !== slug)
+              .map((k) => {
+                const item = COURSE_EXPLORE_DATA[k];
+                return (
+                  <Link
+                    key={k}
+                    to={`/courses/explore/${k}`}
+                    className="p-4 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 transition-all flex flex-col justify-between"
+                  >
+                    <div>
+                      <h4 className="text-base font-semibold text-white">{item.title}</h4>
+                      <p className="text-xs text-white/50 mt-1 line-clamp-2">{item.tagline}</p>
+                    </div>
+                    <span className="text-xs text-purple-400 font-medium mt-3 inline-flex items-center gap-1">
+                      Explore course →
+                    </span>
+                  </Link>
+                );
+              })}
           </div>
         </section>
 

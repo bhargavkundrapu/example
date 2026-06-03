@@ -56,6 +56,9 @@ const PrivacyPolicyPage = lazy(() => import("../pages/legal/PrivacyPolicyPage"))
 const TermsConditionsPage = lazy(() => import("../pages/legal/TermsConditionsPage"));
 const CourseContentsSidebarDemo = lazy(() => import("../pages/demo/CourseContentsSidebarDemo"));
 const PresentationPage = lazy(() => import("../pages/presentation/PresentationPage"));
+const BlogPage = lazy(() => import("../pages/blog/BlogPage"));
+const BlogPostPage = lazy(() => import("../pages/blog/BlogPostPage"));
+const SitemapPage = lazy(() => import("../pages/sitemap/SitemapPage"));
 
 const SuperAdminHome = lazy(() => import("../pages/lms/superadmin/SuperAdminHome"));
 const SuperAdminCourses = lazy(() => import("../pages/lms/superadmin/SuperAdminCourses"));
@@ -204,7 +207,7 @@ function RouteAwareFallback() {
   if (pathname.startsWith("/courses/")) return <CourseDetailRouteSkeleton />;
   if (pathname === "/contact") return <ContactRouteSkeleton />;
   if (pathname.startsWith("/features/")) return <CourseDetailRouteSkeleton />;
-  if (pathname === "/privacy-policy" || pathname === "/terms-and-conditions") return <LegalRouteSkeleton />;
+  if (pathname === "/privacy-policy" || pathname === "/terms-and-conditions" || pathname === "/sitemap" || pathname.startsWith("/blog")) return <LegalRouteSkeleton />;
   if (pathname === "/account-pending" || pathname === "/payment-failure") return <AuthRouteSkeleton />;
 
   if (pathname.startsWith("/lms/student/courses")) return <StudentCoursesSkeleton />;
@@ -300,6 +303,9 @@ export const router = createBrowserRouter([
       { path: "/adminlogin", element: <PublicOnly><AdminLoginPage /></PublicOnly> },
       { path: "/privacy-policy", element: <L><PrivacyPolicyPage /></L> },
       { path: "/terms-and-conditions", element: <L><TermsConditionsPage /></L> },
+      { path: "/blog", element: <L><BlogPage /></L> },
+      { path: "/blog/:slug", element: <L><BlogPostPage /></L> },
+      { path: "/sitemap", element: <L><SitemapPage /></L> },
       { path: "/account-pending", element: <L><AccountPendingPage /></L> },
       { path: "/payment-failure", element: <L><PaymentFailurePage /></L> },
       { path: "/not-found", element: <NotFoundPageRoute /> },
