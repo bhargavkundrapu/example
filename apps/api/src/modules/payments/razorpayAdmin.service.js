@@ -58,29 +58,30 @@ async function listPayments(query) {
     const sweep = String(query.sweep_auto_approve ?? query.sweepAutoApprove ?? "") === "1";
     if (sweep) {
       const maxSweep = Math.min(60, Math.max(1, parseInt(String(query.sweep_max ?? "40"), 10) || 40));
-      let swept = 0;
-      for (const p of bundle.items) {
-        if (swept >= maxSweep) break;
-        if (!p.order_id || !paymentRowIsCaptured(p)) continue;
-        const local = p.expograph_local_approval_status;
-        if (local === "approved") continue;
-        if (local === "rejected") continue;
-        try {
-          const r = await paymentsService.ensureCapturedRazorpayCheckoutApproved({
-            razorpayOrderId: String(p.order_id),
-            razorpayPaymentId: p.id ? String(p.id) : null,
-          });
-          if (r.ok) swept += 1;
-        } catch (err) {
-          console.warn("[RazorpayAdmin] sweep_auto_approve row failed:", p.order_id, err?.message || err);
+      // Run the sweep asynchronously in the background to avoid blocking the HTTP response
+      (async () => {
+        let swept = 0;
+        for (const p of bundle.items) {
+          if (swept >= maxSweep) break;
+          if (!p.order_id || !paymentRowIsCaptured(p)) continue;
+          const local = p.expograph_local_approval_status;
+          if (local === "approved" || local === "rejected") continue;
+          try {
+            const r = await paymentsService.ensureCapturedRazorpayCheckoutApproved({
+              razorpayOrderId: String(p.order_id),
+              razorpayPaymentId: p.id ? String(p.id) : null,
+            });
+            if (r.ok) swept += 1;
+          } catch (err) {
+            console.warn("[RazorpayAdmin] background sweep_auto_approve row failed:", p.order_id, err?.message || err);
+          }
         }
-      }
-      const orderIds2 = bundle.items.map((x) => x.order_id).filter(Boolean);
-      const statusMap2 = await approvalsRepo.approvalStatusesByRazorpayOrderIds(orderIds2);
-      bundle.items = bundle.items.map((p) => ({
-        ...p,
-        expograph_local_approval_status: p.order_id ? statusMap2.get(String(p.order_id)) ?? null : null,
-      }));
+        if (swept > 0) {
+          console.log(`[RazorpayAdmin] Background sweep auto-approve finished. Processed ${swept} payments.`);
+        }
+      })().catch((err) => {
+        console.error("[RazorpayAdmin] Error in background auto-approve sweep:", err);
+      });
     }
 
     return bundle;

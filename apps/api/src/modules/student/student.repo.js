@@ -600,25 +600,22 @@ function sameId(a, b) {
 
 // Check enrollment for a course (direct or via any pack). No special-case for AI Automations.
 async function hasEnrollmentForCourse({ tenantId, userId, courseId }) {
-  const cid = courseId;
-  const enrollResult = await query(
-    `SELECT item_type, item_id FROM enrollments
-     WHERE user_id = $1 AND tenant_id = $2 AND active = true
-     AND ((item_type = 'course' AND item_id = $3) OR item_type = 'pack')`,
-    [userId, tenantId, cid]
+  const { rows } = await query(
+    `SELECT 1 FROM enrollments e
+     WHERE e.user_id = $1 AND e.tenant_id = $2 AND e.active = true
+       AND (
+         (e.item_type = 'course' AND e.item_id = $3::uuid)
+         OR
+         (e.item_type = 'pack' AND EXISTS (
+           SELECT 1 FROM course_pack_courses cpc
+           WHERE cpc.pack_id = e.item_id AND cpc.course_id = $3::uuid
+         ))
+       )
+     LIMIT 1`,
+    [userId, tenantId, courseId]
   ).catch(() => ({ rows: [] }));
 
-  for (const r of enrollResult.rows) {
-    if (r.item_type === "course" && sameId(r.item_id, cid)) return true;
-    if (r.item_type === "pack") {
-      const packRes = await query(
-        `SELECT 1 FROM course_pack_courses WHERE pack_id = $1 AND course_id = $2 LIMIT 1`,
-        [r.item_id, cid]
-      ).catch(() => ({ rows: [] }));
-      if (packRes.rows.length > 0) return true;
-    }
-  }
-  return false;
+  return rows.length > 0;
 }
 
 /** True if user has All Pack (pack containing all three main courses) or has all three main courses. Used for Real Client Lab access. */
@@ -626,33 +623,10 @@ async function hasAllPackOrAllThreeCourses({ tenantId, userId }) {
   const mainGroups = await getMainCourseIdGroups({ tenantId });
   if (mainGroups.length < 3) return false;
 
-  const hasAllThree = (await Promise.all(
-    mainGroups.slice(0, 3).map(async (group) => {
-      if (group.length === 0) return false;
-      for (const cid of group) {
-        if (await hasEnrollmentForCourse({ tenantId, userId, courseId: cid })) return true;
-      }
-      return false;
-    })
-  )).every(Boolean);
-  if (hasAllThree) return true;
-
-  const requiredIds = mainGroups.slice(0, 3).flat();
-  const enrollResult = await query(
-    `SELECT item_id FROM enrollments WHERE user_id = $1 AND tenant_id = $2 AND active = true AND item_type = 'pack'`,
-    [userId, tenantId]
-  ).catch(() => ({ rows: [] }));
-
-  for (const row of enrollResult.rows) {
-    const packCourseIds = await query(
-      `SELECT course_id FROM course_pack_courses WHERE pack_id = $1`,
-      [row.item_id]
-    ).catch(() => ({ rows: [] }));
-    const inPack = new Set(packCourseIds.rows.map((r) => normId(r.course_id)));
-    const packHasAllThree = mainGroups.slice(0, 3).every((group) => group.some((cid) => inPack.has(normId(cid))));
-    if (packHasAllThree) return true;
-  }
-  return false;
+  const enrolledCourseIds = await getEnrolledCourseIds({ tenantId, userId });
+  return mainGroups.slice(0, 3).every((group) => {
+    return group.some((cid) => enrolledCourseIds.has(normId(cid)));
+  });
 }
 
 /** Resolve course ids by slugs (normalize hyphen/underscore). */

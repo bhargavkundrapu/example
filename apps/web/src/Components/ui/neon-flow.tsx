@@ -23,6 +23,8 @@ export function TubesBackground({
 
   useEffect(() => {
     let mounted = true;
+    let observer: ResizeObserver | null = null;
+    let initialized = false;
 
     const initTubes = async () => {
       if (!canvasRef.current) return;
@@ -47,16 +49,41 @@ export function TubesBackground({
         });
 
         tubesRef.current = app;
+        initialized = true;
       } catch (error) {
         console.warn("TubesBackground: could not load tubes cursor lib", error);
       }
     };
 
-    initTubes();
+    const checkAndInit = () => {
+      if (!canvasRef.current || initialized) return;
+      const width = canvasRef.current.clientWidth || canvasRef.current.offsetWidth || 0;
+      const height = canvasRef.current.clientHeight || canvasRef.current.offsetHeight || 0;
+      if (width > 0 && height > 0) {
+        initTubes();
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+      }
+    };
+
+    if (typeof window !== "undefined" && typeof ResizeObserver !== "undefined" && canvasRef.current) {
+      observer = new ResizeObserver(() => {
+        checkAndInit();
+      });
+      observer.observe(canvasRef.current);
+    }
+
+    // Run an initial check in case size is already non-zero
+    checkAndInit();
 
     return () => {
       mounted = false;
       tubesRef.current = null;
+      if (observer) {
+        observer.disconnect();
+      }
     };
   }, []);
 

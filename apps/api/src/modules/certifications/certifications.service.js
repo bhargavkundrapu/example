@@ -35,15 +35,21 @@ async function getEligible({ tenantId, userId }) {
     requestsByCourse[r.course_id] = { id: r.id, status: r.status, requested_at: r.requested_at };
   });
 
-  const result = [];
-  for (const row of courseRows) {
-    const { percent } = await progressRepo.courseProgressByCourseId({
-      tenantId,
-      userId,
-      courseId: row.id,
-    });
+  const progressPromises = courseRows.map((row) =>
+    progressRepo
+      .courseProgressByCourseId({
+        tenantId,
+        userId,
+        courseId: row.id,
+      })
+      .then(({ percent }) => ({ row, percent }))
+  );
+
+  const progressResults = await Promise.all(progressPromises);
+
+  const result = progressResults.map(({ row, percent }) => {
     const req = requestsByCourse[row.id];
-    result.push({
+    return {
       course_id: row.id,
       title: row.title,
       progress_percent: percent,
@@ -51,8 +57,8 @@ async function getEligible({ tenantId, userId }) {
       request_status: req ? req.status : null,
       request_id: req?.id ?? null,
       requested_at: req?.requested_at ?? null,
-    });
-  }
+    };
+  });
 
   return result.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
 }

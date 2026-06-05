@@ -233,9 +233,13 @@ async function completedAllRequiredCourses({ tenantId, userId }) {
     [tenantId]
   );
   if (courses.length === 0) return true;
-  for (const c of courses) {
-    const { percent } = await courseProgressBySlug({ tenantId, userId, courseSlug: c.slug });
-    if (percent < 100) return false;
+
+  const progressResults = await Promise.all(
+    courses.map((c) => courseProgressBySlug({ tenantId, userId, courseSlug: c.slug }))
+  );
+
+  for (const progress of progressResults) {
+    if (progress.percent < 100) return false;
   }
   return true;
 }
