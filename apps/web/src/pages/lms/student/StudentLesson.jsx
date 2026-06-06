@@ -1054,8 +1054,8 @@ export default function StudentLesson() {
 
         {/* Mobile lesson top bar */}
         <div className="flex md:hidden items-center gap-2 px-3 py-2 bg-white border-b border-slate-200 safe-area-pt">
-          <button onTouchStart={preloadCourses} onClick={() => navigate(basePath)} className="p-1.5 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors flex-shrink-0">
-            <FiChevronLeft className="w-5 h-5" />
+          <button onClick={() => setSidebarVisible(true)} className="p-1.5 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors flex-shrink-0">
+            <FiBookOpen className="w-5 h-5" />
           </button>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-slate-500 truncate">{moduleTitle || course?.title || "Course"}</p>
@@ -1069,9 +1069,6 @@ export default function StudentLesson() {
             className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors flex-shrink-0"
           >
             <FiSearch className="w-5 h-5" />
-          </button>
-          <button onClick={() => setSidebarVisible(true)} className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors flex-shrink-0">
-            <FiBookOpen className="w-5 h-5" />
           </button>
         </div>
 

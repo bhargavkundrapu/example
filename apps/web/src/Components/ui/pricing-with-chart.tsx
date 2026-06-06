@@ -201,18 +201,18 @@ export function PricingWithChart() {
                 {(COURSE_EXPLORE_DATA[orderSlug as keyof typeof COURSE_EXPLORE_DATA].tools || [])
                   .slice(0, ["prompt-to-profit", "vibe-coding", "prompt-engineering"].includes(orderSlug) ? 12 : 6)
                   .map((toolName, i) => {
-                  const Icon = getToolIcon(toolName);
-                  const iconColor = getToolIconColor(toolName);
-                  return (
-                    <span
-                      key={i}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] text-white/85"
-                    >
-                      <Icon className={cn("size-3.5 shrink-0", iconColor)} aria-hidden />
-                      <span>{toolName}</span>
-                    </span>
-                  );
-                })}
+                    const Icon = getToolIcon(toolName);
+                    const iconColor = getToolIconColor(toolName);
+                    return (
+                      <span
+                        key={i}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] text-white/85"
+                      >
+                        <Icon className={cn("size-3.5 shrink-0", iconColor)} aria-hidden />
+                        <span>{toolName}</span>
+                      </span>
+                    );
+                  })}
               </div>
             </div>
           )}
@@ -279,50 +279,50 @@ export function PricingWithChart() {
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" aria-hidden />
         </div>
         <div className="flex flex-1 flex-col p-5">
-        <div className="flex items-center gap-3 mb-3">
-          <Badge variant="outline" className={cn("border-white/20 text-white/80 bg-white/5", badgeClass)}>
-            LMS
-          </Badge>
-          <div className="ml-auto">
-            <Link
-              to={`/features/${slug}`}
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/20 px-3 text-sm text-white/90 hover:bg-white/10 transition-colors"
-            >
-              <BookOpen className="h-4 w-4" />
-              Explore
-            </Link>
+          <div className="flex items-center gap-3 mb-3">
+            <Badge variant="outline" className={cn("border-white/20 text-white/80 bg-white/5", badgeClass)}>
+              LMS
+            </Badge>
+            <div className="ml-auto">
+              <Link
+                to={`/features/${slug}`}
+                className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/20 px-3 text-sm text-white/90 hover:bg-white/10 transition-colors"
+              >
+                <BookOpen className="h-4 w-4" />
+                Explore
+              </Link>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2 mb-2">
-          <Icon className={cn("size-5 shrink-0", accent === "orange" ? "text-orange-400" : "text-emerald-400")} aria-hidden />
-          <span className="text-xs font-medium uppercase tracking-wide text-white/45">Student access</span>
-        </div>
-        {exclusiveBundle && (
-          <div className="mb-3 rounded-lg border border-orange-500/30 bg-orange-500/[0.07] px-3 py-2 text-[11px] leading-snug text-orange-100/90">
-            <span className="font-semibold text-orange-200">All Pack / three-course bundle: </span>
-            Included when you buy All Pack or own all three main courses-not with a single course alone.
+          <div className="flex items-center gap-2 mb-2">
+            <Icon className={cn("size-5 shrink-0", accent === "orange" ? "text-orange-400" : "text-emerald-400")} aria-hidden />
+            <span className="text-xs font-medium uppercase tracking-wide text-white/45">Student access</span>
           </div>
-        )}
-        <h3 className="text-xl sm:text-2xl font-bold text-white leading-tight mb-2">{title}</h3>
-        <div className="flex items-end gap-2 mb-3">
-          <span className="font-mono text-2xl sm:text-3xl font-semibold tracking-tight text-white">Included</span>
-          <span className="text-white/50 text-sm">with your LMS</span>
-        </div>
-        <p className="text-sm text-white/55 line-clamp-3 mb-4">{subtitle}</p>
-        <ul className="text-white/60 space-y-2 text-sm mb-4 flex-1">
-          {features.map((f, i) => (
-            <li key={i} className="flex items-center gap-3">
-              <FilledCheck />
-              <span>{f}</span>
-            </li>
-          ))}
-        </ul>
-        <Button
-          asChild
-          className="w-full h-10 bg-white/10 hover:bg-white/15 text-white font-semibold rounded-lg border border-white/15"
-        >
-          <Link to={`/features/${slug}`}>Learn more</Link>
-        </Button>
+          {exclusiveBundle && (
+            <div className="mb-3 rounded-lg border border-orange-500/30 bg-orange-500/[0.07] px-3 py-2 text-[11px] leading-snug text-orange-100/90">
+              <span className="font-semibold text-orange-200">All Pack / three-course bundle: </span>
+              Included when you buy All Pack or own all three main courses-not with a single course alone.
+            </div>
+          )}
+          <h3 className="text-xl sm:text-2xl font-bold text-white leading-tight mb-2">{title}</h3>
+          <div className="flex items-end gap-2 mb-3">
+            <span className="font-mono text-2xl sm:text-3xl font-semibold tracking-tight text-white">Included</span>
+            <span className="text-white/50 text-sm">with your LMS</span>
+          </div>
+          <p className="text-sm text-white/55 line-clamp-3 mb-4">{subtitle}</p>
+          <ul className="text-white/60 space-y-2 text-sm mb-4 flex-1">
+            {features.map((f, i) => (
+              <li key={i} className="flex items-center gap-3">
+                <FilledCheck />
+                <span>{f}</span>
+              </li>
+            ))}
+          </ul>
+          <Button
+            asChild
+            className="w-full h-10 bg-white/10 hover:bg-white/15 text-white font-semibold rounded-lg border border-white/15"
+          >
+            <Link to={`/features/${slug}`}>Learn more</Link>
+          </Button>
         </div>
       </div>
     );
@@ -430,80 +430,50 @@ export function PricingWithChart() {
                   <span className="font-medium text-white/90">Prompt to Profit</span>
                 </Link>
               </li>
-              <li className="flex items-center gap-3 pl-6 border-t border-white/10 pt-2 mt-1">
-                <FilledCheck />
-                <Link to="/courses/explore/ai-automations" className="font-medium text-white/90 hover:text-white-400 transition-colors">
-                  <span className="text-amber-400/95 font-medium">AI Automations (Bonus)</span>
-                </Link>
-              </li>
-              <li className="flex items-center gap-3 pl-6">
-                <FilledCheck />
-                <Link to="/features/real-client-lab" className="font-medium text-purple-300 hover:text-purple-400 transition-colors">
-                  Real Client Lab
-                </Link>
-              </li>
-              <li className="flex items-center gap-3 pl-6">
-                <FilledCheck />
-                <Link to="/features/resume-builder" className="font-medium text-white/90 hover:text-white-400 transition-colors">
-                  <span className="font-medium text-white/90">Resume Builder</span>
-                </Link>
-              </li>
-              <li className="flex items-center gap-3 pl-6">
-                <FilledCheck />
-                <Link to="/features/startup-launchpad" className="font-medium text-orange-300/95 hover:text-orange-200 transition-colors">
-                  Startup LaunchPad
-                </Link>
-              </li>
-              <li className="flex items-center gap-3 pl-6">
+              <li className="flex items-center gap-3 ">
                 <FilledCheck />
                 <Link to="/features/jobs-search-hub" className="font-medium text-emerald-300/95 hover:text-emerald-200 transition-colors">
                   Jobs Search Hub
                 </Link>
               </li>
-              <li className="flex items-center gap-3 pl-6">
+              <li className="flex items-center gap-3 ">
+                <FilledCheck />
+                <Link to="/features/resume-builder" className="font-medium text-white/90 hover:text-white-400 transition-colors">
+                  <span className="font-medium text-white/90">Resume Builder</span>
+                </Link>
+              </li>
+              <li className="flex items-center gap-3 ">
                 <FilledCheck />
                 <span className="font-medium text-white/90">MCA- & MSME-recognised certificates</span>
               </li>
+              <li className="flex items-center gap-3  border-t border-white/10 pt-2 mt-1 ">
+
+                <span className="text-2xl sm:text-3xl font-bold text-purple-250 leading-tight mb-2">Features get for only who took all pack or all individual courses:</span>
+              </li>
+              <li className="flex items-center gap-3">
+
+                <FilledCheck />
+                <Link to="/courses/explore/ai-automations" className="font-medium text-white/90 hover:text-white-400 transition-colors">
+                  <span className="text-amber-400/95 font-medium">AI Automations (Bonus)</span>
+                </Link>
+              </li>
+              <li className="flex items-center gap-3 ">
+                <FilledCheck />
+                <Link to="/features/real-client-lab" className="font-medium text-purple-300 hover:text-purple-400 transition-colors">
+                  Real Client Lab
+                </Link>
+              </li>
+
+              <li className="flex items-center gap-3 ">
+                <FilledCheck />
+                <Link to="/features/startup-launchpad" className="font-medium text-orange-300/95 hover:text-orange-200 transition-colors">
+                  Startup LaunchPad
+                </Link>
+              </li>
+
             </ul>
           </div>
-          <div className="relative mt-auto border-t border-white/10 p-4 pt-4">
-            {allPack && (
-              <>
-                <div className="mb-3 rounded-lg border border-amber-500/35 bg-gradient-to-r from-amber-500/12 via-orange-500/6 to-transparent px-3 py-2.5 shadow-[inset_0_0_0_1px_rgba(251,191,36,0.06)]">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-amber-300/95 mb-1">Only with All Pack or all three courses get below features:</p>
-                  <p className="text-[11px] text-white/55 mb-2">
-                    These unlock together with the All Pack or all three courses:
-                  </p>
-                  <ul className="space-y-1 text-xs text-white/88">
-                    <li>
-                      <span className="font-semibold text-orange-300/95">Startup LaunchPad</span>
-                      <span className="text-white/45"> - founder path &amp; dashboard</span>
-                    </li>
-                    <li>
-                      <span className="font-semibold text-purple-300/95">Real Client Lab</span>
-                      <span className="text-white/45"> - real client projects</span>
-                    </li>
-                    <li>
-                      <span className="font-semibold text-amber-400/95">AI Automations (Bonus)</span>
-                      <span className="text-white/45"> - bonus course</span>
-                    </li>
-                  </ul>
-                </div>
-                {(allPack.price_in_paise ?? 0) >= 100 && (
-                  <div className="mb-2.5 min-h-[1.5rem] flex items-center justify-center">
-                    <PriceCountdown endsAt={offerEndsAt} className="text-center" />
-                  </div>
-                )}
-                <Button
-                  onClick={() => handleGetCourse({ type: "pack", id: allPack.id, title: allPack.title })}
-                  disabled={(allPack.price_in_paise ?? 0) < 100}
-                  className="w-full h-10 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg border-0 cursor-pointer disabled:cursor-not-allowed"
-                >
-                  Get Pack
-                </Button>
-              </>
-            )}
-          </div>
+
         </div>
 
         {/* Vibe Coding - lg:col-span-3 */}
@@ -572,7 +542,7 @@ export function PricingWithChart() {
           setModalOpen(false);
           setSelectedItem(null);
         }}
-        onError={() => {}}
+        onError={() => { }}
         prefill={{}}
         isLoggedIn={false}
         fromCourseRoute
