@@ -25,6 +25,7 @@ import {
   FiMessageSquare,
   FiTrendingUp,
   FiGlobe,
+  FiBookmark,
 } from "react-icons/fi";
 
 export default function SuperAdminLayout() {
@@ -76,6 +77,7 @@ export default function SuperAdminLayout() {
     { path: "/lms/superadmin/students/leaderboard", label: "Leaderboard", icon: FiTrendingUp },
     { path: "/lms/superadmin/courses", label: "Courses", icon: FiBook },
     { path: "/lms/superadmin/course-packs", label: "Course Packs", icon: FiPackage },
+    { path: "/lms/superadmin/colleges", label: "Colleges", icon: FiBookmark },
     { path: "/lms/superadmin/mentors", label: "Mentors", icon: FiUserCheck },
     { path: "/lms/superadmin/workshops", label: "Events", icon: FiCalendar },
     { path: "/lms/superadmin/certificates", label: "Certificates", icon: FiAward },

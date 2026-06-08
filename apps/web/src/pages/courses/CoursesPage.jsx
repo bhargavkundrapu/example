@@ -6,7 +6,7 @@ import { TubesBackground } from "../../Components/ui/neon-flow";
 import FlowTubesFooterInner from "../../Components/ui/FlowTubesFooterInner";
 import { cn } from "../../lib/utils";
 
-export default function CoursesPage() {
+export default function CoursesPage({ showOnlyAllPack = false }) {
   const location = useLocation();
   useEffect(() => {
     if (location.hash === "#pricing") {
@@ -40,7 +40,7 @@ export default function CoursesPage() {
           "bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(88,28,135,0.06),transparent_70%)]"
         )}
       >
-        <PricingWithChart />
+        <PricingWithChart showOnlyAllPack={showOnlyAllPack} />
 
         {/* Subtle grid overlay */}
         <div

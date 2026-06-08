@@ -58,7 +58,7 @@ function FilledCheck() {
   );
 }
 
-export function PricingWithChart() {
+export function PricingWithChart({ showOnlyAllPack = false }: { showOnlyAllPack?: boolean }) {
   const [courses, setCourses] = useState<
     { id: string; title: string; slug: string; price_in_paise?: number; description?: string }[]
   >([]);
@@ -332,20 +332,30 @@ export function PricingWithChart() {
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="mb-8 sm:mb-10">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
-          Pricing that Scales with You
+          {showOnlyAllPack ? "Get the All Pack" : "Pricing that Scales with You"}
         </h1>
         <p className="mt-2 text-sm text-white/60">
-          All starting at just <span className="text-emerald-400 font-semibold">₹99</span>-pick individual courses or go all-in with the All Pack for the best value.
+          {showOnlyAllPack ? (
+            "Unlock complete access to all courses, projects, tools, and premium features."
+          ) : (
+            <>
+              All starting at just <span className="text-emerald-400 font-semibold">₹99</span>-pick individual courses or go all-in with the All Pack for the best value.
+            </>
+          )}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-8">
+      <div className={cn(
+        showOnlyAllPack
+          ? "flex justify-center w-full"
+          : "grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-8"
+      )}>
         {/* All Pack - bento hero card (lg:col-span-5) */}
         <div
           key="all-pack"
           className={cn(
             "relative w-full overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] transition-all duration-200 hover:border-white/20 hover:bg-white/[0.06] flex flex-col",
-            "lg:col-span-5"
+            showOnlyAllPack ? "max-w-4xl" : "lg:col-span-5"
           )}
         >
           <div className="relative z-[2] aspect-[2.2/1] w-full max-h-44 overflow-hidden border-b border-white/10 sm:max-h-52">
@@ -499,59 +509,63 @@ export function PricingWithChart() {
           </div>
         </div>
 
-        {/* Vibe Coding - lg:col-span-3 */}
-        <CourseBentoCard
-          orderSlug="vibe-coding"
-          course={vibeCourse}
-          displayTitle={courseDisplayNames["vibe-coding"]}
-          isBonus={false}
-          colSpan="lg:col-span-3"
-        />
+        {!showOnlyAllPack && (
+          <>
+            {/* Vibe Coding - lg:col-span-3 */}
+            <CourseBentoCard
+              orderSlug="vibe-coding"
+              course={vibeCourse}
+              displayTitle={courseDisplayNames["vibe-coding"]}
+              isBonus={false}
+              colSpan="lg:col-span-3"
+            />
 
-        {/* Prompt Engineering - lg:col-span-4 */}
-        <CourseBentoCard
-          orderSlug="prompt-engineering"
-          course={peCourse}
-          displayTitle={courseDisplayNames["prompt-engineering"]}
-          isBonus={false}
-          colSpan="lg:col-span-4"
-        />
+            {/* Prompt Engineering - lg:col-span-4 */}
+            <CourseBentoCard
+              orderSlug="prompt-engineering"
+              course={peCourse}
+              displayTitle={courseDisplayNames["prompt-engineering"]}
+              isBonus={false}
+              colSpan="lg:col-span-4"
+            />
 
-        {/* Prompt to Profit - lg:col-span-4 */}
-        <CourseBentoCard
-          orderSlug="prompt-to-profit"
-          course={ptpCourse}
-          displayTitle={courseDisplayNames["prompt-to-profit"]}
-          isBonus={false}
-          colSpan="lg:col-span-4"
-        />
+            {/* Prompt to Profit - lg:col-span-4 */}
+            <CourseBentoCard
+              orderSlug="prompt-to-profit"
+              course={ptpCourse}
+              displayTitle={courseDisplayNames["prompt-to-profit"]}
+              isBonus={false}
+              colSpan="lg:col-span-4"
+            />
 
-        {/* AI Automations - lg:col-span-8 */}
-        <CourseBentoCard
-          orderSlug="ai-automations"
-          course={aaCourse}
-          displayTitle={courseDisplayNames["ai-automations"]}
-          isBonus={true}
-          colSpan="lg:col-span-8"
-        />
+            {/* AI Automations - lg:col-span-8 */}
+            <CourseBentoCard
+              orderSlug="ai-automations"
+              course={aaCourse}
+              displayTitle={courseDisplayNames["ai-automations"]}
+              isBonus={true}
+              colSpan="lg:col-span-8"
+            />
 
-        <LmsFeatureBentoCard
-          slug="startup-launchpad"
-          title="Startup LaunchPad"
-          subtitle="A guided founder path inside the student portal-readiness, stages, tools, and legal timing (not a course flow)."
-          features={["12-stage startup path", "Readiness & dashboard", "Founder tools & AI prompts"]}
-          colSpan="lg:col-span-4"
-          accent="orange"
-          exclusiveBundle
-        />
-        <LmsFeatureBentoCard
-          slug="jobs-search-hub"
-          title="Jobs Search Hub"
-          subtitle="Role presets, keyword chips, and one-tap searches across LinkedIn, Naukri, Internshala & more-your career command center."
-          features={["India role presets", "Platform-aware search URLs", "Saved searches & apply tracker"]}
-          colSpan="lg:col-span-4"
-          accent="emerald"
-        />
+            <LmsFeatureBentoCard
+              slug="startup-launchpad"
+              title="Startup LaunchPad"
+              subtitle="A guided founder path inside the student portal-readiness, stages, tools, and legal timing (not a course flow)."
+              features={["12-stage startup path", "Readiness & dashboard", "Founder tools & AI prompts"]}
+              colSpan="lg:col-span-4"
+              accent="orange"
+              exclusiveBundle
+            />
+            <LmsFeatureBentoCard
+              slug="jobs-search-hub"
+              title="Jobs Search Hub"
+              subtitle="Role presets, keyword chips, and one-tap searches across LinkedIn, Naukri, Internshala & more-your career command center."
+              features={["India role presets", "Platform-aware search URLs", "Saved searches & apply tracker"]}
+              colSpan="lg:col-span-4"
+              accent="emerald"
+            />
+          </>
+        )}
       </div>
 
       <BuyNowModal

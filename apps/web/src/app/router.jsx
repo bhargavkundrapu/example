@@ -203,7 +203,7 @@ function RouteAwareFallback() {
   }
 
   if (pathname === "/login" || pathname === "/adminlogin") return <AuthRouteSkeleton />;
-  if (pathname === "/courses") return <CoursesPageSkeleton />;
+  if (pathname === "/courses" || pathname === "/courses/allpack") return <CoursesPageSkeleton />;
   if (pathname.startsWith("/courses/")) return <CourseDetailRouteSkeleton />;
   if (pathname === "/contact") return <ContactRouteSkeleton />;
   if (pathname.startsWith("/features/")) return <CourseDetailRouteSkeleton />;
@@ -291,6 +291,7 @@ export const router = createBrowserRouter([
       { path: "/solutions/internal-dashboards-admin-portals", element: <L><InternalDashboardsAdminPortalsPage /></L> },
       { path: "/solutions/mvp-build-sprints", element: <L><MvpBuildSprintsPage /></L> },
       { path: "/courses", element: <L><CoursesPage /></L> },
+      { path: "/courses/allpack", element: <L><CoursesPage showOnlyAllPack /></L> },
       { path: "/courses/explore/:slug", element: <L><CourseExplorePage /></L> },
       { path: "/courses/:slug", element: <L><CourseDetailPage /></L> },
       { path: "/features/:slug", element: <L><FeatureDetailPage /></L> },
