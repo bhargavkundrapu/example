@@ -474,6 +474,29 @@ export function PricingWithChart() {
             </ul>
           </div>
 
+          <div className="relative p-4 pt-0">
+            {allPack && (
+              <>
+                {(allPack.price_in_paise ?? 0) >= 100 && (
+                  <div className="mb-2.5 min-h-[1.5rem] flex items-center justify-center">
+                    <PriceCountdown endsAt={offerEndsAt} className="text-center" />
+                  </div>
+                )}
+                <Button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleGetCourse({ type: "pack", id: allPack.id, title: "All Pack" });
+                  }}
+                  disabled={!allPack || (Number(allPack.price_in_paise) ?? 0) < 100}
+                  className="w-full h-10 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Get Pack
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Vibe Coding - lg:col-span-3 */}
