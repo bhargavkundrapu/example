@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./app/router";
 import { AuthProvider } from "./app/providers/AuthProvider";
@@ -7,6 +8,15 @@ import { GamificationProvider } from "./app/providers/GamificationProvider";
 import { InstallAppPrompt } from "./Components/InstallAppPrompt";
 
 export default function App() {
+  useEffect(() => {
+    const loader = document.getElementById("global-loader");
+    if (loader) {
+      loader.style.opacity = "0";
+      const t = setTimeout(() => loader.remove(), 250);
+      return () => clearTimeout(t);
+    }
+  }, []);
+
   return (
     <AuthProvider>
       <ThemeProvider>
