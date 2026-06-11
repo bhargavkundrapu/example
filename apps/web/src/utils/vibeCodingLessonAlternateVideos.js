@@ -19,6 +19,13 @@ const VIBE_DEPLOYING_SETUP_VIDEOS = {
     "https://res.cloudinary.com/da2wrgabu/video/upload/v1778005946/5%E6%9C%883%E6%97%A5_5_fovvlb.mp4",
 };
 
+const VIBE_BASE_API_ARCHITECTURE_VIDEOS = {
+  english:
+    "https://res.cloudinary.com/da2wrgabu/video/upload/v1781026480/5%E6%9C%886%E6%97%A5_umycju.mp4",
+  telugu:
+    "https://res.cloudinary.com/da2wrgabu/video/upload/v1781027549/5%E6%9C%886%E6%97%A5_1_qnxw3u.mp4",
+};
+
 export const VIBE_SETUP_FULLSTACK_VIDEO_LANG_KEY = "expograph_vc_setup_fullstack_video_lang";
 
 function normalizeSlug(s) {
@@ -42,6 +49,16 @@ export function getVibeSetupFullstackAlternateVideos({
   const isVibeCourse = c.includes("vibe") && (c.includes("cod") || c.includes("coad"));
   if (!isVibeCourse) return null;
 
+  const lSlug = normalizeSlug(lessonSlug);
+  const lTit = normalizeSlug(lessonTitle);
+
+  // Check project foundations / base-api-architecture lesson first
+  const baseApiArchitectureLesson =
+    lSlug.includes("base-api-architecture") ||
+    (lSlug.includes("base-api") && lSlug.includes("architecture")) ||
+    (lTit.includes("base-api") && lTit.includes("architecture"));
+  if (baseApiArchitectureLesson) return VIBE_BASE_API_ARCHITECTURE_VIDEOS;
+
   const mSlug = normalizeSlug(moduleSlug);
   const mTit = normalizeSlug(moduleTitle);
   const setupModule =
@@ -49,8 +66,6 @@ export function getVibeSetupFullstackAlternateVideos({
     (mTit.includes("setup") && mTit.includes("account"));
   if (!setupModule) return null;
 
-  const lSlug = normalizeSlug(lessonSlug);
-  const lTit = normalizeSlug(lessonTitle);
   const fullstackLesson =
     (lSlug.includes("fullstack") && (lSlug.includes("environment") || lSlug.includes("env"))) ||
     (lTit.includes("fullstack") && (lTit.includes("environment") || lTit.includes("env")));
