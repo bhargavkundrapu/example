@@ -35,7 +35,8 @@
     /* Allow JS files for gradual migration */
     "allowJs": true,
     "checkJs": false,
-    "skipDefaultLibCheck": true
+    "skipDefaultLibCheck": true,
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src"],
   "exclude": ["src/**/*.template.js", "**/*threejs*"],

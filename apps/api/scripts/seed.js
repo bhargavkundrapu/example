@@ -75,7 +75,7 @@ async function runSeeds() {
           await client.query(sqlContent);
           console.log(`✓ ${seedFile} completed successfully`);
         } catch (error) {
-          console.error(`�- Error in ${seedFile}:`, error.message);
+          console.error(`✗ Error in ${seedFile}:`, error.message);
         }
       }
     });
