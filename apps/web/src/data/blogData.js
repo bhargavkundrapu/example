@@ -41,47 +41,66 @@ With Vibe Coding, you act as the architect and product manager, while AI models 
   },
   "prompt-engineering-syllabus": {
     slug: "prompt-engineering-syllabus",
-    title: "Prompt Engineering Course Syllabus: Week by Week",
-    excerpt: "A complete week-by-week guide to our Prompt Engineering curriculum. Learn how to craft structured prompts using the GCCF and CRAFTED frameworks.",
+    title: "Prompt Engineering Course Syllabus: Full Module Breakdown",
+    excerpt: "A complete week-by-week guide to our Prompt Engineering curriculum. Learn how to craft structured prompts, evaluate outputs with A/B testing, defend against prompt injection, and build LLM API prompt chains.",
     date: "2026-05-28",
     author: "Bhargav Kundrapu",
     readingTime: "6 min read",
     coverImage: "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=1200&q=80&auto=format&fit=crop",
-    keywords: ["prompt engineering", "AI prompts syllabus", "GCCF framework", "CRAFTED framework", "learn prompting"],
+    keywords: ["prompt engineering", "AI prompts syllabus", "GCCF framework", "A/B testing prompts", "prompt injection defense", "LLM API prompt chaining", "CRAFTED framework"],
     content: `
-Prompt Engineering is no longer just about chatting with an AI. In 2026, it is a structured discipline essential for every developer, writer, marketer, and student. Knowing how to communicate effectively with Large Language Models (LLMs) like Claude and ChatGPT saves hours of guess-work.
+Prompt Engineering is no longer just about chatting with an AI. In 2026, it is a structured discipline essential for every developer, writer, marketer, and student. Knowing how to communicate effectively with Large Language Models (LLMs) like Claude, ChatGPT, and Gemini saves hours of guess-work.
 
-Here is the week-by-week breakdown of our industry-aligned Prompt Engineering syllabus at ExpoGraph Academy.
+Here is the comprehensive breakdown of our industry-aligned Prompt Engineering syllabus at ExpoGraph Academy.
 
-## Week 1: Core Foundations and the GCCF Framework
+## Module 1: Foundations and the GCCF Framework
 
-Before jumping into advanced tactics, you need to understand how LLMs process token data.
-- **Introduction to Tokenization**: How AI reads your text.
-- **The GCCF Framework**: Goal, Context, Constraints, Format. You will learn to construct every single prompt with these four pillars to get exact answers every time.
-- **System vs. User Prompts**: How to configure AI persona and rules.
+Before jumping into advanced tactics, you need to understand how LLMs process tokens and instructions.
+- **Prompt Anatomy & GCCF**: Goal, Context, Constraints, Format. Construct every prompt with these four pillars.
+- **Ambiguity Killers & Persona Building**: Remove vagueness and make AI act as an expert tutor, interviewer, or code reviewer.
+- **System vs. User Prompts**: How to configure AI roles and rules.
 
-## Week 2: Output Control and Data Formatting
+## Module 2: Output Control and Data Formatting
 
-A major problem with raw AI outputs is their messy formatting. This week focuses on structured outputs.
-- **JSON Formatting**: Instructing AI to return valid JSON for software integrations.
-- **Markdown & Tables**: Generating clean study notes and reports.
-- **The CRAFTED Framework**: Advanced instruction tuning for complex marketing copy.
+A major problem with raw AI outputs is messy formatting. This module focuses on structured outputs.
+- **JSON Formatting & Schema Constraints**: Instructing AI to return valid, parseable JSON for software integrations.
+- **Tables & Strict Mode**: Eliminating conversational filler ("Sure, here is...") for pure output.
+- **Multi-Version Output**: Generating 3 distinct variations of content in a single prompt call.
 
-## Week 3: Debugging, Hallucinations, and Truthfulness
+## Module 3: Debugging, Evaluation Metrics & A/B Testing
 
-What do you do when the AI makes up facts or gives a broken code snippet?
-- **Identifying Hallucinations**: Recognizing incorrect AI claims.
-- **The 3R Loop**: Refine, Correct, and Validate. How to debug prompts and guide the AI back on track.
-- **Fact-checking Prompts**: Setting boundaries to enforce truthfulness.
+What do you do when the AI gives a weak answer or broken code snippet? You evaluate and tune it systematically.
+- **The 3R Loop**: Request → Review → Refine cycle for fast prompt debugging.
+- **NLP Evaluation Metrics**: Scoring prompt outputs on **Fluency**, **Relevance**, and **Coherence** (1–5 scale).
+- **A/B Testing & Prompt Tuning**: Comparing Variant A vs. Variant B side-by-side to select the winning prompt.
 
-## Week 4: Multi-Modal and Specialized Prompting
+## Module 4: Truthfulness, Reliability & Prompt Injection Defense
 
-AI is now visual and auditory. We cover how to prompt across modalities.
-- **Image Generation Prompting**: Crafting detailed prompts for Midjourney and DALL-E.
-- **Video Scripts & Captions**: Using AI to write video outlines and viral hooks.
-- **Coding with AI**: Prompting AI as a pair programmer to build scripts, find bugs, and explain logic.
+AI hallucination and security vulnerabilities can ruin software applications.
+- **"Don't Guess" & Given-Text Constraints**: Forcing AI to cite sources and say "I don't know" instead of fabricating facts.
+- **Prompt Injection & Security Defense**: Isolating untrusted user data using boundary delimiters (\`### USER INPUT ###\`) and preventing jailbreak overrides.
+- **Anti-Hallucination Checklist**: A 5-step verification process for critical outputs.
 
-*By the end of this 4-week path, you earn an MCA- & MSME-recognised certificate that proves your ability to use AI tools at a professional standard.*
+## Module 5 & 6: Multimodal Prompts (Images & Video Scripts)
+
+AI is now visual and auditory. Learn to prompt across media.
+- **Image Generation Prompting**: Master the Subject + Style + Details + Mood formula for Midjourney & DALL-E.
+- **Short-Form Video Scripts & Storyboarding**: Write 3-second hooks, B-roll shot lists, and 30/45/60s short-form templates.
+
+## Module 7: Coding with AI, LLM APIs & Prompt Chaining
+
+Use AI as a senior developer and API integration partner.
+- **Spec, Debug & Refactor Prompts**: Turn vague ideas into technical specifications and clean code.
+- **LLM APIs & Automation**: Passing system/user prompts programmatically via OpenAI, Anthropic, or Gemini APIs.
+- **Prompt Chaining**: Building multi-stage pipelines where Stage 1 output automatically feeds into Stage 2.
+
+## Module 8 - 10: Research, Reasoning & Placement Toolkit
+
+- **Extraction & Research**: Turn messy paragraphs into flashcards, quizzes, and comparative tables.
+- **Chain-of-Thought Reasoning**: Force AI to show step-by-step logic for math, logic, and interview questions.
+- **Placement Toolkit**: ATS-friendly resume rewrites, LinkedIn optimization, STAR-format HR prep, and portfolio storytelling.
+
+*By completing this path, you earn an MCA- & MSME-recognised certificate that proves your ability to use AI tools and APIs at a professional standard.*
     `
   },
   "how-real-client-lab-works": {

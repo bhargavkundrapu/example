@@ -1,6 +1,6 @@
-# �-�️ COURSE MAP-Intermediate Prompt Engineering
+﻿# 🗺️ COURSE MAP - Intermediate Prompt Engineering
 
-> 10 Modules · 50 Lessons · Skills that get you hired
+> 10 Modules • 50 Lessons • Skills that get you hired
 
 ---
 
@@ -36,9 +36,9 @@
 | # | Lesson | Skill You Get |
 |---|--------|--------------|
 | M3-L1 | Common Failure Types | Identify the 5 most common prompt failures instantly |
-| M3-L2 | 3R Loop Workflow | Master the Request → Review → Refine cycle |
+| M3-L2 | 3R Loop Workflow | Master the Request -> Review -> Refine cycle |
 | M3-L3 | Self-Critique Prompts | Make AI evaluate and fix its own output |
-| M3-L4 | Prompt Versioning | Track prompt improvements like a pro |
+| M3-L4 | Evaluation Metrics & A/B Testing | Score prompts on Fluency, Relevance, Coherence & conduct A/B tests |
 | M3-L5 | Reusable Prompt Templates | Build templates you use again and again |
 
 ---
@@ -51,7 +51,7 @@
 | M4-L1 | "Don't Guess" Mode | Force AI to say "I don't know" instead of guessing |
 | M4-L2 | Verification Prompts | Make AI cite sources and check its own facts |
 | M4-L3 | Answer From Given Text Only | Restrict AI to only use information you provide |
-| M4-L4 | Handle Missing Info | Make AI flag gaps instead of filling them with lies |
+| M4-L4 | Prompt Injection & Security Defense | Protect system prompts with boundary delimiters & prevent jailbreaks |
 | M4-L5 | Anti-Hallucination Checklist | A 5-step checklist to catch false information |
 
 ---
@@ -90,7 +90,7 @@
 | M7-L1 | Spec Prompts | Turn a vague idea into a clear coding specification |
 | M7-L2 | Debug Prompts | Find and fix bugs using AI systematically |
 | M7-L3 | Refactor Prompts | Clean up messy code with structured prompts |
-| M7-L4 | Test Case Generation | Auto-generate test cases for any function |
+| M7-L4 | LLM APIs, Automation & Prompt Chaining | Chain multi-step prompts for APIs and automated application pipelines |
 | M7-L5 | System Design Prompts | Use AI to plan architecture and system design |
 
 ---
