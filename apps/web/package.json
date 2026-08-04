@@ -47,7 +47,6 @@
     "mathjax-full": "^3.2.1",
     "mermaid": "^11.12.2",
     "motion": "^12.34.3",
-    "particles.js": "^2.0.0",
     "plotly.js": "^3.3.1",
     "quill": "^2.0.3",
     "react": "^19.2.0",
@@ -57,14 +56,12 @@
     "react-joyride": "^2.9.3",
     "react-quill": "^2.0.0",
     "react-router-dom": "^7.11.0",
-    "react-tsparticles": "^2.12.2",
     "recharts": "^3.7.0",
     "reveal.js": "^5.2.1",
     "styled-components": "^6.3.8",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
-    "three": "^0.169.0",
-    "tsparticles-slim": "^2.12.0"
+    "three": "^0.169.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
