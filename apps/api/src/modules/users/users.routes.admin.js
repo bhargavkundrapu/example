@@ -21,6 +21,7 @@ router.get("/students", ctrl.listStudents);
 router.get("/students/undo", ctrl.listStudentUndoLogs);
 router.get("/students/leaderboard", ctrl.listStudentsLeaderboard);
 router.get("/students/:userId", ctrl.getStudentWithStats);
+router.post("/students/bulk", ctrl.createStudentBulk);
 router.post("/students", ctrl.createStudent);
 router.post("/students/:userId/restore", ctrl.restoreStudent);
 router.patch("/students/:userId", ctrl.updateStudent);

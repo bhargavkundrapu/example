@@ -177,6 +177,13 @@ export default function SuperAdminStudents() {
     password: "",
     generatePassword: true,
   });
+  const [addMode, setAddMode] = useState("single"); // "single" | "bulk"
+  const [bulkStudents, setBulkStudents] = useState([
+    { fullName: "", email: "", phone: "", college: "" }
+  ]);
+  const [bulkPasteText, setBulkPasteText] = useState("");
+  const [bulkResults, setBulkResults] = useState(null);
+  const [showBulkResultsModal, setShowBulkResultsModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showCredentialsModal, setShowCredentialsModal] = useState(false);
   const [studentCredentials, setStudentCredentials] = useState(null);
@@ -531,6 +538,154 @@ export default function SuperAdminStudents() {
     alert("Copied to clipboard!");
   };
 
+  const handleBulkCsvUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result;
+      if (typeof text === "string") {
+        handleParsePasteText(text);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const handleParsePasteText = (text) => {
+    if (!text.trim()) return;
+    const lines = text.split(/\r?\n/);
+    const parsed = [];
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      const cols = line.split(/\t|,|;/);
+      const fullName = (cols[0] || "").trim();
+      const email = (cols[1] || "").trim();
+      const phone = (cols[2] || "").trim();
+      const college = (cols[3] || "").trim();
+
+      if (fullName || email) {
+        parsed.push({ fullName, email, phone, college });
+      }
+    }
+
+    if (parsed.length > 0) {
+      if (bulkStudents.length === 1 && !bulkStudents[0].fullName && !bulkStudents[0].email) {
+        setBulkStudents(parsed);
+      } else {
+        setBulkStudents([...bulkStudents, ...parsed]);
+      }
+      setBulkPasteText("");
+    } else {
+      alert("No valid rows found. Please make sure the columns are Name, Email, Phone, College.");
+    }
+  };
+
+  const handleDownloadBulkResults = (results) => {
+    if (!results || results.length === 0) return;
+    let csv = "Name,Email,Phone,College,Status,Password/Details\n";
+    for (const r of results) {
+      const detail = r.status === "error" ? r.error : r.password || "";
+      csv += `"${(r.fullName || "").replace(/"/g, '""')}","${(r.email || "").replace(/"/g, '""')}","${(r.phone || "").replace(/"/g, '""')}","${(r.college || "").replace(/"/g, '""')}","${r.status}","${detail}"\n`;
+    }
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `bulk_student_creation_results_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleBulkAddStudents = async () => {
+    const validStudents = bulkStudents.filter(s => s.email.trim() && s.fullName.trim());
+    if (validStudents.length === 0) {
+      alert("Please add at least one student with a valid Name and Email.");
+      return;
+    }
+
+    const enrollment = (addForm.enrollmentItem || "").trim();
+    const useApprovalFlow = enrollment.startsWith("course:") || enrollment.startsWith("pack:");
+
+    if (useApprovalFlow) {
+      const missingPhone = validStudents.some(s => !s.phone?.trim());
+      if (missingPhone) {
+        alert("Phone number is required for all students when assigning a course or pack (used on Approvals).");
+        return;
+      }
+      const itemId = enrollment.startsWith("course:") ? enrollment.slice(7).trim() : enrollment.slice(5).trim();
+      if (!UUID_RE.test(itemId)) {
+        alert("Invalid course or pack selection.");
+        return;
+      }
+    }
+
+    try {
+      setSaving(true);
+
+      if (useApprovalFlow) {
+        const itemType = enrollment.startsWith("course:") ? "course" : "pack";
+        const itemId = enrollment.startsWith("course:") ? enrollment.slice(7).trim() : enrollment.slice(5).trim();
+
+        const res = await apiFetch("/api/v1/admin/approvals/bulk", {
+          method: "POST",
+          token,
+          body: {
+            students: validStudents.map(s => ({
+              fullName: s.fullName.trim(),
+              email: s.email.trim(),
+              phone: s.phone.trim(),
+              college: s.college?.trim() || undefined,
+            })),
+            itemType,
+            itemId,
+          },
+        });
+
+        if (res?.ok) {
+          setBulkResults(res.data);
+          setShowBulkResultsModal(true);
+          await reloadStudentsList();
+          setBulkStudents([{ fullName: "", email: "", phone: "", college: "" }]);
+        }
+      } else {
+        const res = await apiFetch("/api/v1/admin/students/bulk", {
+          method: "POST",
+          token,
+          body: {
+            students: validStudents.map(s => ({
+              fullName: s.fullName.trim(),
+              email: s.email.trim(),
+              phone: s.phone?.trim() || undefined,
+              college: s.college?.trim() || undefined,
+            })),
+            generatePassword: true,
+          },
+        });
+
+        if (res?.ok) {
+          setBulkResults(res.data);
+          setShowBulkResultsModal(true);
+          await reloadStudentsList();
+          setBulkStudents([{ fullName: "", email: "", phone: "", college: "" }]);
+        }
+      }
+    } catch (error) {
+      alert(error?.message || "Failed to add students");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSave = () => {
+    if (addMode === "single") {
+      handleAddStudent();
+    } else {
+      handleBulkAddStudents();
+    }
+  };
+
   const handleAddStudent = async () => {
     if (!addForm.email || !addForm.fullName) {
       alert("Email and Name are required");
@@ -859,6 +1014,133 @@ export default function SuperAdminStudents() {
             >
               <FiCopy className="w-4 h-4" />
               Copy All
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  };
+
+  // Bulk Results Modal Component
+  const BulkResultsModal = () => {
+    if (!showBulkResultsModal || !bulkResults) return null;
+
+    const createdCount = bulkResults.filter(r => r.status === "created").length;
+    const reactivatedCount = bulkResults.filter(r => r.status === "reactivated").length;
+    const errorCount = bulkResults.filter(r => r.status === "error").length;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-md p-6 border border-slate-200 shadow-2xl max-w-3xl w-full flex flex-col max-h-[85vh]"
+        >
+          <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Bulk Student Creation Summary</h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Successfully processed {bulkResults.length} accounts.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setShowBulkResultsModal(false);
+                setBulkResults(null);
+                navigate("/lms/superadmin/students/list");
+              }}
+              className="p-1 rounded hover:bg-slate-100 text-slate-500 transition-colors"
+            >
+              <FiX className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="flex gap-4 mb-4">
+            <div className="flex-1 bg-green-50 border border-green-200 rounded p-3 text-center">
+              <span className="block text-xl font-bold text-green-700 tabular-nums">{createdCount}</span>
+              <span className="text-[10px] uppercase font-semibold text-green-600">Created</span>
+            </div>
+            <div className="flex-1 bg-blue-50 border border-blue-200 rounded p-3 text-center">
+              <span className="block text-xl font-bold text-blue-700 tabular-nums">{reactivatedCount}</span>
+              <span className="text-[10px] uppercase font-semibold text-blue-600">Reactivated</span>
+            </div>
+            <div className="flex-1 bg-red-50 border border-red-200 rounded p-3 text-center">
+              <span className="block text-xl font-bold text-red-700 tabular-nums">{errorCount}</span>
+              <span className="text-[10px] uppercase font-semibold text-red-600">Failed / Errors</span>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto border border-slate-200 rounded-lg mb-4">
+            <table className="w-full text-xs text-left">
+              <thead className="bg-slate-50 font-semibold text-slate-600 border-b border-slate-200 sticky top-0">
+                <tr>
+                  <th className="px-3 py-2">Student</th>
+                  <th className="px-3 py-2">Email</th>
+                  <th className="px-3 py-2">Status</th>
+                  <th className="px-3 py-2">Password / Detail</th>
+                  <th className="px-3 py-2 w-10"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {bulkResults.map((r, idx) => {
+                  let statusBadge = "";
+                  if (r.status === "created") {
+                    statusBadge = "bg-green-100 text-green-800 border-green-200";
+                  } else if (r.status === "reactivated") {
+                    statusBadge = "bg-blue-100 text-blue-800 border-blue-200";
+                  } else {
+                    statusBadge = "bg-red-100 text-red-800 border-red-200";
+                  }
+
+                  const detailText = r.status === "error" ? r.error : r.password || (r.approval ? "Queued for Approval" : "Student@123");
+
+                  return (
+                    <tr key={idx} className="hover:bg-slate-50/50">
+                      <td className="px-3 py-2 font-medium text-slate-900">{r.fullName}</td>
+                      <td className="px-3 py-2 text-slate-500 font-mono">{r.email}</td>
+                      <td className="px-3 py-2">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${statusBadge}`}>
+                          {r.status}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 font-mono text-slate-800 break-all select-all">
+                        {detailText}
+                      </td>
+                      <td className="px-3 py-2 text-center">
+                        {r.status !== "error" && r.password && (
+                          <button
+                            onClick={() => copyToClipboard(`Email: ${r.email}\nPassword: ${r.password}`)}
+                            className="p-1 hover:bg-slate-100 rounded text-slate-500 transition-colors"
+                            title="Copy credentials"
+                          >
+                            <FiCopy className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex gap-3 justify-end pt-3 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-4 rounded-b-md">
+            <button
+              onClick={() => handleDownloadBulkResults(bulkResults)}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded text-sm transition-colors flex items-center gap-1.5"
+            >
+              <FiDownload className="w-4 h-4" />
+              Download results (CSV)
+            </button>
+            <button
+              onClick={() => {
+                setShowBulkResultsModal(false);
+                setBulkResults(null);
+                navigate("/lms/superadmin/students/list");
+              }}
+              className="px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded text-sm shadow-md hover:shadow-lg transition-all"
+            >
+              Done
             </button>
           </div>
         </motion.div>
@@ -1574,6 +1856,8 @@ export default function SuperAdminStudents() {
     const enrollmentId =
       enrollmentRaw.startsWith("course:") ? enrollmentRaw.slice(7).trim() : enrollmentRaw.startsWith("pack:") ? enrollmentRaw.slice(5).trim() : "";
     const enrollmentValid = UUID_RE.test(enrollmentId);
+    
+    // Single mode validation
     const addDisabled =
       saving ||
       !addForm.email ||
@@ -1582,13 +1866,24 @@ export default function SuperAdminStudents() {
         ? !addForm.phone?.trim() || !enrollmentValid
         : !addForm.generatePassword && (!addForm.password || addForm.password.length < 8));
 
+    // Bulk mode validation
+    const bulkValidStudents = bulkStudents.filter(s => s.email.trim() && s.fullName.trim());
+    const bulkAddDisabled =
+      saving ||
+      bulkValidStudents.length === 0 ||
+      (approvalMode
+        ? bulkValidStudents.some(s => !s.phone?.trim()) || !enrollmentValid
+        : false);
+
+    const finalAddDisabled = addMode === "single" ? addDisabled : bulkAddDisabled;
+
     return (
       <>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 p-4 sm:p-6 lg:p-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 p-4 sm:p-6 lg:p-8 transition-all">
+        <div className={`${addMode === "single" ? "max-w-2xl" : "max-w-4xl"} mx-auto transition-all`}>
           <div className="bg-white rounded-md p-4 sm:p-6 lg:p-8 border border-slate-200 shadow-lg">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Add New Student</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Add New Students</h2>
               <button
                 onClick={() => navigate("/lms/superadmin/students/list")}
                 className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
@@ -1597,157 +1892,342 @@ export default function SuperAdminStudents() {
               </button>
             </div>
 
-            <div className="mb-6 p-4 rounded-lg border border-amber-200 bg-amber-50/90 text-sm text-amber-950">
-              <p className="font-medium text-amber-900 mb-1">Course or pack</p>
-              <p className="text-amber-900/90 leading-relaxed">
-                Choose a course or pack to send this signup to <strong>Payment Approvals</strong> (pending). The student
-                account and LMS access are created when you approve the row—same flow as after a paid checkout.
-                Leave the selector empty to create an account immediately with a password (no catalog access until you
-                enroll them elsewhere).
-              </p>
+            {/* Mode Selector Tabs */}
+            <div className="flex border-b border-slate-200 mb-6">
+              <button
+                type="button"
+                onClick={() => setAddMode("single")}
+                className={`py-2.5 px-4 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+                  addMode === "single"
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                Single Account
+              </button>
+              <button
+                type="button"
+                onClick={() => setAddMode("bulk")}
+                className={`py-2.5 px-4 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+                  addMode === "bulk"
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                Multiple Accounts (Bulk)
+              </button>
             </div>
 
-            <div className="space-y-6">
+            {/* Common Enrollment Selector */}
+            <div className="mb-6 bg-slate-50 rounded-lg p-4 border border-slate-100 space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-slate-900 mb-2">
-                  Student Name <span className="text-red-500">*</span>
+                  Course or pack enrollment (optional)
                 </label>
-                <div className="relative">
-                  <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input
-                    type="text"
-                    value={addForm.fullName}
-                    onChange={(e) => setAddForm({ ...addForm, fullName: e.target.value })}
-                    placeholder="Enter student name"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
-                  Email <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input
-                    type="email"
-                    value={addForm.email}
-                    onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
-                    placeholder="Enter email address"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
-                  Phone Number
-                  {approvalMode ? <span className="text-red-500"> *</span> : null}
-                </label>
-                <div className="relative">
-                  <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input
-                    type="tel"
-                    value={addForm.phone}
-                    onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })}
-                    placeholder={approvalMode ? "Required for approvals" : "Enter phone number"}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">College (optional)</label>
-                <div className="relative">
-                  <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input
-                    type="text"
-                    value={addForm.college}
-                    onChange={(e) => setAddForm({ ...addForm, college: e.target.value })}
-                    placeholder="Institution name"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">Course or pack</label>
                 <EnrollmentCoursePackSelect
                   id="add-student-enrollment"
                   value={addForm.enrollmentItem}
                   onChange={(v) => setAddForm({ ...addForm, enrollmentItem: v })}
                   catalogOptions={catalogOptions}
-                  emptyLabel={catalogHydrated ? "None — create account only (no approval queue)" : "Loading catalog…"}
+                  emptyLabel={catalogHydrated ? "None — create account immediately without approval queue" : "Loading catalog…"}
                   disabled={!catalogHydrated}
                   ariaLabel="Course or pack for student access"
-                  selectClassName="bg-slate-50 py-3 text-base"
+                  selectClassName="bg-white py-3 text-base"
                 />
               </div>
 
-              {!approvalMode ? (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-semibold text-slate-900">
-                      Password
+              {approvalMode ? (
+                <div className="p-3 rounded border border-amber-200 bg-amber-50/70 text-xs text-amber-900">
+                  <FiAlertCircle className="inline w-4 h-4 mr-1.5 text-amber-600 align-text-bottom" />
+                  Selecting a course or pack puts this request in the <strong>Payment Approvals</strong> flow. Accounts and course access are created when you approve the row. <strong>Phone number is required for all entries in this mode.</strong>
+                </div>
+              ) : (
+                <div className="p-3 rounded border border-blue-200 bg-blue-50/70 text-xs text-blue-900">
+                  <FiLock className="inline w-4 h-4 mr-1.5 text-blue-600 align-text-bottom" />
+                  Leaving course/pack empty will create account(s) immediately.
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-6">
+              {addMode === "single" ? (
+                // Single Mode Inputs
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-900 mb-2">
+                      Student Name <span className="text-red-500">*</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={addForm.generatePassword}
-                        onChange={(e) => setAddForm({ ...addForm, generatePassword: e.target.checked, password: "" })}
-                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-slate-600">Auto-generate secure password</span>
-                    </label>
-                  </div>
-                  {!addForm.generatePassword ? (
                     <div className="relative">
-                      <FiKey className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                       <input
-                        type="password"
-                        value={addForm.password}
-                        onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
-                        placeholder="Enter custom password (min 8 characters)"
-                        minLength={8}
-                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                        type="text"
+                        value={addForm.fullName}
+                        onChange={(e) => setAddForm({ ...addForm, fullName: e.target.value })}
+                        placeholder="Enter student name"
+                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-900 mb-2">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <input
+                        type="email"
+                        value={addForm.email}
+                        onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                        placeholder="Enter email address"
+                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-900 mb-2">
+                      Phone Number
+                      {approvalMode ? <span className="text-red-500"> *</span> : null}
+                    </label>
+                    <div className="relative">
+                      <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <input
+                        type="tel"
+                        value={addForm.phone}
+                        onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })}
+                        placeholder={approvalMode ? "Required for approvals" : "Enter phone number"}
+                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-900 mb-2">College (optional)</label>
+                    <div className="relative">
+                      <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <input
+                        type="text"
+                        value={addForm.college}
+                        onChange={(e) => setAddForm({ ...addForm, college: e.target.value })}
+                        placeholder="Institution name"
+                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {!approvalMode ? (
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-semibold text-slate-900">
+                          Password
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={addForm.generatePassword}
+                            onChange={(e) => setAddForm({ ...addForm, generatePassword: e.target.checked, password: "" })}
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-slate-600">Auto-generate secure password</span>
+                        </label>
+                      </div>
+                      {!addForm.generatePassword ? (
+                        <div className="relative">
+                          <FiKey className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                          <input
+                            type="password"
+                            value={addForm.password}
+                            onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                            placeholder="Enter custom password (min 8 characters)"
+                            minLength={8}
+                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm"
+                          />
+                        </div>
+                      ) : (
+                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                          <p className="text-sm text-blue-700 flex items-center gap-2">
+                            <FiLock className="w-4 h-4" />
+                            A secure password will be automatically generated
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   ) : (
-                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                      <p className="text-sm text-blue-700 flex items-center gap-2">
-                        <FiLock className="w-4 h-4" />
-                        A secure password will be automatically generated
-                      </p>
+                    <div className="p-3 rounded-md border border-slate-200 bg-slate-50 text-sm text-slate-600">
+                      <FiAlertCircle className="inline w-4 h-4 mr-1.5 text-amber-600 align-text-bottom" />
+                      No password is set yet. After you approve this request, the student can use{" "}
+                      <strong>Forgot password</strong> on the login page (or reset from student details).
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="p-3 rounded-md border border-slate-200 bg-slate-50 text-sm text-slate-600">
-                  <FiAlertCircle className="inline w-4 h-4 mr-1.5 text-amber-600 align-text-bottom" />
-                  No password is set yet. After you approve this request, the student can use{" "}
-                  <strong>Forgot password</strong> on the login page (or reset from student details).
+                // Bulk Mode Inputs
+                <div className="space-y-6">
+                  {/* File Upload / Delimited Parser */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="border-2 border-dashed border-slate-200 rounded-lg p-5 flex flex-col items-center justify-center bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                      <FiDownload className="w-8 h-8 text-slate-400 mb-2 animate-pulse" />
+                      <span className="text-xs font-semibold text-slate-700">Import CSV File</span>
+                      <span className="text-[10px] text-slate-500 mb-3">Columns: Name, Email, Phone, College</span>
+                      <label className="px-4 py-2 bg-white border border-slate-200 rounded-md text-xs font-semibold text-slate-700 cursor-pointer shadow-sm hover:bg-slate-50 transition-colors">
+                        Browse File
+                        <input type="file" accept=".csv" className="hidden" onChange={handleBulkCsvUpload} />
+                      </label>
+                    </div>
+
+                    <div className="border border-slate-200 rounded-lg p-4 flex flex-col bg-white">
+                      <span className="text-xs font-semibold text-slate-700 mb-1.5">Copy & Paste from Excel/Sheets</span>
+                      <textarea
+                        rows={3}
+                        value={bulkPasteText}
+                        onChange={(e) => setBulkPasteText(e.target.value)}
+                        placeholder="Paste rows here (Name, Email, Phone, College)..."
+                        className="w-full flex-1 p-2 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono resize-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleParsePasteText(bulkPasteText)}
+                        disabled={!bulkPasteText.trim()}
+                        className="mt-2 w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded disabled:opacity-50 transition-colors cursor-pointer"
+                      >
+                        Parse & Add Rows
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bulk Table */}
+                  <div className="border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs text-left animate-fade-in">
+                        <thead className="bg-slate-50 font-semibold text-slate-600 border-b border-slate-200">
+                          <tr>
+                            <th className="px-3 py-3 w-8 text-center">#</th>
+                            <th className="px-3 py-3">Student Name <span className="text-red-500">*</span></th>
+                            <th className="px-3 py-3">Email <span className="text-red-500">*</span></th>
+                            <th className="px-3 py-3">Phone Number{approvalMode && <span className="text-red-500"> *</span>}</th>
+                            <th className="px-3 py-3">College</th>
+                            <th className="px-3 py-3 w-10"></th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {bulkStudents.map((student, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50/30">
+                              <td className="px-3 py-2.5 text-center text-xs font-semibold text-slate-400 tabular-nums">{idx + 1}</td>
+                              <td className="px-1.5 py-1.5">
+                                <input
+                                  type="text"
+                                  value={student.fullName}
+                                  onChange={(e) => {
+                                    const updated = [...bulkStudents];
+                                    updated[idx].fullName = e.target.value;
+                                    setBulkStudents(updated);
+                                  }}
+                                  placeholder="Full Name"
+                                  className="w-full px-2 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
+                                />
+                              </td>
+                              <td className="px-1.5 py-1.5">
+                                <input
+                                  type="email"
+                                  value={student.email}
+                                  onChange={(e) => {
+                                    const updated = [...bulkStudents];
+                                    updated[idx].email = e.target.value;
+                                    setBulkStudents(updated);
+                                  }}
+                                  placeholder="Email Address"
+                                  className="w-full px-2 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
+                                />
+                              </td>
+                              <td className="px-1.5 py-1.5">
+                                <input
+                                  type="tel"
+                                  value={student.phone}
+                                  onChange={(e) => {
+                                    const updated = [...bulkStudents];
+                                    updated[idx].phone = e.target.value;
+                                    setBulkStudents(updated);
+                                  }}
+                                  placeholder={approvalMode ? "Required" : "Optional"}
+                                  className="w-full px-2 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
+                                />
+                              </td>
+                              <td className="px-1.5 py-1.5">
+                                <input
+                                  type="text"
+                                  value={student.college}
+                                  onChange={(e) => {
+                                    const updated = [...bulkStudents];
+                                    updated[idx].college = e.target.value;
+                                    setBulkStudents(updated);
+                                  }}
+                                  placeholder="College (Optional)"
+                                  className="w-full px-2 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
+                                />
+                              </td>
+                              <td className="px-3 py-1.5 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (bulkStudents.length === 1) {
+                                      setBulkStudents([{ fullName: "", email: "", phone: "", college: "" }]);
+                                    } else {
+                                      setBulkStudents(bulkStudents.filter((_, i) => i !== idx));
+                                    }
+                                  }}
+                                  className="p-1.5 hover:bg-red-50 rounded text-red-500 transition-colors cursor-pointer"
+                                  title="Remove row"
+                                >
+                                  <FiTrash2 className="w-4 h-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="p-3 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+                      <button
+                        type="button"
+                        onClick={() => setBulkStudents([...bulkStudents, { fullName: "", email: "", phone: "", college: "" }])}
+                        className="px-3 py-1.5 bg-white border border-slate-200 rounded text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-sm transition-colors flex items-center gap-1 cursor-pointer"
+                      >
+                        + Add Row
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBulkStudents([{ fullName: "", email: "", phone: "", college: "" }])}
+                        className="px-3 py-1.5 bg-red-50 text-red-600 rounded text-xs font-semibold hover:bg-red-100 transition-colors cursor-pointer"
+                      >
+                        Clear All Rows
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
 
-              <div className="flex items-center gap-4 pt-4">
+              <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
                 <button
-                  onClick={handleAddStudent}
-                  disabled={addDisabled}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-md shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  onClick={handleSave}
+                  disabled={finalAddDisabled}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-md shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {saving ? (
                     <ButtonLoading text={approvalMode ? "Submitting…" : "Adding…"} size="sm" />
                   ) : (
                     <>
                       <FiSave className="w-5 h-5" />
-                      {approvalMode ? "Submit for approval" : "Add Student"}
+                      {approvalMode
+                        ? addMode === "single" ? "Submit for approval" : `Submit ${bulkValidStudents.length} for approval`
+                        : addMode === "single" ? "Add Student" : `Add ${bulkValidStudents.length} Students`
+                      }
                     </>
                   )}
                 </button>
                 <button
                   onClick={() => navigate("/lms/superadmin/students/list")}
-                  className="px-6 py-3 bg-slate-100 text-slate-700 font-semibold rounded-md hover:bg-slate-200 transition-colors"
+                  className="px-6 py-3 bg-slate-100 text-slate-700 font-semibold rounded-md hover:bg-slate-200 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1757,6 +2237,7 @@ export default function SuperAdminStudents() {
         </div>
       </div>
         <CredentialsModal />
+        <BulkResultsModal />
       </>
     );
   }

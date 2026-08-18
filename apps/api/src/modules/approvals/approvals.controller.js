@@ -15,6 +15,19 @@ const CreateManualApprovalSchema = z.object({
   itemId: z.string().uuid(),
 });
 
+const CreateManualApprovalBulkSchema = z.object({
+  students: z.array(
+    z.object({
+      fullName: z.string().min(1),
+      email: z.string().email(),
+      phone: z.string().min(1),
+      college: z.string().optional().nullable(),
+    })
+  ),
+  itemType: z.enum(["course", "pack"]),
+  itemId: z.string().uuid(),
+});
+
 const ProvisionFromRazorpaySchema = z.object({
   razorpay_order_id: z.string().min(1),
   razorpay_payment_id: z.string().min(1).optional().nullable(),
@@ -69,6 +82,51 @@ async function createManual(req, res) {
   res.status(201).json({ ok: true, data: approval });
 }
 
+async function createManualBulk(req, res) {
+  const parsed = CreateManualApprovalBulkSchema.safeParse(req.body);
+  if (!parsed.success) throw new HttpError(400, "Invalid input", parsed.error.flatten());
+
+  const { students, itemType, itemId } = parsed.data;
+  const results = [];
+
+  for (const s of students) {
+    try {
+      const approval = await approvalsService.createManualApproval({
+        tenantId: req.tenant.id,
+        fullName: s.fullName.trim(),
+        email: s.email.trim().toLowerCase(),
+        phone: s.phone.trim(),
+        college: s.college?.trim() || null,
+        itemType,
+        itemId,
+      });
+
+      await audit(req, {
+        action: "approval.manual.create",
+        entityType: "approval",
+        entityId: approval.id,
+        payload: { email: approval.customer_email, itemType, itemId, bulk: true },
+      });
+
+      results.push({
+        email: s.email,
+        fullName: s.fullName,
+        status: "created",
+        approval,
+      });
+    } catch (err) {
+      results.push({
+        email: s.email,
+        fullName: s.fullName,
+        status: "error",
+        error: err.message || "Failed to submit for approval",
+      });
+    }
+  }
+
+  res.status(201).json({ ok: true, data: results });
+}
+
 async function provisionFromRazorpay(req, res) {
   const parsed = ProvisionFromRazorpaySchema.safeParse(req.body);
   if (!parsed.success) throw new HttpError(400, "Invalid input", parsed.error.flatten());
@@ -99,6 +157,7 @@ async function provisionFromRazorpay(req, res) {
 module.exports = {
   list: asyncHandler(list),
   createManual: asyncHandler(createManual),
+  createManualBulk: asyncHandler(createManualBulk),
   provisionFromRazorpay: asyncHandler(provisionFromRazorpay),
   approve: asyncHandler(approve),
   reject: asyncHandler(reject),

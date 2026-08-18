@@ -20,6 +20,19 @@ const CreateStudentSchema = z.object({
   password: z.string().min(8).optional(),
 });
 
+const CreateStudentBulkSchema = z.object({
+  students: z.array(
+    z.object({
+      email: z.string().email(),
+      fullName: z.string().min(1),
+      phone: z.string().optional().nullable(),
+      password: z.string().min(8).optional().nullable(),
+      college: z.string().optional().nullable(),
+    })
+  ),
+  generatePassword: z.boolean().optional(),
+});
+
 const UpdateStudentSchema = z.object({
   fullName: z.string().min(1).optional(),
   email: z.string().email().optional(),
@@ -259,6 +272,148 @@ const createStudent = asyncHandler(async (req, res) => {
   });
   
   res.status(201).json({ ok: true, data: student });
+});
+
+// SuperAdmin: Create bulk students
+const createStudentBulk = asyncHandler(async (req, res) => {
+  const tenantId = req.tenant.id;
+  const parsed = CreateStudentBulkSchema.safeParse(req.body);
+  if (!parsed.success) throw new HttpError(400, "Invalid input", parsed.error.flatten());
+
+  const { students, generatePassword } = parsed.data;
+  const results = [];
+  const bcrypt = require("bcrypt");
+
+  // Secure password generation helper
+  const generateRandomPassword = () => {
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let password = "";
+    password += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 26)];
+    password += "abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 26)];
+    password += "0123456789"[Math.floor(Math.random() * 10)];
+    password += "!@#$%^&*"[Math.floor(Math.random() * 8)];
+    for (let i = password.length; i < length; i++) {
+      password += charset[Math.floor(Math.random() * charset.length)];
+    }
+    return password.split("").sort(() => Math.random() - 0.5).join("");
+  };
+
+  for (const s of students) {
+    const normalizedEmail = s.email.trim().toLowerCase();
+    const fullName = s.fullName.trim();
+    const phone = s.phone ? s.phone.trim() : null;
+    const college = s.college ? s.college.trim() : null;
+
+    let password = s.password;
+    if (!password && generatePassword) {
+      password = generateRandomPassword();
+    } else if (!password) {
+      password = "Student@123";
+    }
+
+    try {
+      const passwordHash = await bcrypt.hash(password, 12);
+      const existing = await repo.findUserByEmail(normalizedEmail);
+
+      if (existing) {
+        const membership = await repo.getMembershipWithRole({ tenantId, userId: existing.id });
+        const canReactivate =
+          membership &&
+          membership.role_name === "Student" &&
+          existing.is_active === false;
+
+        if (canReactivate) {
+          const restored = await repo.reactivateStudent({
+            userId: existing.id,
+            fullName,
+            phone,
+            passwordHash,
+          });
+
+          // Update college if provided during reactivation
+          if (college) {
+            await repo.updateStudentDetails({
+              userId: existing.id,
+              college,
+            });
+            restored.college = college;
+          }
+
+          await repo.markStudentUndoRestored({
+            tenantId,
+            userId: existing.id,
+            fullName: restored?.full_name || fullName,
+            email: restored?.email || normalizedEmail,
+            phone: restored?.phone || phone,
+          });
+
+          await audit(req, {
+            action: "student.restore",
+            entityType: "user",
+            entityId: existing.id,
+            payload: { email: normalizedEmail, bulk: true },
+          });
+
+          results.push({
+            email: normalizedEmail,
+            fullName,
+            phone,
+            college,
+            status: "reactivated",
+            student: restored,
+            password,
+          });
+        } else {
+          results.push({
+            email: normalizedEmail,
+            fullName,
+            phone,
+            college,
+            status: "error",
+            error: "Email already registered and active",
+          });
+        }
+      } else {
+        const student = await repo.createStudent({
+          tenantId,
+          email: normalizedEmail,
+          fullName,
+          phone,
+          college,
+          passwordHash,
+        });
+
+        await audit(req, {
+          action: "student.create",
+          entityType: "user",
+          entityId: student.id,
+          payload: { email: student.email, bulk: true },
+        });
+
+        results.push({
+          email: normalizedEmail,
+          fullName,
+          phone,
+          college,
+          status: "created",
+          student,
+          password,
+        });
+      }
+    } catch (err) {
+      results.push({
+        email: normalizedEmail,
+        fullName,
+        phone,
+        college,
+        status: "error",
+        error: err.message || "Failed to process",
+      });
+    }
+  }
+
+  res.status(200).json({ ok: true, data: results });
 });
 
 // SuperAdmin: Update student details
@@ -509,6 +664,7 @@ module.exports = {
   listStudentsLeaderboard,
   getStudentWithStats,
   createStudent,
+  createStudentBulk,
   updateStudent,
   deleteStudent,
   listStudentUndoLogs,
