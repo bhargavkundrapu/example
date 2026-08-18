@@ -83,20 +83,63 @@ async function createManual(req, res) {
 }
 
 async function createManualBulk(req, res) {
-  const parsed = CreateManualApprovalBulkSchema.safeParse(req.body);
-  if (!parsed.success) throw new HttpError(400, "Invalid input", parsed.error.flatten());
+  if (!req.body || !Array.isArray(req.body.students)) {
+    throw new HttpError(400, "Invalid input: 'students' array is required");
+  }
 
-  const { students, itemType, itemId } = parsed.data;
-  const results = [];
+  const { students, itemType, itemId } = req.body;
+  if (!itemType || !["course", "pack"].includes(itemType) || !itemId) {
+    throw new HttpError(400, "Invalid input: valid itemType ('course' or 'pack') and itemId required");
+  }
 
-  for (const s of students) {
+  const processOneApproval = async (s) => {
+    let rawName = typeof s?.fullName === "string" ? s.fullName.trim() : "";
+    let rawEmail = typeof s?.email === "string" ? s.email.trim().toLowerCase() : "";
+    let phone = typeof s?.phone === "string" ? s.phone.trim() : "";
+    const college = typeof s?.college === "string" && s.college.trim() ? s.college.trim() : null;
+
+    if (rawName.toLowerCase().includes("name") && (rawEmail.includes("mobile") || rawEmail.includes("phone"))) {
+      return null;
+    }
+
+    if (!rawEmail || !rawEmail.includes("@")) {
+      if (rawEmail && /^\+?\d[\d\s-]{6,}$/.test(rawEmail)) {
+        phone = phone || rawEmail;
+        rawEmail = `${rawEmail.replace(/\D/g, "")}@student.expograph.in`;
+      } else if (phone && /^\+?\d[\d\s-]{6,}$/.test(phone)) {
+        rawEmail = `${phone.replace(/\D/g, "")}@student.expograph.in`;
+      } else {
+        const cleanName = (rawName || "student").toLowerCase().replace(/[^a-z0-9]/g, "");
+        const randSuffix = Math.floor(1000 + Math.random() * 9000);
+        rawEmail = `${cleanName || "student"}_${randSuffix}@student.expograph.in`;
+      }
+    }
+
+    if (!rawName) {
+      return {
+        email: rawEmail,
+        fullName: "Student",
+        status: "error",
+        error: "Student name is required",
+      };
+    }
+
+    if (!phone) {
+      return {
+        email: rawEmail,
+        fullName: rawName,
+        status: "error",
+        error: "Phone number is required for approvals",
+      };
+    }
+
     try {
       const approval = await approvalsService.createManualApproval({
         tenantId: req.tenant.id,
-        fullName: s.fullName.trim(),
-        email: s.email.trim().toLowerCase(),
-        phone: s.phone.trim(),
-        college: s.college?.trim() || null,
+        fullName: rawName,
+        email: rawEmail,
+        phone,
+        college,
         itemType,
         itemId,
       });
@@ -108,23 +151,37 @@ async function createManualBulk(req, res) {
         payload: { email: approval.customer_email, itemType, itemId, bulk: true },
       });
 
-      results.push({
-        email: s.email,
-        fullName: s.fullName,
+      return {
+        email: rawEmail,
+        fullName: rawName,
         status: "created",
         approval,
-      });
+      };
     } catch (err) {
-      results.push({
-        email: s.email,
-        fullName: s.fullName,
+      return {
+        email: rawEmail,
+        fullName: rawName,
         status: "error",
         error: err.message || "Failed to submit for approval",
-      });
+      };
     }
-  }
+  };
 
-  res.status(201).json({ ok: true, data: results });
+  const concurrency = 10;
+  const results = new Array(students.length);
+  let index = 0;
+
+  const workers = Array.from({ length: Math.min(concurrency, students.length) }, async () => {
+    while (index < students.length) {
+      const i = index++;
+      results[i] = await processOneApproval(students[i]);
+    }
+  });
+
+  await Promise.all(workers);
+
+  const filteredResults = results.filter(Boolean);
+  res.status(201).json({ ok: true, data: filteredResults });
 }
 
 async function provisionFromRazorpay(req, res) {

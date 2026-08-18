@@ -556,16 +556,61 @@ export default function SuperAdminStudents() {
     if (!text.trim()) return;
     const lines = text.split(/\r?\n/);
     const parsed = [];
+
+    const isHeaderRow = (cols) => {
+      const first = (cols[0] || "").toLowerCase();
+      const second = (cols[1] || "").toLowerCase();
+      return (
+        first.includes("name") ||
+        first.includes("student") ||
+        second.includes("mobile") ||
+        second.includes("phone") ||
+        second.includes("email")
+      );
+    };
+
     for (const line of lines) {
       if (!line.trim()) continue;
-      const cols = line.split(/\t|,|;/);
-      const fullName = (cols[0] || "").trim();
-      const email = (cols[1] || "").trim();
-      const phone = (cols[2] || "").trim();
-      const college = (cols[3] || "").trim();
+      const cols = line.split(/\t|,|;/).map((c) => c.trim());
 
-      if (fullName || email) {
-        parsed.push({ fullName, email, phone, college });
+      if (isHeaderRow(cols)) continue;
+
+      let fullName = cols[0] || "";
+      let c1 = cols[1] || "";
+      let c2 = cols[2] || "";
+      let c3 = cols[3] || "";
+
+      let email = "";
+      let phone = "";
+      let college = "";
+
+      if (c1.includes("@")) {
+        email = c1;
+        phone = c2;
+        college = c3;
+      } else if (c2.includes("@")) {
+        phone = c1;
+        email = c2;
+        college = c3;
+      } else {
+        if (/^\+?\d[\d\s-]{6,}$/.test(c1) || /^\d+$/.test(c1)) {
+          phone = c1;
+          college = c2;
+          email = `${c1.replace(/\D/g, "")}@student.expograph.in`;
+        } else if (/^\+?\d[\d\s-]{6,}$/.test(c2) || /^\d+$/.test(c2)) {
+          phone = c2;
+          college = c3;
+          email = `${c2.replace(/\D/g, "")}@student.expograph.in`;
+        } else if (fullName) {
+          const cleanName = fullName.toLowerCase().replace(/[^a-z0-9]/g, "");
+          const randSuffix = Math.floor(1000 + Math.random() * 9000);
+          email = `${cleanName || "student"}_${randSuffix}@student.expograph.in`;
+          college = c1 || c2;
+        }
+      }
+
+      if (fullName || phone || email) {
+        parsed.push({ fullName: fullName || "Student", email, phone, college });
       }
     }
 
@@ -577,7 +622,7 @@ export default function SuperAdminStudents() {
       }
       setBulkPasteText("");
     } else {
-      alert("No valid rows found. Please make sure the columns are Name, Email, Phone, College.");
+      alert("No valid rows found. Please check your data format.");
     }
   };
 
@@ -599,17 +644,46 @@ export default function SuperAdminStudents() {
   };
 
   const handleBulkAddStudents = async () => {
-    const validStudents = bulkStudents.filter(s => s.email.trim() && s.fullName.trim());
+    const validStudents = bulkStudents.filter(
+      (s) => (s.fullName || "").trim() || (s.email || "").trim() || (s.phone || "").trim()
+    );
     if (validStudents.length === 0) {
-      alert("Please add at least one student with a valid Name and Email.");
+      alert("Please add at least one student.");
       return;
     }
+
+    const preparedStudents = validStudents.map((s) => {
+      let fullName = (s.fullName || "").trim();
+      let email = (s.email || "").trim().toLowerCase();
+      let phone = (s.phone || "").trim();
+      let college = (s.college || "").trim();
+
+      if (!email || !email.includes("@")) {
+        if (email && /^\+?\d[\d\s-]{6,}$/.test(email)) {
+          phone = phone || email;
+          email = `${email.replace(/\D/g, "")}@student.expograph.in`;
+        } else if (phone && /^\+?\d[\d\s-]{6,}$/.test(phone)) {
+          email = `${phone.replace(/\D/g, "")}@student.expograph.in`;
+        } else {
+          const cleanName = (fullName || "student").toLowerCase().replace(/[^a-z0-9]/g, "");
+          const randSuffix = Math.floor(1000 + Math.random() * 9000);
+          email = `${cleanName || "student"}_${randSuffix}@student.expograph.in`;
+        }
+      }
+
+      return {
+        fullName: fullName || "Student",
+        email,
+        phone: phone || undefined,
+        college: college || undefined,
+      };
+    });
 
     const enrollment = (addForm.enrollmentItem || "").trim();
     const useApprovalFlow = enrollment.startsWith("course:") || enrollment.startsWith("pack:");
 
     if (useApprovalFlow) {
-      const missingPhone = validStudents.some(s => !s.phone?.trim());
+      const missingPhone = preparedStudents.some((s) => !s.phone?.trim());
       if (missingPhone) {
         alert("Phone number is required for all students when assigning a course or pack (used on Approvals).");
         return;
@@ -632,11 +706,11 @@ export default function SuperAdminStudents() {
           method: "POST",
           token,
           body: {
-            students: validStudents.map(s => ({
-              fullName: s.fullName.trim(),
-              email: s.email.trim(),
-              phone: s.phone.trim(),
-              college: s.college?.trim() || undefined,
+            students: preparedStudents.map((s) => ({
+              fullName: s.fullName,
+              email: s.email,
+              phone: s.phone || "0000000000",
+              college: s.college,
             })),
             itemType,
             itemId,
@@ -654,12 +728,7 @@ export default function SuperAdminStudents() {
           method: "POST",
           token,
           body: {
-            students: validStudents.map(s => ({
-              fullName: s.fullName.trim(),
-              email: s.email.trim(),
-              phone: s.phone?.trim() || undefined,
-              college: s.college?.trim() || undefined,
-            })),
+            students: preparedStudents,
             generatePassword: true,
           },
         });

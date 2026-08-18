@@ -277,11 +277,12 @@ const createStudent = asyncHandler(async (req, res) => {
 // SuperAdmin: Create bulk students
 const createStudentBulk = asyncHandler(async (req, res) => {
   const tenantId = req.tenant.id;
-  const parsed = CreateStudentBulkSchema.safeParse(req.body);
-  if (!parsed.success) throw new HttpError(400, "Invalid input", parsed.error.flatten());
+  
+  if (!req.body || !Array.isArray(req.body.students)) {
+    throw new HttpError(400, "Invalid input: 'students' array is required");
+  }
 
-  const { students, generatePassword } = parsed.data;
-  const results = [];
+  const { students, generatePassword } = req.body;
   const bcrypt = require("bcrypt");
 
   // Secure password generation helper
@@ -299,13 +300,55 @@ const createStudentBulk = asyncHandler(async (req, res) => {
     return password.split("").sort(() => Math.random() - 0.5).join("");
   };
 
-  for (const s of students) {
-    const normalizedEmail = s.email.trim().toLowerCase();
-    const fullName = s.fullName.trim();
-    const phone = s.phone ? s.phone.trim() : null;
-    const college = s.college ? s.college.trim() : null;
+  // Helper function for processing a single student record
+  const processOneStudent = async (s) => {
+    let rawName = typeof s?.fullName === "string" ? s.fullName.trim() : "";
+    let rawEmail = typeof s?.email === "string" ? s.email.trim().toLowerCase() : "";
+    let phone = typeof s?.phone === "string" && s.phone.trim() ? s.phone.trim() : null;
+    const college = typeof s?.college === "string" && s.college.trim() ? s.college.trim() : null;
+    let password = typeof s?.password === "string" && s.password.trim() ? s.password.trim() : null;
 
-    let password = s.password;
+    // Skip empty row or header rows
+    if (rawName.toLowerCase().includes("name") && (rawEmail.includes("mobile") || rawEmail.includes("phone"))) {
+      return null;
+    }
+
+    // Auto-fix email if missing '@' or is a phone number
+    if (!rawEmail || !rawEmail.includes("@")) {
+      if (rawEmail && /^\+?\d[\d\s-]{6,}$/.test(rawEmail)) {
+        phone = phone || rawEmail;
+        rawEmail = `${rawEmail.replace(/\D/g, "")}@student.expograph.in`;
+      } else if (phone && /^\+?\d[\d\s-]{6,}$/.test(phone)) {
+        rawEmail = `${phone.replace(/\D/g, "")}@student.expograph.in`;
+      } else {
+        const cleanName = (rawName || "student").toLowerCase().replace(/[^a-z0-9]/g, "");
+        const randSuffix = Math.floor(1000 + Math.random() * 9000);
+        rawEmail = `${cleanName || "student"}_${randSuffix}@student.expograph.in`;
+      }
+    }
+
+    if (!rawName) {
+      return {
+        email: rawEmail,
+        fullName: "Student",
+        phone,
+        college,
+        status: "error",
+        error: "Student name is required",
+      };
+    }
+
+    if (password && password.length < 8) {
+      return {
+        email: rawEmail,
+        fullName: rawName,
+        phone,
+        college,
+        status: "error",
+        error: "Password must be at least 8 characters",
+      };
+    }
+
     if (!password && generatePassword) {
       password = generateRandomPassword();
     } else if (!password) {
@@ -313,8 +356,9 @@ const createStudentBulk = asyncHandler(async (req, res) => {
     }
 
     try {
-      const passwordHash = await bcrypt.hash(password, 12);
-      const existing = await repo.findUserByEmail(normalizedEmail);
+      // Use bcrypt round 8 for fast bulk hashing (~8ms per hash instead of ~300ms)
+      const passwordHash = await bcrypt.hash(password, 8);
+      const existing = await repo.findUserByEmail(rawEmail);
 
       if (existing) {
         const membership = await repo.getMembershipWithRole({ tenantId, userId: existing.id });
@@ -326,12 +370,11 @@ const createStudentBulk = asyncHandler(async (req, res) => {
         if (canReactivate) {
           const restored = await repo.reactivateStudent({
             userId: existing.id,
-            fullName,
+            fullName: rawName,
             phone,
             passwordHash,
           });
 
-          // Update college if provided during reactivation
           if (college) {
             await repo.updateStudentDetails({
               userId: existing.id,
@@ -343,8 +386,8 @@ const createStudentBulk = asyncHandler(async (req, res) => {
           await repo.markStudentUndoRestored({
             tenantId,
             userId: existing.id,
-            fullName: restored?.full_name || fullName,
-            email: restored?.email || normalizedEmail,
+            fullName: restored?.full_name || rawName,
+            email: restored?.email || rawEmail,
             phone: restored?.phone || phone,
           });
 
@@ -352,33 +395,33 @@ const createStudentBulk = asyncHandler(async (req, res) => {
             action: "student.restore",
             entityType: "user",
             entityId: existing.id,
-            payload: { email: normalizedEmail, bulk: true },
+            payload: { email: rawEmail, bulk: true },
           });
 
-          results.push({
-            email: normalizedEmail,
-            fullName,
+          return {
+            email: rawEmail,
+            fullName: rawName,
             phone,
             college,
             status: "reactivated",
             student: restored,
             password,
-          });
+          };
         } else {
-          results.push({
-            email: normalizedEmail,
-            fullName,
+          return {
+            email: rawEmail,
+            fullName: rawName,
             phone,
             college,
             status: "error",
             error: "Email already registered and active",
-          });
+          };
         }
       } else {
         const student = await repo.createStudent({
           tenantId,
-          email: normalizedEmail,
-          fullName,
+          email: rawEmail,
+          fullName: rawName,
           phone,
           college,
           passwordHash,
@@ -391,29 +434,44 @@ const createStudentBulk = asyncHandler(async (req, res) => {
           payload: { email: student.email, bulk: true },
         });
 
-        results.push({
-          email: normalizedEmail,
-          fullName,
+        return {
+          email: rawEmail,
+          fullName: rawName,
           phone,
           college,
           status: "created",
           student,
           password,
-        });
+        };
       }
     } catch (err) {
-      results.push({
-        email: normalizedEmail,
-        fullName,
+      return {
+        email: rawEmail,
+        fullName: rawName,
         phone,
         college,
         status: "error",
         error: err.message || "Failed to process",
-      });
+      };
     }
-  }
+  };
 
-  res.status(200).json({ ok: true, data: results });
+  // Run in concurrent worker batches of 10
+  const concurrency = 10;
+  const results = new Array(students.length);
+  let index = 0;
+
+  const workers = Array.from({ length: Math.min(concurrency, students.length) }, async () => {
+    while (index < students.length) {
+      const i = index++;
+      results[i] = await processOneStudent(students[i]);
+    }
+  });
+
+  await Promise.all(workers);
+
+  const filteredResults = results.filter(Boolean);
+  res.status(200).json({ ok: true, data: filteredResults });
 });
 
 // SuperAdmin: Update student details
