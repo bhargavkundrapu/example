@@ -196,28 +196,26 @@ async function courseProgressByCourseId({ tenantId, userId, courseId }) {
  * Used for Client Lab eligibility (>= 75%).
  */
 async function getOverallProgressPercent({ tenantId, userId }) {
-  const totalRow = (await query(
-    `SELECT COUNT(*)::int AS total
-     FROM lessons l
-     JOIN course_modules m ON m.id = l.module_id AND m.tenant_id = l.tenant_id
-     JOIN courses c ON c.id = m.course_id AND c.tenant_id = m.tenant_id
-     WHERE c.tenant_id = $1 AND c.status = 'published'
-       AND m.status = 'published' AND l.status = 'published'`,
-    [tenantId]
-  )).rows[0];
-  const total = totalRow?.total ?? 0;
-  if (total === 0) return 0;
-
-  const completedRow = (await query(
-    `SELECT COUNT(*)::int AS completed
-     FROM lesson_progress lp
-     JOIN lessons l ON l.id = lp.lesson_id AND l.tenant_id = lp.tenant_id AND l.status = 'published'
-     JOIN course_modules m ON m.id = l.module_id AND m.tenant_id = l.tenant_id AND m.status = 'published'
-     JOIN courses c ON c.id = m.course_id AND c.tenant_id = m.tenant_id AND c.status = 'published'
-     WHERE lp.tenant_id = $1 AND lp.user_id = $2 AND lp.completed_at IS NOT NULL`,
+  const { rows } = await query(
+    `SELECT
+       (SELECT COUNT(*)::int
+        FROM lessons l
+        JOIN course_modules m ON m.id = l.module_id AND m.tenant_id = l.tenant_id
+        JOIN courses c ON c.id = m.course_id AND c.tenant_id = m.tenant_id
+        WHERE c.tenant_id = $1 AND c.status = 'published' AND m.status = 'published' AND l.status = 'published'
+       ) AS total,
+       (SELECT COUNT(*)::int
+        FROM lesson_progress lp
+        JOIN lessons l ON l.id = lp.lesson_id AND l.tenant_id = lp.tenant_id AND l.status = 'published'
+        JOIN course_modules m ON m.id = l.module_id AND m.tenant_id = l.tenant_id AND m.status = 'published'
+        JOIN courses c ON c.id = m.course_id AND c.tenant_id = m.tenant_id AND c.status = 'published'
+        WHERE lp.tenant_id = $1 AND lp.user_id = $2 AND lp.completed_at IS NOT NULL
+       ) AS completed`,
     [tenantId, userId]
-  )).rows[0];
-  const completed = completedRow?.completed ?? 0;
+  );
+  const total = rows[0]?.total ?? 0;
+  const completed = rows[0]?.completed ?? 0;
+  if (total === 0) return 0;
   return Math.round((completed / total) * 100);
 }
 

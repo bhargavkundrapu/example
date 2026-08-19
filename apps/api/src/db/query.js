@@ -22,8 +22,11 @@ async function query(text, params = []) {
         code === "08004" ||
         code === "ECONNRESET" ||
         code === "ETIMEDOUT" ||
+        code === "ENOTFOUND" ||
+        code === "EAI_AGAIN" ||
         msg.includes("timeout exceeded when fetching a client") ||
-        msg.includes("connection terminated");
+        msg.includes("connection terminated") ||
+        msg.includes("getaddrinfo");
 
       if (isTransient && attempts < maxAttempts) {
         console.warn(`[db/query] Transient DB error (attempt ${attempts}/${maxAttempts}), retrying in ${150 * attempts}ms...`, err.message);

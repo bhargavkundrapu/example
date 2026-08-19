@@ -91,15 +91,20 @@ async function getClientLabChecklist({ tenantId, userId }) {
  * Eligible when: all required courses purchased AND each course completed 100%.
  */
 async function recomputeEligibility({ tenantId, userId }) {
-  const { eligible } = await getClientLabChecklist({ tenantId, userId });
+  const checklist = await getClientLabChecklist({ tenantId, userId });
+  const eligible = !!checklist?.eligible;
   const current = await eligibilityRepo.getEligibility({ userId });
-  const eligibleSince = eligible && !current.eligible_client_lab ? new Date().toISOString() : current.eligible_since;
-  await eligibilityRepo.setEligibility({
-    userId,
-    eligible: !!eligible,
-    eligibleSince: eligible ? (current.eligible_since || eligibleSince) : null,
-  });
-  return { eligible };
+  
+  // Only execute DB write UPDATE if eligibility state actually changed
+  if (!!current.eligible_client_lab !== eligible) {
+    const eligibleSince = eligible ? (current.eligible_since || new Date().toISOString()) : null;
+    await eligibilityRepo.setEligibility({
+      userId,
+      eligible,
+      eligibleSince,
+    });
+  }
+  return { eligible, checklist };
 }
 
 module.exports = { recomputeEligibility, getClientLabChecklist };

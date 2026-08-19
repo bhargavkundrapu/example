@@ -7,7 +7,7 @@ const BASE_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.DEV ? "" : "http://localhost:4000");
 
-const API_DOWN_COOLDOWN_MS = 12_000;
+const API_DOWN_COOLDOWN_MS = 2_000;
 let apiDownUntil = 0;
 
 function markApiReachable() {

@@ -55,10 +55,16 @@ const paymentLimiter = rateLimit({
 
 const publicApiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 60,
+  max: 300,                  // 300 requests per min for multi-user NAT/WiFi networks
   standardHeaders: true,
   legacyHeaders: false,
   message: { ok: false, error: "Too many requests. Please slow down." },
+  keyGenerator: (req) =>
+    req.auth?.userId
+      ? `u:${req.auth.userId}`
+      : req.headers["x-device-id"]
+      ? `dev:${req.headers["x-device-id"]}`
+      : ipKeyGenerator(req.ip, 64),
 });
 
 module.exports = { authLimiter, mediaTokenLimiter, progressLimiter, resumePdfLimiter, paymentLimiter, publicApiLimiter };

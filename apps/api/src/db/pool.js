@@ -1,6 +1,7 @@
 // apps/api/src/db/pool.js
-// Use the Neon POOLED connection string (host ends with -pooler.neon.tech) for DATABASE_URL in production.
-// Direct connections prevent Neon scale-to-zero.
+const dns = require("dns");
+try { dns.setDefaultResultOrder("ipv4first"); } catch (_) {}
+
 const { env } = require("../config/env");
 
 const isNeon = /neon\.tech/i.test(env.DATABASE_URL);
