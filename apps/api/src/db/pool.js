@@ -21,37 +21,23 @@ if (isNeon) {
   }
 }
 
-// Keep pool size small (3-5) for Neon serverless to allow proper scale-to-zero.
-// Large pools leave idle connections open and prevent Neon from suspending compute.
-const POOL_MAX = parseInt(process.env.DB_POOL_MAX, 10) || 5;
-const QUERY_TIMEOUT_MS = 15_000;
-const CONNECTION_TIMEOUT_MS = 10_000;
+const { Pool } = require("pg");
 
-if (isNeon) {
-  const { Pool: NeonPool, neonConfig } = require("@neondatabase/serverless");
-  const ws = require("ws");
-  neonConfig.webSocketConstructor = ws;
-  pool = new NeonPool({
-    connectionString: env.DATABASE_URL,
-    max: POOL_MAX,
-    idleTimeoutMillis: 20_000,
-    connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
-    query_timeout: QUERY_TIMEOUT_MS,
-    statement_timeout: QUERY_TIMEOUT_MS,
-  });
-} else {
-  const { Pool } = require("pg");
-  const useSSL = env.DATABASE_URL?.includes("sslmode=require");
-  pool = new Pool({
-    connectionString: env.DATABASE_URL,
-    ssl: useSSL ? { rejectUnauthorized: true } : undefined,
-    max: POOL_MAX,
-    idleTimeoutMillis: 20_000,
-    connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
-    query_timeout: QUERY_TIMEOUT_MS,
-    statement_timeout: QUERY_TIMEOUT_MS,
-  });
-}
+const POOL_MAX = parseInt(process.env.DB_POOL_MAX, 10) || 25;
+const QUERY_TIMEOUT_MS = 20_000;
+const CONNECTION_TIMEOUT_MS = 15_000;
+
+const useSSL = isNeon || env.DATABASE_URL?.includes("sslmode=require") || env.DATABASE_URL?.includes("ssl=true");
+
+pool = new Pool({
+  connectionString: env.DATABASE_URL,
+  ssl: useSSL ? { rejectUnauthorized: false } : undefined,
+  max: POOL_MAX,
+  idleTimeoutMillis: 30_000,
+  connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
+  query_timeout: QUERY_TIMEOUT_MS,
+  statement_timeout: QUERY_TIMEOUT_MS,
+});
 
 pool.on("error", (err) => {
   console.error("PostgreSQL Pool error:", err);

@@ -500,15 +500,55 @@ function normId(id) {
   return id != null ? String(id).toLowerCase() : "";
 }
 
+const bonusCache = new Map();
+
+/** All always-free bonus course ids for this tenant (cached for 60s to prevent query churn under load). */
+async function getBonusCourseIds({ tenantId }) {
+  if (!tenantId) return [];
+  const now = Date.now();
+  const cached = bonusCache.get(tenantId);
+  if (cached && cached.expires > now) {
+    return cached.ids;
+  }
+
+  try {
+    const { rows } = await query(
+      `SELECT DISTINCT id FROM courses
+       WHERE tenant_id = $1 AND status = 'published'
+         AND (
+           LOWER(REPLACE(slug, '_', '-')) IN (
+             'ai-automations', 'ai_automations', 'ai-automation', 'ai_automation',
+             'ai-tools-mastery-students', 'ai_tools_mastery_students'
+           )
+           OR LOWER(title) LIKE '%ai automation%'
+           OR LOWER(slug) LIKE '%ai%automation%'
+         )`,
+      [tenantId]
+    );
+
+    const ids = rows.map((r) => r.id);
+    bonusCache.set(tenantId, { ids, expires: now + 60_000 });
+    return ids;
+  } catch (error) {
+    console.error("Error fetching bonus course IDs:", error);
+    if (cached) return cached.ids;
+    return [];
+  }
+}
+
+async function getBonusCourseIdSet({ tenantId }) {
+  const list = await getBonusCourseIds({ tenantId });
+  return new Set(list.map((id) => normId(id)));
+}
+
 async function getEnrolledCourseIds({ tenantId, userId }) {
   const bonusCourseIds = await getBonusCourseIds({ tenantId });
-  const bonusIdSet = new Set(bonusCourseIds.map((id) => normId(id)));
 
   const enrollResult = await query(
     `SELECT item_type, item_id FROM enrollments
      WHERE user_id = $1 AND tenant_id = $2 AND active = true`,
     [userId, tenantId]
-  ).catch(() => ({ rows: [] }));
+  );
 
   const enrolledCourseIds = new Set();
   const enrolledPackIds = new Set();
@@ -522,7 +562,7 @@ async function getEnrolledCourseIds({ tenantId, userId }) {
       `SELECT course_id FROM course_pack_courses
        WHERE pack_id = ANY($1::uuid[])`,
       [Array.from(enrolledPackIds)]
-    ).catch(() => ({ rows: [] }));
+    );
     packRes.rows.forEach((r) => enrolledCourseIds.add(normId(r.course_id)));
   }
 
@@ -542,46 +582,41 @@ async function hasPackEnrollment({ tenantId, userId }) {
 
 // Courses: returns ALL published courses with enrolled flag (via direct enrollment or pack)
 async function listEnrolledCourses({ tenantId, userId }) {
-  try {
-    const enrolledCourseIds = await getEnrolledCourseIds({ tenantId, userId });
+  const enrolledCourseIds = await getEnrolledCourseIds({ tenantId, userId });
 
-    const result = await query(
-      `SELECT c.id, c.title, c.slug, c.description, c.level, c.price_in_paise,
-              COUNT(DISTINCT cm.id) as modules_count,
-              COUNT(DISTINCT l.id) FILTER (WHERE lp.completed_at IS NOT NULL) as completed_lessons,
-              COUNT(DISTINCT l.id) as total_lessons
-       FROM courses c
-       LEFT JOIN course_modules cm ON cm.course_id = c.id AND cm.status = 'published'
-       LEFT JOIN lessons l ON l.module_id = cm.id AND l.status = 'published'
-       LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.user_id = $1
-       WHERE c.tenant_id = $2 AND c.status = 'published'
-       GROUP BY c.id, c.title, c.slug, c.description, c.level, c.price_in_paise, c.sort_order
-       ORDER BY c.sort_order ASC, c.created_at ASC`,
-      [userId, tenantId]
-    );
+  const result = await query(
+    `SELECT c.id, c.title, c.slug, c.description, c.level, c.price_in_paise,
+            COUNT(DISTINCT cm.id) as modules_count,
+            COUNT(DISTINCT l.id) FILTER (WHERE lp.completed_at IS NOT NULL) as completed_lessons,
+            COUNT(DISTINCT l.id) as total_lessons
+     FROM courses c
+     LEFT JOIN course_modules cm ON cm.course_id = c.id AND cm.status = 'published'
+     LEFT JOIN lessons l ON l.module_id = cm.id AND l.status = 'published'
+     LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.user_id = $1
+     WHERE c.tenant_id = $2 AND c.status = 'published'
+     GROUP BY c.id, c.title, c.slug, c.description, c.level, c.price_in_paise, c.sort_order
+     ORDER BY c.sort_order ASC, c.created_at ASC`,
+    [userId, tenantId]
+  );
 
-    return result.rows.map((row) => {
-      const totalLessons = parseInt(row.total_lessons) || 0;
-      const completedLessons = parseInt(row.completed_lessons) || 0;
-      const enrolled = enrolledCourseIds.has(normId(row.id));
-      return {
-        id: row.id,
-        title: row.title,
-        slug: row.slug,
-        description: row.description,
-        level: row.level,
-        price_in_paise: row.price_in_paise ?? 0,
-        enrolled,
-        modules_count: parseInt(row.modules_count) || 0,
-        completed_lessons: enrolled ? completedLessons : 0,
-        total_lessons: totalLessons,
-        progress: enrolled && totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0,
-      };
-    });
-  } catch (error) {
-    console.error("Error in listEnrolledCourses:", error);
-    return [];
-  }
+  return result.rows.map((row) => {
+    const totalLessons = parseInt(row.total_lessons) || 0;
+    const completedLessons = parseInt(row.completed_lessons) || 0;
+    const enrolled = enrolledCourseIds.has(normId(row.id));
+    return {
+      id: row.id,
+      title: row.title,
+      slug: row.slug,
+      description: row.description,
+      level: row.level,
+      price_in_paise: row.price_in_paise ?? 0,
+      enrolled,
+      modules_count: parseInt(row.modules_count) || 0,
+      completed_lessons: enrolled ? completedLessons : 0,
+      total_lessons: totalLessons,
+      progress: enrolled && totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0,
+    };
+  });
 }
 
 // Get course slug by id (for access rules)

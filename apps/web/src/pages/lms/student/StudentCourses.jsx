@@ -27,6 +27,8 @@ import {
   FiClock,
   FiLock,
   FiZap,
+  FiAlertCircle,
+  FiRefreshCw,
 } from "react-icons/fi";
 import { AnimatePresence } from "framer-motion";
 import { BuyNowModal } from "../../../Components/payments/BuyNowModal";
@@ -173,18 +175,23 @@ export default function StudentCourses() {
     }
   }, [location.search, courses]);
 
-  const fetchCourses = async () => {
+  const fetchCourses = async (isRetry = false) => {
     try {
       setLoading(true);
       setFetchError("");
-      const res = await apiFetch("/api/v1/student/courses", { token }).catch(() => ({ data: [] }));
-      const list = Array.isArray(res?.data) ? res.data : [];
+      const res = await apiFetch("/api/v1/student/courses", { token, noCache: isRetry });
+      const list = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
+      if (!list.length && res?.ok === false) {
+        throw new Error(res?.error || res?.message || "Failed to load courses");
+      }
       list.sort((a, b) => courseOrderIndex(a) - courseOrderIndex(b));
       setCourses(list);
     } catch (error) {
       console.error("Failed to fetch courses:", error);
-      setFetchError(error?.message || "Failed to load courses. Please refresh the page.");
-      setCourses([]);
+      setFetchError(error?.message || "Failed to load courses. Please check your connection and try again.");
+      if (!isRetry) {
+        setTimeout(() => fetchCourses(true), 1200);
+      }
     } finally {
       setLoading(false);
     }
@@ -719,8 +726,24 @@ export default function StudentCourses() {
           </motion.div>
         )}
 
-        {/* Courses Grid */}
-        {filteredCourses.length === 0 ? (
+        {/* Courses Grid / Error / Empty state */}
+        {fetchError ? (
+          <div className="bg-amber-50/90 rounded-2xl p-8 md:p-12 border border-amber-200 text-center shadow-sm max-w-lg mx-auto my-8 space-y-3">
+            <FiAlertCircle className="w-12 h-12 text-amber-600 mx-auto mb-1" />
+            <h3 className="text-lg font-bold text-slate-900">Unable to load courses</h3>
+            <p className="text-sm text-slate-600 leading-relaxed">{fetchError}</p>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => fetchCourses(true)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 transition shadow-sm"
+              >
+                <FiRefreshCw className="w-4 h-4" />
+                Retry Loading Courses
+              </button>
+            </div>
+          </div>
+        ) : filteredCourses.length === 0 ? (
           <div className="bg-white rounded-lg p-12 border border-slate-200 text-center shadow-sm">
             <FiBookOpen className="w-16 h-16 text-slate-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-slate-900 mb-2">No courses found</h3>

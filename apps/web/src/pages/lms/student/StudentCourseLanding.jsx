@@ -241,10 +241,10 @@ export default function StudentCourseLanding() {
       const courseSlugNorm = normSlug(courseSlug);
       // Fetch list and course detail in parallel so page loads faster
       const [listRes, detailRes] = await Promise.all([
-        apiFetch("/api/v1/student/courses", { token }).catch(() => ({ data: [] })),
+        apiFetch("/api/v1/student/courses", { token }).catch(() => null),
         apiFetch(`/api/v1/student/courses/${courseSlug}`, { token }).catch(() => null),
       ]);
-      const coursesList = listRes?.data ?? [];
+      const coursesList = Array.isArray(listRes?.data) ? listRes.data : (Array.isArray(listRes) ? listRes : []);
       const courseFromList = coursesList.find(
         (c) => normSlug(c.slug) === courseSlugNorm || c.slug === courseSlug || normSlug(c.slug).startsWith(courseSlugNorm) || courseSlugNorm.startsWith(normSlug(c.slug))
       );

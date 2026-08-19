@@ -4,7 +4,35 @@ const { pool } = require("./pool");
 const QUERY_TIMEOUT_MS = 15_000;
 
 async function query(text, params = []) {
-  return pool.query(text, params);
+  let attempts = 0;
+  const maxAttempts = 3;
+  while (attempts < maxAttempts) {
+    try {
+      attempts++;
+      return await pool.query(text, params);
+    } catch (err) {
+      const msg = String(err?.message || "").toLowerCase();
+      const code = String(err?.code || "");
+      const isTransient =
+        code === "57P01" ||
+        code === "57P02" ||
+        code === "57P03" ||
+        code === "08006" ||
+        code === "08001" ||
+        code === "08004" ||
+        code === "ECONNRESET" ||
+        code === "ETIMEDOUT" ||
+        msg.includes("timeout exceeded when fetching a client") ||
+        msg.includes("connection terminated");
+
+      if (isTransient && attempts < maxAttempts) {
+        console.warn(`[db/query] Transient DB error (attempt ${attempts}/${maxAttempts}), retrying in ${150 * attempts}ms...`, err.message);
+        await new Promise((resolve) => setTimeout(resolve, 150 * attempts));
+        continue;
+      }
+      throw err;
+    }
+  }
 }
 
 async function getClient() {
