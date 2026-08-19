@@ -118,7 +118,7 @@ function SectionUseCase({ data }) {
 function SectionBadPrompt({ data }) {
   return (
     <SectionWrapper id="sec-bad-prompt">
-      <div className="space-y-1">
+      <div className="space-y-3">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
             <FiAlertTriangle className="w-4 h-4 text-red-500" />
@@ -127,6 +127,16 @@ function SectionBadPrompt({ data }) {
           <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs font-semibold rounded-full">Avoid This</span>
         </div>
         <PromptBlock label="Prompt" content={data.prompt} variant="bad" />
+        {data.imageGallery?.beginner?.length > 0 && (
+          <div className="mt-3">
+            <ImageBelowPrompt urls={data.imageGallery.beginner} variant="beginner" />
+          </div>
+        )}
+        {data.videoGallery?.beginner && (
+          <div className="mt-3">
+            <VideoBelowPrompt url={data.videoGallery.beginner} variant="beginner" />
+          </div>
+        )}
       </div>
     </SectionWrapper>
   );
@@ -175,7 +185,7 @@ function SectionWhyFailed({ data }) {
 function SectionGoodPrompt({ data }) {
   return (
     <SectionWrapper id="sec-good-prompt">
-      <div className="space-y-1">
+      <div className="space-y-3">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
             <FiCheckCircle className="w-4 h-4 text-emerald-500" />
@@ -188,6 +198,16 @@ function SectionGoodPrompt({ data }) {
           <p className="text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1">
             <FiZap className="w-3 h-3" /> Framework: {data.framework_used}
           </p>
+        )}
+        {data.imageGallery?.pro?.length > 0 && (
+          <div className="mt-3">
+            <ImageBelowPrompt urls={data.imageGallery.pro} variant="pro" />
+          </div>
+        )}
+        {data.videoGallery?.pro && (
+          <div className="mt-3">
+            <VideoBelowPrompt url={data.videoGallery.pro} variant="pro" />
+          </div>
         )}
       </div>
     </SectionWrapper>
@@ -214,7 +234,7 @@ function SectionGoodOutput({ data }) {
 function SectionUpgrade({ data }) {
   return (
     <SectionWrapper id="sec-upgrade">
-      <div className="bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-5">
+      <div className="bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-5 space-y-3">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center">
             <FiZap className="w-4 h-4 text-violet-600" />
@@ -224,6 +244,16 @@ function SectionUpgrade({ data }) {
         </div>
         <PromptBlock label="Upgraded Prompt" content={data.prompt} variant="upgrade" />
         <p className="mt-3 text-sm text-violet-700 font-medium">{data.what_changed}</p>
+        {data.imageGallery?.levelUp?.length > 0 && (
+          <div className="mt-3">
+            <ImageBelowPrompt urls={data.imageGallery.levelUp} variant="levelUp" />
+          </div>
+        )}
+        {data.videoGallery?.levelUp && (
+          <div className="mt-3">
+            <VideoBelowPrompt url={data.videoGallery.levelUp} variant="levelUp" />
+          </div>
+        )}
       </div>
     </SectionWrapper>
   );
@@ -443,6 +473,11 @@ const IMAGE_PROMPTING_GALLERY = {
     pro: ["https://res.cloudinary.com/da2wrgabu/image/upload/v1772967320/ChatGPT_Image_Mar_8_2026_04_14_15_PM_mrkb19.png"],
     levelUp: ["https://res.cloudinary.com/da2wrgabu/image/upload/v1772967319/ChatGPT_Image_Mar_8_2026_04_14_17_PM_o2zf6m.png"],
   },
+  "character-consistency": {
+    beginner: ["https://res.cloudinary.com/da2wrgabu/image/upload/v1772967320/ChatGPT_Image_Mar_8_2026_04_14_12_PM_sthded.png"],
+    pro: ["https://res.cloudinary.com/da2wrgabu/image/upload/v1772967320/ChatGPT_Image_Mar_8_2026_04_14_15_PM_mrkb19.png"],
+    levelUp: ["https://res.cloudinary.com/da2wrgabu/image/upload/v1772967319/ChatGPT_Image_Mar_8_2026_04_14_17_PM_o2zf6m.png"],
+  },
 };
 
 // Inline image block: sits directly below a prompt section, same layout/style as that section.
@@ -520,7 +555,17 @@ const VIDEO_SCRIPT_GALLERY = {
     pro: "https://res.cloudinary.com/da2wrgabu/video/upload/v1772973007/Firefly_--Morning_Routine---_1._Close-up_of_alarm_clock_at_7-00_AM_hand_reaching_to_turn_it_off_2s_pytkpa.mp4",
     levelUp: "https://res.cloudinary.com/da2wrgabu/video/upload/v1772973006/Firefly_-_Shot_ID_-_Category_-_Description_with_Specific_Visual_Details_-_Shot_Type_Camera_Movemen_wgsymf.mp4",
   },
+  "shot-list-b-roll": {
+    beginner: "https://res.cloudinary.com/da2wrgabu/video/upload/v1772973007/Firefly_1._Show_someone_typing_code_2._Show_a_computer_screen_3._Show_books__Generic_boring_unspec_wc6vnn.mp4",
+    pro: "https://res.cloudinary.com/da2wrgabu/video/upload/v1772973007/Firefly_--Morning_Routine---_1._Close-up_of_alarm_clock_at_7-00_AM_hand_reaching_to_turn_it_off_2s_pytkpa.mp4",
+    levelUp: "https://res.cloudinary.com/da2wrgabu/video/upload/v1772973006/Firefly_-_Shot_ID_-_Category_-_Description_with_Specific_Visual_Details_-_Shot_Type_Camera_Movemen_wgsymf.mp4",
+  },
   "captions-onscreen-text": {
+    beginner: "https://res.cloudinary.com/da2wrgabu/video/upload/v1772972998/Firefly_Just_a_transcript_of_the_spoken_words_--_no_formatting_no_emphasis_no_timing_no_visual_t_xeuxig.mp4",
+    pro: "https://res.cloudinary.com/da2wrgabu/video/upload/v1772973000/Firefly_--CLOSED_CAPTIONS---__0-00_NASA_uses_PYTHON.__0-02_INSTAGRAM_uses_Python.__0-03_And_you_c_penqlg.mp4",
+    levelUp: "https://res.cloudinary.com/da2wrgabu/video/upload/v1772973001/Firefly_Video_Script_with_Text_Overlay_Plan_--Scene_Description---_A_man_is_standing_against_an_virpta.mp4",
+  },
+  "captions-on-screen-text": {
     beginner: "https://res.cloudinary.com/da2wrgabu/video/upload/v1772972998/Firefly_Just_a_transcript_of_the_spoken_words_--_no_formatting_no_emphasis_no_timing_no_visual_t_xeuxig.mp4",
     pro: "https://res.cloudinary.com/da2wrgabu/video/upload/v1772973000/Firefly_--CLOSED_CAPTIONS---__0-00_NASA_uses_PYTHON.__0-02_INSTAGRAM_uses_Python.__0-03_And_you_c_penqlg.mp4",
     levelUp: "https://res.cloudinary.com/da2wrgabu/video/upload/v1772973001/Firefly_Video_Script_with_Text_Overlay_Plan_--Scene_Description---_A_man_is_standing_against_an_virpta.mp4",
@@ -531,6 +576,18 @@ const VIDEO_SCRIPT_GALLERY = {
     levelUp: "https://res.cloudinary.com/da2wrgabu/video/upload/v1772972997/Firefly_1._30-SECOND_TEMPLATE_Reels-Shorts_-__Hook_0-3s_-_SHOCKING_STATEMENT___One_Big_Point_3-2_jemvvz.mp4",
   },
 };
+
+function isImagePromptingModule(slug) {
+  if (!slug) return false;
+  const s = String(slug).toLowerCase().replace(/_/g, "-");
+  return s === "image-prompting" || s === "m5-image-prompting" || s.includes("image-prompt");
+}
+
+function isVideoScriptsModule(slug) {
+  if (!slug) return false;
+  const s = String(slug).toLowerCase().replace(/_/g, "-");
+  return s === "video-scripts" || s === "m6-video-scripts" || s.includes("video-script") || s.includes("video-prompt");
+}
 
 function VideoBelowPrompt({ url, variant }) {
   if (!url) return null;
@@ -805,18 +862,70 @@ const SECTION_RENDERERS = {
   "SEC-DICT-ENTRY": SectionDictEntry,
 };
 
+function resolveGalleries(lessonSlug, moduleSlug, sections) {
+  const modNorm = moduleSlug ? String(moduleSlug).toLowerCase().replace(/_/g, "-") : "";
+  const lesNorm = lessonSlug ? String(lessonSlug).toLowerCase().replace(/_/g, "-") : "";
+
+  let imageGallery = (lesNorm && IMAGE_PROMPTING_GALLERY[lesNorm]) || (lessonSlug && IMAGE_PROMPTING_GALLERY[lessonSlug]) || null;
+  let videoGallery = (lesNorm && VIDEO_SCRIPT_GALLERY[lesNorm]) || (lessonSlug && VIDEO_SCRIPT_GALLERY[lessonSlug]) || null;
+
+  // Module guard
+  if (modNorm.includes("video")) {
+    imageGallery = null;
+  }
+  if (modNorm.includes("image")) {
+    videoGallery = null;
+  }
+
+  // Combined text fallback if neither gallery was matched by slug
+  if (!imageGallery && !videoGallery) {
+    const combinedText = [
+      lesNorm,
+      modNorm,
+      ...(Array.isArray(sections) ? sections.map(s => {
+        const d = s?.data ?? s;
+        return [d?.headline, d?.prompt, d?.scenario, d?.task].join(" ");
+      }) : [])
+    ].filter(Boolean).join(" ").toLowerCase();
+
+    // Check if lesson is an Image Prompting lesson
+    if (modNorm.includes("image") || combinedText.includes("image-prompt") || combinedText.includes("composition") || combinedText.includes("lighting") || combinedText.includes("consistency")) {
+      if (combinedText.includes("formula") || combinedText.includes("image-prompt-formula")) {
+        imageGallery = IMAGE_PROMPTING_GALLERY["image-prompt-formula"];
+      } else if (combinedText.includes("composition")) {
+        imageGallery = IMAGE_PROMPTING_GALLERY["composition-control"];
+      } else if (combinedText.includes("style") || combinedText.includes("lighting")) {
+        imageGallery = IMAGE_PROMPTING_GALLERY["style-lighting-control"];
+      } else if (combinedText.includes("consistency") || combinedText.includes("character")) {
+        imageGallery = IMAGE_PROMPTING_GALLERY["character-consistency"];
+      } else if (combinedText.includes("fix") || combinedText.includes("bad image") || combinedText.includes("iterate")) {
+        imageGallery = IMAGE_PROMPTING_GALLERY["iterate-fix-bad-images"];
+      }
+    }
+
+    // Check if lesson is a Video Scripts lesson
+    if (modNorm.includes("video") || combinedText.includes("video-script") || combinedText.includes("storyboard") || combinedText.includes("b-roll") || combinedText.includes("caption")) {
+      if (combinedText.includes("hook") || combinedText.includes("script-template")) {
+        videoGallery = VIDEO_SCRIPT_GALLERY["hook-script-template"];
+      } else if (combinedText.includes("storyboard")) {
+        videoGallery = VIDEO_SCRIPT_GALLERY["script-to-storyboard"];
+      } else if (combinedText.includes("shot") || combinedText.includes("b-roll") || combinedText.includes("broll")) {
+        videoGallery = VIDEO_SCRIPT_GALLERY["shot-list-b-roll"];
+      } else if (combinedText.includes("caption") || combinedText.includes("on-screen") || combinedText.includes("onscreen")) {
+        videoGallery = VIDEO_SCRIPT_GALLERY["captions-on-screen-text"];
+      } else if (combinedText.includes("30") || combinedText.includes("45") || combinedText.includes("60") || combinedText.includes("template")) {
+        videoGallery = VIDEO_SCRIPT_GALLERY["30-45-60-sec-templates"];
+      }
+    }
+  }
+
+  return { imageGallery, videoGallery };
+}
+
 export default function PromptEngineeringSections({ sections, lessonSlug, moduleSlug }) {
   if (!sections || !Array.isArray(sections)) return null;
 
-  const imageGalleryConfig =
-    moduleSlug === IMAGE_PROMPTING_MODULE_SLUG && lessonSlug && IMAGE_PROMPTING_GALLERY[lessonSlug]
-      ? IMAGE_PROMPTING_GALLERY[lessonSlug]
-      : null;
-
-  const videoGalleryConfig =
-    moduleSlug === VIDEO_SCRIPT_MODULE_SLUG && lessonSlug && VIDEO_SCRIPT_GALLERY[lessonSlug]
-      ? VIDEO_SCRIPT_GALLERY[lessonSlug]
-      : null;
+  const { imageGallery, videoGallery } = resolveGalleries(lessonSlug, moduleSlug, sections);
 
   return (
     <div className="space-y-5">
@@ -824,78 +933,15 @@ export default function PromptEngineeringSections({ sections, lessonSlug, module
         if (!sec || typeof sec !== "object") return null;
         const Renderer = SECTION_RENDERERS[sec.type];
         if (!Renderer) return null;
-        const sectionData = sec.data ?? sec;
-        const el = <Renderer key={`${sec.type}-${i}`} data={sectionData} />;
 
-        // Image prompting: show images below Beginner / Pro / Level Up prompt sections
-        if (imageGalleryConfig) {
-          if (sec.type === "SEC-03_BAD_PROMPT" && imageGalleryConfig.beginner?.length > 0) {
-            return (
-              <div key={`${sec.type}-${i}-with-img`}>
-                {el}
-                <div className="mt-2">
-                  <ImageBelowPrompt urls={imageGalleryConfig.beginner} variant="beginner" />
-                </div>
-              </div>
-            );
-          }
-          if (sec.type === "SEC-06_GOOD_PROMPT" && imageGalleryConfig.pro?.length > 0) {
-            return (
-              <div key={`${sec.type}-${i}-with-img`}>
-                {el}
-                <div className="mt-2">
-                  <ImageBelowPrompt urls={imageGalleryConfig.pro} variant="pro" />
-                </div>
-              </div>
-            );
-          }
-          if (sec.type === "SEC-08_UPGRADE_PROMPT" && imageGalleryConfig.levelUp?.length > 0) {
-            return (
-              <div key={`${sec.type}-${i}-with-img`}>
-                {el}
-                <div className="mt-2">
-                  <ImageBelowPrompt urls={imageGalleryConfig.levelUp} variant="levelUp" />
-                </div>
-              </div>
-            );
-          }
-        }
+        const baseData = sec.data ?? sec;
+        const sectionData = {
+          ...baseData,
+          imageGallery,
+          videoGallery,
+        };
 
-        // Video script: show reference videos below Beginner / Pro / Level Up prompt sections
-        if (videoGalleryConfig) {
-          if (sec.type === "SEC-03_BAD_PROMPT" && videoGalleryConfig.beginner) {
-            return (
-              <div key={`${sec.type}-${i}-with-video`}>
-                {el}
-                <div className="mt-2">
-                  <VideoBelowPrompt url={videoGalleryConfig.beginner} variant="beginner" />
-                </div>
-              </div>
-            );
-          }
-          if (sec.type === "SEC-06_GOOD_PROMPT" && videoGalleryConfig.pro) {
-            return (
-              <div key={`${sec.type}-${i}-with-video`}>
-                {el}
-                <div className="mt-2">
-                  <VideoBelowPrompt url={videoGalleryConfig.pro} variant="pro" />
-                </div>
-              </div>
-            );
-          }
-          if (sec.type === "SEC-08_UPGRADE_PROMPT" && videoGalleryConfig.levelUp) {
-            return (
-              <div key={`${sec.type}-${i}-with-video`}>
-                {el}
-                <div className="mt-2">
-                  <VideoBelowPrompt url={videoGalleryConfig.levelUp} variant="levelUp" />
-                </div>
-              </div>
-            );
-          }
-        }
-
-        return el;
+        return <Renderer key={`${sec.type}-${i}`} data={sectionData} />;
       })}
     </div>
   );

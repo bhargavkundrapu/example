@@ -188,7 +188,7 @@ async function listByStatus({ tenantId, status = "pending" }) {
      LEFT JOIN course_packs p ON a.item_type = 'pack' AND p.id = a.item_id
      WHERE a.tenant_id = $1 AND a.status = $2
      ORDER BY a.created_at DESC
-     LIMIT 50`,
+     LIMIT 500`,
     [tenantId, status]
   );
   return rows;

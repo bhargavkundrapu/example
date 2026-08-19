@@ -1207,8 +1207,8 @@ export default function StudentLesson() {
                   <div className="px-4 md:px-8 pt-4 md:pt-6 pb-4 md:pb-8">
                     <PromptEngineeringSections
                       sections={steps}
-                      lessonSlug={lessonSlug}
-                      moduleSlug={moduleSlug}
+                      lessonSlug={lessonSlug || lesson?.slug}
+                      moduleSlug={moduleSlug || lesson?.module_slug}
                     />
                   </div>
                 );
@@ -1582,54 +1582,7 @@ export default function StudentLesson() {
               </div>
             )}
 
-              {/* Success view - after learn and setup */}
-              {(() => {
-                const urls = Array.isArray(lesson?.success_image_urls) && lesson.success_image_urls.length > 0
-                  ? lesson.success_image_urls
-                  : (lesson?.success_image_url ? [lesson.success_image_url] : []);
-                if (urls.length === 0) return null;
-                const currentIndex = Math.min(selectedSuccessImageIndex, urls.length - 1);
-                const currentUrl = urls[currentIndex];
-                return (
-                  <div className="px-4 md:px-8 pb-4 md:pb-8">
-                    <div className="mt-4 md:mt-8">
-                      <h3 className="text-lg font-semibold text-slate-900 mb-3">Success looks like</h3>
-                      {urls.length > 1 && (
-                        <div className="flex items-center gap-2 mb-3">
-                          {urls.map((_, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => setSelectedSuccessImageIndex(idx)}
-                              className={`w-9 h-9 rounded-md text-sm font-semibold transition-colors ${
-                                idx === currentIndex
-                                  ? "bg-slate-900 text-white"
-                                  : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                              }`}
-                            >
-                              {idx + 1}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      <div className="overflow-hidden border border-slate-200 shadow-lg">
-                        <img
-                          src={currentUrl}
-                          alt={`Success example ${currentIndex + 1}`}
-                          className="w-full h-auto"
-                          onError={(e) => {
-                            e.target.style.display = "none";
-                            if (e.target.nextSibling) e.target.nextSibling.style.display = "block";
-                          }}
-                        />
-                        <div className="hidden bg-slate-100 p-8 text-center text-slate-500">
-                          <p>Image failed to load</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
+
 
               {/* VC bottom sections (learning + closing)-after success images */}
               {(() => {
