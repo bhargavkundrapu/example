@@ -20,6 +20,7 @@ type HeaderProps = {
 const ACADEMY_LINKS: NavLink[] = [
 	{ label: 'Home', href: '/academy' },
 	{ label: 'Courses', href: '/courses' },
+	{ label: 'Internships', href: '/internships' },
 	{ label: 'Features', href: '/academy#features' },
 	{ label: 'Contact', href: '/contact' },
 	{ label: 'Solutions', href: '/solutions' },

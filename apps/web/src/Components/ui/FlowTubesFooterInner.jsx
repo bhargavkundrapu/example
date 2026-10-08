@@ -48,6 +48,9 @@ export default function FlowTubesFooterInner({
           <Link to="/courses" className="underline underline-offset-4 hover:text-white/80">
             Courses
           </Link>
+          <Link to="/internships" className="underline underline-offset-4 hover:text-white/80">
+            Internships
+          </Link>
           <Link to="/solutions" className="underline underline-offset-4 hover:text-white/80">
             Solutions
           </Link>

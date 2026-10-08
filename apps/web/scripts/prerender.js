@@ -43,6 +43,7 @@ const PUBLIC_ROUTES = [
   '/features/jobs-search-hub',
   '/features/startup-launchpad',
   '/contact',
+  '/internships',
   '/presentation',
   '/privacy-policy',
   '/terms-and-conditions',
@@ -287,12 +288,49 @@ function generateSemanticContent(route, courseData, blogData) {
           <li><a href="/academy">Academy Home</a></li>
           <li><a href="/academy/college-overview">College Overview</a></li>
           <li><a href="/courses">All Courses</a></li>
+          <li><a href="/internships">AICTE Internships & Credits</a></li>
           <li><a href="/solutions">Solutions Business Services</a></li>
           <li><a href="/blog">Academy Blog</a></li>
           <li><a href="/contact">Contact Support</a></li>
           <li><a href="/privacy-policy">Privacy Policy</a></li>
           <li><a href="/terms-and-conditions">Terms & Conditions</a></li>
         </ul>
+      </main>
+    `;
+  } else if (route === '/internships') {
+    html += `
+      <header>
+        <h1>AICTE-Approved Technical Internships & Academic Credits</h1>
+        <p>ExpoGraph Academy - MCA & MSME Recognized Organization</p>
+      </header>
+      <main>
+        <section>
+          <h2>Academic Credit Framework (AICTE & NEP 2020)</h2>
+          <p>Earn 4 to 20 AICTE-mandated academic credits (1 credit = 40-45 hours) through structured, industry-mentored sprints in AI Automations, Vibe Coding, Full-Stack Web Development, and Generative AI.</p>
+          <ul>
+            <li>4 Weeks (160 Hours) - 4 AICTE Credits (Summer/Winter Sprint)</li>
+            <li>8 Weeks (320 Hours) - 8 AICTE Credits (Mid-Degree Semester Break)</li>
+            <li>12 Weeks (480 Hours) - 12 AICTE Credits (Capstone Project Track)</li>
+            <li>24 Weeks (960 Hours) - 20 AICTE Credits (Full-Semester Industry Immersion)</li>
+          </ul>
+        </section>
+        <section>
+          <h2>7 Mandatory AICTE Compliance Deliverables</h2>
+          <ul>
+            <li>Institutional No Objection Certificate (NOC) Protocol</li>
+            <li>Formal Stamped Offer Letter on Corporate Letterhead</li>
+            <li>AICTE Clause 5.3 Daily Activity Diary & Weekly Logbook</li>
+            <li>75%+ Verified Attendance & Milestone Audits</li>
+            <li>Comprehensive Capstone Project Report for Viva</li>
+            <li>100-Point Industry Performance Evaluation Rubric</li>
+            <li>Verifiable Certificate with Unique ID & Online Verification URL</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Accreditation & Statutory Verification</h2>
+          <p>Host Organization: ExpoGraph (Formally registered under the Companies Act, MCA, and MSME Udyam Verified, Government of India).</p>
+          <p><a href="/contact">Contact TPO & Verification Desk</a></p>
+        </section>
       </main>
     `;
   } else {

@@ -421,6 +421,52 @@ export function resolveSeo(pathname) {
     };
   }
 
+  if (path === "/internships") {
+    return {
+      title: "AICTE Approved Internships & Academic Credits | ExpoGraph",
+      description:
+        "AICTE-compliant, credit-bearing technical internships in AI Automations, Vibe Coding, and Generative AI. Official MCA & MSME registered organization with dual mentorship, Clause 5.3 daily logbooks, attendance audits, and verifiable certificates.",
+      robots,
+      canonicalPath: path,
+      jsonLd: {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "EducationalOccupationalProgram",
+            "@id": `${getSiteOrigin()}/internships#program`,
+            "name": "AICTE-Compliant Technical Internship Program",
+            "description":
+              "Academic credit-bearing industry internships for B.Tech, MCA, and Diploma students aligned with AICTE Internship Policy and NEP 2020.",
+            "provider": {
+              "@type": "EducationalOrganization",
+              "name": "ExpoGraph",
+              "url": getSiteOrigin()
+            },
+            "educationalCredentialAwarded": "AICTE Aligned Verifiable Internship Certificate"
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": `${getSiteOrigin()}/internships#breadcrumb`,
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": `${getSiteOrigin()}/`
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "AICTE Internships",
+                "item": `${getSiteOrigin()}/internships`
+              }
+            ]
+          }
+        ]
+      },
+    };
+  }
+
   if (path === "/presentation") {
     return {
       title: "Product Presentation | ExpoGraph",

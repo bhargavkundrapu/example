@@ -59,6 +59,7 @@ import PresentationPage from "../pages/presentation/PresentationPage";
 import BlogPage from "../pages/blog/BlogPage";
 import BlogPostPage from "../pages/blog/BlogPostPage";
 import SitemapPage from "../pages/sitemap/SitemapPage";
+import InternshipsPage from "../pages/internships/InternshipsPage";
 
 import SuperAdminHome from "../pages/lms/superadmin/SuperAdminHome";
 import SuperAdminCourses from "../pages/lms/superadmin/SuperAdminCourses";
@@ -205,7 +206,7 @@ function RouteAwareFallback() {
   if (pathname === "/login" || pathname === "/adminlogin") return <AuthRouteSkeleton />;
   if (pathname === "/courses" || pathname === "/courses/allpack") return <CoursesPageSkeleton />;
   if (pathname.startsWith("/courses/")) return <CourseDetailRouteSkeleton />;
-  if (pathname === "/contact") return <ContactRouteSkeleton />;
+  if (pathname === "/contact" || pathname === "/internships") return <ContactRouteSkeleton />;
   if (pathname.startsWith("/features/")) return <CourseDetailRouteSkeleton />;
   if (pathname === "/privacy-policy" || pathname === "/terms-and-conditions" || pathname === "/sitemap" || pathname.startsWith("/blog")) return <LegalRouteSkeleton />;
   if (pathname === "/account-pending" || pathname === "/payment-failure") return <AuthRouteSkeleton />;
@@ -296,6 +297,7 @@ export const router = createBrowserRouter([
       { path: "/courses/:slug", element: <L><CourseDetailPage /></L> },
       { path: "/features/:slug", element: <L><FeatureDetailPage /></L> },
       { path: "/contact", element: <L><ContactPage /></L> },
+      { path: "/internships", element: <L><InternshipsPage /></L> },
       { path: "/demo/course-sidebar", element: <L><CourseContentsSidebarDemo /></L> },
       { path: "/presentation", element: <L><PresentationPage /></L> },
       { path: "/deck", element: <Navigate to="/presentation" replace /> },
