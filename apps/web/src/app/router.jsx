@@ -206,7 +206,7 @@ function RouteAwareFallback() {
   if (pathname === "/login" || pathname === "/adminlogin") return <AuthRouteSkeleton />;
   if (pathname === "/courses" || pathname === "/courses/allpack") return <CoursesPageSkeleton />;
   if (pathname.startsWith("/courses/")) return <CourseDetailRouteSkeleton />;
-  if (pathname === "/contact" || pathname === "/internships") return <ContactRouteSkeleton />;
+  if (pathname === "/contact" || pathname === "/internship" || pathname === "/internships") return <ContactRouteSkeleton />;
   if (pathname.startsWith("/features/")) return <CourseDetailRouteSkeleton />;
   if (pathname === "/privacy-policy" || pathname === "/terms-and-conditions" || pathname === "/sitemap" || pathname.startsWith("/blog")) return <LegalRouteSkeleton />;
   if (pathname === "/account-pending" || pathname === "/payment-failure") return <AuthRouteSkeleton />;
@@ -297,7 +297,8 @@ export const router = createBrowserRouter([
       { path: "/courses/:slug", element: <L><CourseDetailPage /></L> },
       { path: "/features/:slug", element: <L><FeatureDetailPage /></L> },
       { path: "/contact", element: <L><ContactPage /></L> },
-      { path: "/internships", element: <L><InternshipsPage /></L> },
+      { path: "/internship", element: <L><InternshipsPage /></L> },
+      { path: "/internships", element: <Navigate to="/internship" replace /> },
       { path: "/demo/course-sidebar", element: <L><CourseContentsSidebarDemo /></L> },
       { path: "/presentation", element: <L><PresentationPage /></L> },
       { path: "/deck", element: <Navigate to="/presentation" replace /> },

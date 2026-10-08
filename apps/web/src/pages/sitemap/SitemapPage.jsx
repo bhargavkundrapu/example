@@ -82,7 +82,7 @@ export default function SitemapPage() {
                   <Link to="/academy/college-overview" className="text-white/60 hover:text-purple-400 transition-colors">College &amp; Campus Brief</Link>
                 </li>
                 <li>
-                  <Link to="/internships" className="text-white/60 hover:text-cyan-400 transition-colors">AICTE Approved Internships &amp; Credits</Link>
+                  <Link to="/internship" className="text-white/60 hover:text-cyan-400 transition-colors">AICTE Approved Internships &amp; Credits</Link>
                 </li>
                 <li>
                   <Link to="/contact" className="text-white/60 hover:text-purple-400 transition-colors">Contact Support</Link>

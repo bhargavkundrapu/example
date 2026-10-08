@@ -43,6 +43,7 @@ const PUBLIC_ROUTES = [
   '/features/jobs-search-hub',
   '/features/startup-launchpad',
   '/contact',
+  '/internship',
   '/internships',
   '/presentation',
   '/privacy-policy',
@@ -288,7 +289,7 @@ function generateSemanticContent(route, courseData, blogData) {
           <li><a href="/academy">Academy Home</a></li>
           <li><a href="/academy/college-overview">College Overview</a></li>
           <li><a href="/courses">All Courses</a></li>
-          <li><a href="/internships">AICTE Internships & Credits</a></li>
+          <li><a href="/internship">AICTE Internships & Credits</a></li>
           <li><a href="/solutions">Solutions Business Services</a></li>
           <li><a href="/blog">Academy Blog</a></li>
           <li><a href="/contact">Contact Support</a></li>
@@ -297,7 +298,7 @@ function generateSemanticContent(route, courseData, blogData) {
         </ul>
       </main>
     `;
-  } else if (route === '/internships') {
+  } else if (route === '/internship' || route === '/internships') {
     html += `
       <header>
         <h1>AICTE-Approved Technical Internships & Academic Credits</h1>
