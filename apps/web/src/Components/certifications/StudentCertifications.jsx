@@ -87,49 +87,23 @@ function createSignatureDataUrl() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  ctx.translate(40, 30);
 
-  // Signature body tuned to match provided sample style.
-  ctx.strokeStyle = "#1e3a8a";
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  // "K"
-  ctx.moveTo(42, 118);
-  ctx.bezierCurveTo(72, 76, 100, 62, 120, 72);
-  ctx.bezierCurveTo(104, 84, 92, 96, 82, 112);
-  ctx.bezierCurveTo(92, 126, 106, 132, 124, 126);
-  ctx.moveTo(114, 96);
-  ctx.bezierCurveTo(140, 78, 164, 64, 186, 52);
-  ctx.moveTo(116, 96);
-  ctx.bezierCurveTo(144, 118, 170, 134, 206, 146);
-  // "."
-  ctx.moveTo(216, 116);
-  ctx.bezierCurveTo(220, 112, 224, 112, 226, 116);
-  // "Bhargav" connected
-  ctx.moveTo(256, 126);
-  ctx.bezierCurveTo(272, 84, 298, 76, 314, 102);
-  ctx.bezierCurveTo(324, 122, 310, 140, 288, 136);
-  ctx.moveTo(312, 104);
-  ctx.bezierCurveTo(330, 78, 360, 82, 370, 106);
-  ctx.bezierCurveTo(380, 132, 404, 136, 420, 112);
-  ctx.bezierCurveTo(438, 88, 462, 90, 470, 114);
-  ctx.bezierCurveTo(480, 138, 506, 138, 526, 112);
-  ctx.bezierCurveTo(540, 94, 552, 100, 566, 118);
-  ctx.bezierCurveTo(582, 142, 592, 168, 580, 182); // g loop down
-  ctx.bezierCurveTo(566, 194, 548, 176, 560, 158);
-  ctx.bezierCurveTo(578, 132, 618, 120, 654, 120); // a/v tail
-  ctx.stroke();
+  // Signature text for S. Khadar
+  ctx.fillStyle = "#1e3a8a";
+  ctx.font = "italic 600 64px 'Brush Script MT', 'Dancing Script', 'Caveat', 'Segoe Script', cursive, serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("S. Khadar", canvas.width / 2, 85);
 
-  // Long underline flourish as in sample.
+  // Signature underline flourish
   ctx.strokeStyle = "#1e3a8a";
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.moveTo(82, 166);
-  ctx.bezierCurveTo(210, 176, 396, 168, 676, 146);
-  ctx.bezierCurveTo(690, 144, 706, 146, 716, 150);
-  // Small front swoosh
-  ctx.moveTo(74, 170);
-  ctx.bezierCurveTo(102, 152, 132, 148, 166, 164);
+  ctx.moveTo(canvas.width / 2 - 140, 132);
+  ctx.bezierCurveTo(canvas.width / 2 - 40, 145, canvas.width / 2 + 50, 138, canvas.width / 2 + 150, 122);
+  ctx.bezierCurveTo(canvas.width / 2 + 170, 120, canvas.width / 2 + 190, 122, canvas.width / 2 + 200, 126);
+  ctx.moveTo(canvas.width / 2 - 150, 138);
+  ctx.bezierCurveTo(canvas.width / 2 - 120, 122, canvas.width / 2 - 90, 118, canvas.width / 2 - 60, 134);
   ctx.stroke();
 
   return canvas.toDataURL("image/png");
@@ -530,7 +504,7 @@ export default function StudentCertifications() {
         doc.setFont("times", "italic");
         doc.setTextColor(30, 41, 59);
         doc.setFontSize(26);
-        doc.text("K Bhargav", pageWidth / 2, signY - 14, { align: "center" });
+        doc.text("S Khadar", pageWidth / 2, signY - 14, { align: "center" });
       }
 
       doc.setDrawColor(100, 116, 139);

@@ -11,8 +11,8 @@ const CONTACT_INFO = [
   {
     icon: FiMail,
     label: "Email",
-    value: "kundrapu.bhargav@expograph.in",
-    href: "mailto:kundrapu.bhargav@expograph.in",
+    value: "khadar.shaik@expograph.in",
+    href: "mailto:khadar.shaik@expograph.in",
     color: "from-violet-400 to-fuchsia-400",
   },
   {

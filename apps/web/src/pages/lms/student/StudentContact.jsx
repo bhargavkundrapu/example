@@ -71,7 +71,7 @@ export default function StudentContact() {
         {/* Quick contact cards */}
         <div className="grid grid-cols-2 gap-3 mb-6 sm:mb-8">
           <a
-            href="mailto:kundrapu.bhargav@expograph.in"
+            href="mailto:khadar.shaik@expograph.in"
             className={`flex items-center gap-3 rounded-xl border p-3.5 sm:p-4 transition-all group ${isDark ? "bg-slate-800 border-slate-700 hover:bg-slate-700 hover:border-slate-600" : "bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300"}`}
           >
             <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${isDark ? "bg-violet-500/20" : "bg-violet-100"}`}>
@@ -79,7 +79,7 @@ export default function StudentContact() {
             </div>
             <div className="min-w-0">
               <p className={`text-[11px] uppercase tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>Email</p>
-              <p className={`text-xs sm:text-sm transition-colors truncate ${isDark ? "text-slate-300 group-hover:text-white" : "text-slate-600 group-hover:text-slate-900"}`}>kundrapu.bhargav@expograph.in</p>
+              <p className={`text-xs sm:text-sm transition-colors truncate ${isDark ? "text-slate-300 group-hover:text-white" : "text-slate-600 group-hover:text-slate-900"}`}>khadar.shaik@expograph.in</p>
             </div>
           </a>
           <a

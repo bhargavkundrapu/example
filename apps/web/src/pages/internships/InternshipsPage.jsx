@@ -314,7 +314,7 @@ const FAQS = [
   },
   {
     q: "Can college Training & Placement Officers (TPOs) or HODs verify our certificates online?",
-    a: "Absolutely. Every ExpoGraph certificate carries a unique cryptographically generated Certificate ID and an encoded QR code linking to expograph.in. TPOs, HODs, or university verification desks can verify student details, duration, domain, and completion status 24/7. Additionally, official verification emails from university administrative desks are addressed within 24 hours at kundrapu.bhargav@expograph.in.",
+    a: "Absolutely. Every ExpoGraph certificate carries a unique cryptographically generated Certificate ID and an encoded QR code linking to expograph.in. TPOs, HODs, or university verification desks can verify student details, duration, domain, and completion status 24/7. Additionally, official verification emails from university administrative desks are addressed within 24 hours at khadar.shaik@expograph.in.",
   },
   {
     q: "Are virtual / remote internships permitted under AICTE guidelines?",
@@ -322,7 +322,7 @@ const FAQS = [
   },
   {
     q: "How can our college or university sign an institutional MoU with ExpoGraph?",
-    a: "Colleges, Universities, and TPO departments can initiate an Institutional Memorandum of Understanding (MoU) with ExpoGraph for batch-wise student onboarding, customized branch curriculums, and direct faculty coordination. Use the Institutional MoU Request tab on this page or email us at kundrapu.bhargav@expograph.in to receive the draft MoU document.",
+    a: "Colleges, Universities, and TPO departments can initiate an Institutional Memorandum of Understanding (MoU) with ExpoGraph for batch-wise student onboarding, customized branch curriculums, and direct faculty coordination. Use the Institutional MoU Request tab on this page or email us at khadar.shaik@expograph.in to receive the draft MoU document.",
   },
 ];
 

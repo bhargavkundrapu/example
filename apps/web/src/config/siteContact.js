@@ -2,7 +2,7 @@ export const SITE_CONTACT = {
   phoneDisplay: "+91 90141 10638",
   phoneE164: "+919014110638",
   whatsappNumber: "919014110638",
-  email: "kundrapu.bhargav@expograph.in",
+  email: "khadar.shaik@expograph.in",
   addressLine: "Visakhapatnam, India",
   responseTime: "Within 24 hours",
   socials: {
