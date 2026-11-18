@@ -240,7 +240,7 @@ export const MASTER_DECK: DeckSection[] = [
     eyebrow: 'Trust',
     title: 'Built with visible trust signals',
     lines: [
-      'MCA and MSME recognition narrative as presented on ExpoGraph Academy.',
+      'AICTE, MCA, and MSME recognition narrative as presented on ExpoGraph Academy.',
       'Certificate flow: complete lessons, then request and verify.',
       'Curriculum positioning: designed with strong industry practitioners.',
     ],

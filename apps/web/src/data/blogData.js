@@ -100,7 +100,7 @@ Use AI as a senior developer and API integration partner.
 - **Chain-of-Thought Reasoning**: Force AI to show step-by-step logic for math, logic, and interview questions.
 - **Placement Toolkit**: ATS-friendly resume rewrites, LinkedIn optimization, STAR-format HR prep, and portfolio storytelling.
 
-*By completing this path, you earn an MCA- & MSME-recognised certificate that proves your ability to use AI tools and APIs at a professional standard.*
+*By completing this path, you earn an AICTE-approved, MCA- & MSME-recognised certificate that proves your ability to use AI tools and APIs at a professional standard.*
     `
   },
   "how-real-client-lab-works": {

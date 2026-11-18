@@ -13,7 +13,7 @@ import { TubesBackground } from "../../Components/ui/neon-flow";
 import FlowTubesFooterInner from "../../Components/ui/FlowTubesFooterInner";
 import { LazyMount } from "../../Components/LazyMount";
 import { GlowingEffect } from "../../Components/ui/glowing-effect";
-import { MCA_LOGO_URL, MSME_LOGO_URL } from "../../constants/trustLogos";
+import { MCA_LOGO_URL, MSME_LOGO_URL, AICTE_LOGO_URL } from "../../constants/trustLogos";
 
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
@@ -50,7 +50,7 @@ const reviewsRow1 = [
   { name: "Arjun S.", role: "Vibe Coding Student", text: "The Vibe Coding course taught me to build full apps using smart prompts. I shipped my first SaaS in 2 weeks-at ₹99, this is unreal.", rating: 5, highlight: "Vibe Coding" },
   { name: "Priya M.", role: "AI Automations Student", text: "The AI Automations course is next level. I automated my entire workflow and landed a freelance gig through Real Client Lab in 3 weeks.", rating: 5, highlight: "AI Automations" },
   { name: "Rahul K.", role: "CS Student, 3rd Year", text: "Paid ₹15,000 elsewhere for worse content. Vibe Coding + Prompt Engineering at ₹99 each? ExpoGraph is honestly criminal-in a good way.", rating: 5, highlight: "Unbeatable Value" },
-  { name: "Sneha D.", role: "Prompt Engineering Student", text: "Prompt Engineering taught me how to think like a 10x developer. The resume builder + MCA & MSME-recognised certificate helped me crack 3 interviews.", rating: 5, highlight: "Prompt Engineering" },
+  { name: "Sneha D.", role: "Prompt Engineering Student", text: "Prompt Engineering taught me how to think like a 10x developer. The resume builder + AICTE-approved, MCA & MSME-recognised certificate helped me crack 3 interviews.", rating: 5, highlight: "Prompt Engineering" },
   { name: "Karthik V.", role: "Startup Founder", text: "I built my entire MVP using Vibe Coding techniques from ExpoGraph. Saved me lakhs in hiring costs-all from a ₹99 course.", rating: 5, highlight: "Vibe Coding" },
   { name: "Meera J.", role: "B.Tech Student", text: "Took all 3 courses-Vibe Coding, Prompt Engineering, and AI Automations. Other platforms make you watch. ExpoGraph makes you BUILD.", rating: 5, highlight: "All 3 Courses" },
 ];
@@ -59,7 +59,7 @@ const reviewsRow2 = [
   { name: "Vikram T.", role: "Freelancer", text: "AI Automations + Real Client Lab = real portfolio pieces. Clients don't care about tutorials-they care about real work you've shipped.", rating: 5, highlight: "Real Client Lab" },
   { name: "Ananya R.", role: "BCA Student", text: "Started with Prompt Engineering, then Vibe Coding-went from zero to building full apps in 8 weeks. The structured lessons are brilliant.", rating: 5, highlight: "Zero to Builder" },
   { name: "Deepak P.", role: "Working Professional", text: "The Vibe Coding course respects your time. No fluff-just pure, actionable skills I use at my job daily. Worth every paisa.", rating: 5, highlight: "No Filler" },
-  { name: "Riya G.", role: "MCA Student", text: "The MCA & MSME-recognised certificate with a unique ID got me 2 interview calls in a week. Employers were genuinely impressed.", rating: 5, highlight: "Verified Certificate" },
+  { name: "Riya G.", role: "MCA Student", text: "The AICTE-approved, MCA & MSME-recognised certificate with a unique ID got me 2 interview calls in a week. Employers were genuinely impressed.", rating: 5, highlight: "Verified Certificate" },
   { name: "Aditya N.", role: "All-Access Pack User", text: "₹199 for all 3 courses-Vibe Coding, Prompt Engineering, AI Automations + Real Client Lab + Resume Builder. Best investment of my life.", rating: 5, highlight: "All-Access Pack" },
   { name: "Pooja S.", role: "Prompt Engineering Student", text: "Prompt Engineering changed everything. I'm 3x faster, building AI-powered tools, and charging premium freelance rates now.", rating: 5, highlight: "Prompt Engineering" },
 ];
@@ -115,7 +115,7 @@ const faqData = [
   { q: "What is the Real Client Lab?", a: "The Real Client Lab connects you with actual clients and real-world projects. You build, deliver, and grow your portfolio with work that matters-not just tutorials." },
   { q: "Do I get a Resume Builder?", a: "Yes! Our built-in Resume Builder helps you create a professional resume using your completed courses, projects, and Real Client Lab work-ready for employers." },
   { q: "How much does it cost?", a: "Each course (Vibe Coding, Prompt Engineering, AI Automations) starts at just ₹99 and our all-access course pack is only ₹199-that's all 3 courses + Real Client Lab + Resume Builder for less than a coffee." },
-  { q: "Do I get certificates?", a: "Absolutely. Every course you complete earns you a verifiable certificate with a unique ID-issued by ExpoGraph, a company recognised by MCA and MSME, Government of India." },
+  { q: "Do I get certificates?", a: "Absolutely. Every course you complete earns you a verifiable certificate with a unique ID-issued by ExpoGraph, recognized by MCA & MSME, Government of India, with AICTE-approved internships." },
   { q: "Is there community support?", a: "Yes! Join our community on Instagram, YouTube, and LinkedIn. Connect with fellow users, get tips, and stay updated on new courses and opportunities." },
   { q: "How is ExpoGraph different from other platforms?", a: "Unlike generic platforms, ExpoGraph focuses on 3 cutting-edge courses-Vibe Coding, Prompt Engineering & AI Automations-with real client projects, smart AI prompts, and a resume builder. Everything you need to actually get hired, not just learn theory." },
 ];
@@ -360,17 +360,18 @@ export default function AcademyPage() {
         </div>
       </section>
 
-      {/* Officially Recognised — MCA & MSME */}
+      {/* Officially Recognised — MCA, MSME & AICTE */}
       <section
         className="py-8 sm:py-10 md:py-12 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-24"
         style={{ backgroundColor: "#000000" }}
       >
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center gap-4 sm:gap-5">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Officially Recognised</h2>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Officially Recognised &amp; Approved</h2>
           <p className="text-sm sm:text-base text-white/55 max-w-2xl leading-relaxed">
             ExpoGraph is recognised by{" "}
             <span className="text-white/90 font-medium">MCA</span> (Ministry of Corporate Affairs) and{" "}
-            <span className="text-white/90 font-medium">MSME</span> (Ministry of Micro, Small &amp; Medium Enterprises), Government of India.
+            <span className="text-white/90 font-medium">MSME</span> (Ministry of Micro, Small &amp; Medium Enterprises), Government of India, and offers{" "}
+            <span className="text-white/90 font-medium">AICTE-approved</span> technical internships.
           </p>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-6 sm:gap-10 rounded-2xl border border-white/[0.06] bg-white/[0.02] px-8 sm:px-12 py-8 sm:py-10 w-full">
             <div className="flex flex-col items-center gap-3 flex-1 min-w-0">
@@ -405,6 +406,24 @@ export default function AcademyPage() {
               <div>
                 <p className="text-base sm:text-lg font-semibold text-emerald-400">MSME</p>
                 <p className="text-xs sm:text-sm text-white/55 mt-0.5">Micro, Small &amp; Medium Enterprises</p>
+              </div>
+            </div>
+            <div className="hidden sm:block w-px self-stretch min-h-[140px] bg-white/10 shrink-0" aria-hidden />
+            <div className="sm:hidden h-px w-full max-w-[200px] mx-auto bg-white/10 shrink-0" aria-hidden />
+            <div className="flex flex-col items-center gap-3 flex-1 min-w-0">
+              <div className="shrink-0 rounded-xl bg-white p-3 sm:p-4 shadow-sm shadow-black/20 flex items-center justify-center">
+                <img
+                  src={AICTE_LOGO_URL}
+                  alt="All India Council for Technical Education"
+                  className="h-14 sm:h-16 md:h-20 w-auto max-w-[200px] object-contain"
+                  referrerPolicy="no-referrer"
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
+              <div>
+                <p className="text-base sm:text-lg font-semibold text-cyan-400">AICTE</p>
+                <p className="text-xs sm:text-sm text-white/55 mt-0.5">Approved Technical Internships</p>
               </div>
             </div>
           </div>
@@ -529,7 +548,7 @@ export default function AcademyPage() {
             </span>
           </h2>
           <p className="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-white/60 max-w-2xl mx-auto">
-            Every course you complete comes with a verifiable certificate recognised by MCA &amp; MSME-yours for just{" "}
+            Every course you complete comes with a verifiable certificate recognised by MCA &amp; MSME with AICTE approval-yours for just{" "}
             <span className="text-amber-400 font-semibold">₹99</span>
           </p>
         </div>
@@ -602,13 +621,24 @@ export default function AcademyPage() {
                         decoding="async"
                       />
                     </div>
+                    <div className="rounded-lg bg-white p-1 shadow-md ring-2 ring-black/40">
+                      <img
+                        src={AICTE_LOGO_URL}
+                        alt="AICTE Logo"
+                        width={72}
+                        height={28}
+                        className="h-7 w-auto max-w-[80px] object-contain"
+                        referrerPolicy="no-referrer"
+                        decoding="async"
+                      />
+                    </div>
                   </div>
                   
                 </div>
                 <div className="min-w-0">
-                    <h4 className="text-sm sm:text-base font-semibold text-white mb-1">Recognised by MCA &amp; MSME</h4>
+                    <h4 className="text-sm sm:text-base font-semibold text-white mb-1">Recognised by MCA, MSME &amp; AICTE Approved</h4>
                     <p className="text-xs sm:text-sm text-white/60 leading-relaxed">
-                      ExpoGraph is recognised by MCA (Corporate Affairs) and MSME (Micro, Small &amp; Medium Enterprises), Government of India-your certificates carry institutional trust.
+                      ExpoGraph is recognised by MCA (Corporate Affairs) and MSME (Micro, Small &amp; Medium Enterprises), Government of India, and offers AICTE-approved technical internships-your certificates carry institutional trust.
                     </p>
                   </div>
               </div>
@@ -662,7 +692,7 @@ export default function AcademyPage() {
                   </span>
                 </h2>
                 <p className="mt-3 sm:mt-4 text-sm sm:text-base text-white/60 max-w-lg mx-auto md:mx-0 leading-relaxed">
-                  Other platforms charge ₹5,000–₹50,000 for generic tutorials. At ExpoGraph, you get Vibe Coding, Prompt Engineering & AI Automations-structured courses with smart prompts, a resume builder, MCA- &amp; MSME-recognised certificates &amp; real client projects-all for a price anyone can afford.
+                  Other platforms charge ₹5,000–₹50,000 for generic tutorials. At ExpoGraph, you get Vibe Coding, Prompt Engineering & AI Automations-structured courses with smart prompts, a resume builder, AICTE-approved, MCA- &amp; MSME-recognised certificates &amp; real client projects-all for a price anyone can afford.
                 </p>
               </div>
               <div className="flex flex-row md:flex-col items-center gap-4 sm:gap-5 shrink-0">
@@ -838,7 +868,7 @@ export default function AcademyPage() {
               <span className="text-white/30">·</span>
               <span>3 courses + pack</span>
               <span className="text-white/30">·</span>
-              <span>MCA &amp; MSME certificates</span>
+              <span>AICTE Approved • MCA &amp; MSME certificates</span>
               <span className="text-white/30">·</span>
               <span>Resume builder</span>
             </div>

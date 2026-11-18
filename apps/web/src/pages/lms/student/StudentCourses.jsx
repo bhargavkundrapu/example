@@ -694,7 +694,7 @@ export default function StudentCourses() {
                     <span className={isDark ? "font-medium text-purple-300/95" : "font-medium text-purple-800"}>
                       Real Client Lab
                     </span>
-                    , and MCA- & MSME-recognised certificates - usually cheaper than buying the remaining courses separately.
+                    , and AICTE-approved, MCA- & MSME-recognised certificates - usually cheaper than buying the remaining courses separately.
                   </p>
                   {allPackPriceRupees != null && allPackPriceRupees >= 1 && (
                     <p className={`mt-2 text-sm font-semibold ${isDark ? "text-emerald-300/90" : "text-emerald-700"}`}>

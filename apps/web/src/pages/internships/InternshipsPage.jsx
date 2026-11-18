@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Header } from "../../Components/ui/header-2";
 import FlowTubesFooterInner from "../../Components/ui/FlowTubesFooterInner";
-import { MCA_LOGO_URL, MSME_LOGO_URL } from "../../constants/trustLogos";
+import { MCA_LOGO_URL, MSME_LOGO_URL, AICTE_LOGO_URL } from "../../constants/trustLogos";
 import { SITE_CONTACT } from "../../config/siteContact";
 import {
   FiCheckCircle,
@@ -137,7 +137,7 @@ const AICTE_PILLARS = [
     description:
       "Prior to commencing work, students receive a formal Internship Offer Letter on ExpoGraph corporate letterhead detailing their assigned engineering domain, designated industry mentor, exact duration, credit hours commitment, and intellectual property/NDA terms.",
     keyPoints: [
-      "Official corporate registration (MCA & MSME) citations",
+      "Official corporate registration (MCA, MSME & AICTE Approval) citations",
       "Explicit start date, end date, and scheduled hours (160h–960h)",
       "Authorized signatory corporate seal & digital verification link",
     ],
@@ -200,10 +200,10 @@ const AICTE_PILLARS = [
     title: "Verifiable Certificate with Unique ID & QR",
     subtitle: "Tamper-proof academic credential",
     description:
-      "Graduating interns receive an authentic Certificate of Completion with a cryptographically verifiable Certificate ID and instant QR code. Evaluators can confirm validity 24/7 on expograph.in, along with MCA & MSME institutional credentials.",
+      "Graduating interns receive an authentic Certificate of Completion with a cryptographically verifiable Certificate ID and instant QR code. Evaluators can confirm validity 24/7 on expograph.in, along with AICTE-approved, MCA & MSME institutional credentials.",
     keyPoints: [
       "Instant 24/7 public certificate verification portal",
-      "Government-recognized MCA and MSME logos and registration details",
+      "Government-recognized AICTE, MCA, and MSME logos and registration details",
       "Includes total hours completed and AICTE credit equivalence statement",
     ],
     badge: "Permanent Credential",
@@ -302,7 +302,7 @@ const DOWNLOAD_TEMPLATES = [
 const FAQS = [
   {
     q: "Are ExpoGraph internships recognized by AICTE-approved colleges and universities for academic credits?",
-    a: "Yes. ExpoGraph is a formally registered entity under the Ministry of Corporate Affairs (MCA), Government of India, and is recognized under the Ministry of MSME (Udyam Verified). Our internship programs strictly adhere to the AICTE Internship Policy, National Education Policy (NEP 2020), and National Credit Framework (NCrF) guidelines. Every intern receives the complete documentation package required by college academic councils: Official Stamped Offer Letter, AICTE Clause 5.3 Daily Activity Diary, Attendance Audit, Comprehensive Project Report, 100-Point Industry Evaluation Rubric, and Verifiable Certificate of Completion with unique ID.",
+    a: "Yes. ExpoGraph is a formally registered entity under the Ministry of Corporate Affairs (MCA), Government of India, and is recognized under the Ministry of MSME (Udyam Verified), offering AICTE-approved technical internships. Our internship programs strictly adhere to the AICTE Internship Policy, National Education Policy (NEP 2020), and National Credit Framework (NCrF) guidelines. Every intern receives the complete documentation package required by college academic councils: Official Stamped Offer Letter, AICTE Clause 5.3 Daily Activity Diary, Attendance Audit, Comprehensive Project Report, 100-Point Industry Evaluation Rubric, and Verifiable Certificate of Completion with unique ID.",
   },
   {
     q: "How are the academic credits calculated according to AICTE norms?",
@@ -390,7 +390,7 @@ export default function InternshipsPage() {
         domain: "AI Automations & Vibe Coding Track",
         duration: "8 Weeks (320 Hours)",
         credits: "8 AICTE Credits",
-        entity: "ExpoGraph (MCA & MSME Recognized)",
+        entity: "ExpoGraph (AICTE Approved, MCA & MSME Recognized)",
         statusText: "Successfully Verified & In Compliance with AICTE Norms",
       });
     } else {
@@ -400,7 +400,7 @@ export default function InternshipsPage() {
         name: "Demo Verification Preview",
         domain: "Vibe Coding & Full-Stack Systems",
         duration: "8 Weeks (320 Hours - 8 Credits)",
-        entity: "ExpoGraph (Ministry of Corporate Affairs & MSME Registered)",
+        entity: "ExpoGraph (AICTE Approved, Ministry of Corporate Affairs & MSME Registered)",
         statusText: "Format Valid. Enter official Certificate ID (e.g. EXP-INT-XXXX) for individual records.",
       });
     }
@@ -485,7 +485,7 @@ export default function InternshipsPage() {
             </span>
             <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
               <FiCheckCircle className="w-3.5 h-3.5" />
-              MCA &amp; MSME Registered
+              AICTE Approved • MCA &amp; MSME Registered
             </span>
           </div>
 
@@ -515,9 +515,9 @@ export default function InternshipsPage() {
               <img src={MSME_LOGO_URL} alt="MSME Government of India" className="h-6 w-auto object-contain" />
               <span className="font-medium text-white/80">MSME Udyam Verified</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/10">
-              <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
-              <span className="font-medium text-white/80">AICTE Internship Portal Aligned</span>
+            <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/10">
+              <img src={AICTE_LOGO_URL} alt="All India Council for Technical Education" className="h-6 w-auto object-contain rounded-full bg-white p-0.5" />
+              <span className="font-medium text-white/80">AICTE Approved Internships</span>
             </div>
           </div>
 
@@ -614,7 +614,7 @@ export default function InternshipsPage() {
               <div className="space-y-1.5">
                 <p className="text-xs font-semibold text-white/40 uppercase tracking-wider">AICTE Portal Alignment</p>
                 <p className="text-sm sm:text-base font-semibold text-cyan-400">Employer / Industry Partner</p>
-                <p className="text-xs text-white/50">Aliged with internship.aicte-india.org national ecosystem</p>
+                <p className="text-xs text-white/50">Aligned with internship.aicte-india.org national ecosystem</p>
               </div>
 
               <div className="space-y-1.5">
@@ -1501,7 +1501,7 @@ export default function InternshipsPage() {
                 {`[OFFICIAL SPECIMEN FORMAT]\n`}
                 {`Document: ${activeModalTemplate.title}\n`}
                 {`Compliance: ${activeModalTemplate.clause}\n`}
-                {`Issuing Entity: ExpoGraph (MCA & MSME Registered)\n`}
+                {`Issuing Entity: ExpoGraph (AICTE Approved, MCA & MSME Registered)\n`}
                 {`--------------------------------------------------\n`}
                 {activeModalTemplate.contentPreview}
                 {`\n\n[Full editable Word DOCX / PDF template is provided upon internship onboarding or TPO dispatch.]`}

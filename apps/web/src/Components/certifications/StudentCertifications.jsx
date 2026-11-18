@@ -7,7 +7,7 @@ import { apiFetch, ApiError } from "../../services/api";
 import { GenericPageSkeleton } from "../common/SkeletonLoaders";
 import { Badge } from "../ui/badge";
 import { FiAward, FiDownload, FiLock, FiCheckCircle, FiClock } from "react-icons/fi";
-import { MCA_LOGO_URL, MSME_LOGO_URL } from "../../constants/trustLogos";
+import { MCA_LOGO_URL, MSME_LOGO_URL, AICTE_LOGO_URL } from "../../constants/trustLogos";
 
 const ELIGIBLE_URL = "/api/v1/certifications/eligible";
 const REQUEST_URL = "/api/v1/certifications/request";
@@ -539,6 +539,25 @@ export default function StudentCertifications() {
         doc.addImage(mcaPngDataUrl, "PNG", mcaX, markY, mcaW, mcaH);
       } catch {
         // Ignore image fetch failures to avoid blocking certificate download.
+      }
+
+      // Bottom-left: AICTE Approved trust badge
+      try {
+        const aictePngDataUrl = await imageUrlToPngDataUrl(AICTE_LOGO_URL);
+        const aicteSize = 52;
+        const aicteX = margin + 20;
+        const aicteY = markY - 10;
+        doc.addImage(aictePngDataUrl, "PNG", aicteX, aicteY, aicteSize, aicteSize);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8.5);
+        doc.setTextColor(30, 41, 59);
+        doc.text("AICTE APPROVED", aicteX + aicteSize / 2, aicteY + aicteSize + 11, { align: "center" });
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7);
+        doc.setTextColor(100, 116, 139);
+        doc.text("Technical Internships", aicteX + aicteSize / 2, aicteY + aicteSize + 20, { align: "center" });
+      } catch {
+        // Ignore AICTE mark if fetch fails
       }
 
       const fileName = `${sanitizeFileName(recipientName)}-${sanitizeFileName(courseTitle)}-certificate.pdf`;

@@ -115,7 +115,7 @@ const contentBlocks: ContentBlock[] = [
     title: "Show the world",
     body: (
       <>
-        You finish with a <strong className="text-fuchsia-300">portfolio of real work</strong>, a <strong className="text-fuchsia-300">resume</strong> built with our Resume Builder, and <strong className="text-fuchsia-300">MCA- & MSME-recognised certificates</strong>. You're not just 'someone who took a course'-you're someone with proof. Ready for the next step.
+        You finish with a <strong className="text-fuchsia-300">portfolio of real work</strong>, a <strong className="text-fuchsia-300">resume</strong> built with our Resume Builder, and <strong className="text-fuchsia-300">AICTE-approved, MCA- & MSME-recognised certificates</strong>. You're not just 'someone who took a course'-you're someone with proof. Ready for the next step.
       </>
     ),
     scenario: "Real-world: When someone says 'show me what you've built', you have a link and a certificate-no awkward silence.",

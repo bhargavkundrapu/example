@@ -79,7 +79,7 @@ export const COURSE_EXPLORE_DATA = {
       "Image Prompting",
       "Video Scripts",
     ],
-    bullets: ["GCCF framework", "10 modules", "MCA- & MSME-recognised certificate", "Hands-on practice"],
+    bullets: ["GCCF framework", "10 modules", "AICTE-approved, MCA- & MSME-recognised certificate", "Hands-on practice"],
   },
   "vibe-coding": {
     slug: "vibe-coding",
@@ -145,7 +145,7 @@ export const COURSE_EXPLORE_DATA = {
       "Render",
       "Tailwind CSS",
     ],
-    bullets: ["Smart prompts included", "62+ structured lessons", "MCA- & MSME-recognised certificate", "Portfolio projects"],
+    bullets: ["Smart prompts included", "62+ structured lessons", "AICTE-approved, MCA- & MSME-recognised certificate", "Portfolio projects"],
   },
   "prompt-to-profit": {
     slug: "prompt-to-profit",
@@ -233,7 +233,7 @@ export const COURSE_EXPLORE_DATA = {
       "Ad Copy",
       "Client Communication",
     ],
-    bullets: ["108 lessons", "19 modules", "Business prompt playbook", "MCA- & MSME-recognised certificate"],
+    bullets: ["108 lessons", "19 modules", "Business prompt playbook", "AICTE-approved, MCA- & MSME-recognised certificate"],
   },
   "ai-automations": {
     slug: "ai-automations",
@@ -302,7 +302,7 @@ export const COURSE_EXPLORE_DATA = {
       "Add automation skills (AI Automations) as a bonus-no extra cost",
       "Work on real client-style projects in Real Client Lab so your portfolio is real, not just exercises",
       "Create a resume that highlights your new skills and projects in a way recruiters understand",
-      "Earn MCA- & MSME-recognised certificates for each course you complete",
+      "Earn AICTE-approved, MCA- & MSME-recognised certificates for each course you complete",
       "Go from 'I want to learn' to 'I've built, automated, and marketed-and I can show it'",
     ],
     realWorldScenarios: [
@@ -316,7 +316,7 @@ export const COURSE_EXPLORE_DATA = {
       "AI Automations-free bonus, not sold separately",
       "Real Client Lab-work on real client projects",
       "Resume Builder-portfolio-ready resume",
-      "MCA- & MSME-recognised certificates for all courses",
+      "AICTE-approved, MCA- & MSME-recognised certificates for all courses",
       "Priority support",
     ],
     whatIs: "The All Pack is every ExpoGraph course in one: Vibe Coding, Prompt Engineering, Prompt to Profit, and AI Automations (bonus). You also get Real Client Lab for real projects and a Resume Builder-so you learn and show it.",

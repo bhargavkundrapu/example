@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Header } from "../../Components/ui/header-2";
-import { MCA_LOGO_URL, MSME_LOGO_URL } from "../../constants/trustLogos";
+import { MCA_LOGO_URL, MSME_LOGO_URL, AICTE_LOGO_URL } from "../../constants/trustLogos";
 
 export const LOGO_URL = "https://res.cloudinary.com/da2wrgabu/image/upload/v1772253658/Graph_2_pbetc4.png";
 export const ICON_URL = "https://res.cloudinary.com/da2wrgabu/image/upload/v1772280495/e_x_1_m5jb9s.png";
@@ -165,6 +165,16 @@ export default function AuthLoginLayout({
                       decoding="async"
                     />
                   </div>
+                  <div className="rounded-lg bg-white p-1.5 shadow-sm shadow-black/25">
+                    <img
+                      src={AICTE_LOGO_URL}
+                      alt="All India Council for Technical Education"
+                      className="h-8 sm:h-9 w-auto max-w-[120px] object-contain"
+                      referrerPolicy="no-referrer"
+                      loading="eager"
+                      decoding="async"
+                    />
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 justify-center lg:justify-start">
                   <svg className="w-4 h-4 shrink-0 text-amber-400/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -172,7 +182,7 @@ export default function AuthLoginLayout({
                     <path d="M9 12l2 2 4-4" />
                   </svg>
                   <span className={`text-xs text-center lg:text-left leading-snug ${isLight ? "text-slate-500" : "text-white/35"}`}>
-                    Recognised by MCA &amp; MSME, Government of India
+                    Recognised by MCA &amp; MSME | AICTE Approved Internships
                   </span>
                 </div>
               </div>
@@ -265,6 +275,16 @@ export default function AuthLoginLayout({
                       decoding="async"
                     />
                   </div>
+                  <div className="rounded-md bg-white p-1">
+                    <img
+                      src={AICTE_LOGO_URL}
+                      alt=""
+                      className="h-7 w-auto max-w-[90px] object-contain"
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
                 </div>
                 <div className={`flex items-center gap-2 px-4 py-2 rounded-full max-w-sm ${isLight ? "border border-slate-200 bg-white" : "border border-white/[0.06] bg-white/[0.02]"}`}>
                   <svg className="w-3.5 h-3.5 shrink-0 text-amber-400/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -272,7 +292,7 @@ export default function AuthLoginLayout({
                     <path d="M9 12l2 2 4-4" />
                   </svg>
                   <span className={`text-[11px] text-center leading-snug ${isLight ? "text-slate-500" : "text-white/35"}`}>
-                    Recognised by MCA &amp; MSME, Government of India
+                    Recognised by MCA &amp; MSME | AICTE Approved Internships
                   </span>
                 </div>
               </div>

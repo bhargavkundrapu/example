@@ -184,7 +184,7 @@ export function resolveSeo(pathname) {
                 "name": "Do I get certificates?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Absolutely. Every course you complete earns you a verifiable certificate with a unique ID-issued by ExpoGraph, a company recognised by MCA and MSME, Government of India."
+                  "text": "Absolutely. Every course you complete earns you a verifiable certificate with a unique ID-issued by ExpoGraph, a company recognised by MCA and MSME, Government of India, with AICTE-approved internships."
                 }
               },
               {
@@ -425,7 +425,7 @@ export function resolveSeo(pathname) {
     return {
       title: "AICTE Approved Internships & Academic Credits | ExpoGraph",
       description:
-        "AICTE-compliant, credit-bearing technical internships in AI Automations, Vibe Coding, and Generative AI. Official MCA & MSME registered organization with dual mentorship, Clause 5.3 daily logbooks, attendance audits, and verifiable certificates.",
+        "AICTE-approved, credit-bearing technical internships in AI Automations, Vibe Coding, and Generative AI. Official MCA & MSME registered organization with dual mentorship, Clause 5.3 daily logbooks, attendance audits, and verifiable certificates.",
       robots,
       canonicalPath: "/internship",
       jsonLd: {

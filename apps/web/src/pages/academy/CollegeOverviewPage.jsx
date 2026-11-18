@@ -164,10 +164,11 @@ export default function CollegeOverviewPage() {
             <span className="px-3 py-1.5 rounded-full text-xs font-semibold border border-white/15 bg-white/[0.04] text-white/80">For colleges &amp; higher faculty</span>
             <span className="px-3 py-1.5 rounded-full text-xs font-semibold border border-cyan-400/25 bg-cyan-400/10 text-cyan-200">MCA registered</span>
             <span className="px-3 py-1.5 rounded-full text-xs font-semibold border border-emerald-400/25 bg-emerald-400/10 text-emerald-200">MSME / Udyam registered</span>
+            <span className="px-3 py-1.5 rounded-full text-xs font-semibold border border-blue-400/25 bg-blue-400/10 text-blue-200">AICTE approved internships</span>
             <span className="px-3 py-1.5 rounded-full text-xs font-semibold border border-violet-400/25 bg-violet-400/10 text-violet-200">Build-first learning</span>
           </div>
           <p className="mt-6 text-xs sm:text-sm text-white/45 max-w-2xl leading-relaxed">
-            ExpoGraph is a formally registered business entity with MCA and MSME/Udyam registration. This page describes programme design and tooling—not government approval or recognition of certificates unless separately verified.
+            ExpoGraph is a formally registered business entity with MCA and MSME/Udyam registration offering AICTE-approved technical internships. This page describes programme design and tooling—not government approval or recognition of certificates unless separately verified.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
             <a
